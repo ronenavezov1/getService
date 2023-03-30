@@ -1,15 +1,13 @@
-import { AppProps, type AppType } from "next/app";
-import { SessionProvider, useSession } from "next-auth/react";
+import { type AppProps } from "next/app";
+import { SessionProvider, signIn, useSession } from "next-auth/react";
 import "~/styles/globals.css";
-import RequireUser from "~/components/RequireUser";
 
-import type { NextComponentType } from "next"; //Import Component type
+import type { NextComponentType, PageWithAuth } from "next"; //Import Component type
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 
-//Add custom appProp type then use union to add it
 type AuthAppProps = AppProps & {
-  Component: NextComponentType & { auth?: boolean }; // add auth type
+  Component: NextComponentType & PageWithAuth; // add auth type
 };
 
 const MyApp = ({
@@ -29,8 +27,11 @@ const MyApp = ({
   );
 };
 
-function Auth({ children }: { children: ReactNode }) {
-  // if `{ required: true }` is supplied, `status` can only be "loading" or "authenticated"
+type AuthProps = {
+  children: ReactNode;
+};
+
+function Auth({ children }: AuthProps) {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
 
@@ -38,8 +39,26 @@ function Auth({ children }: { children: ReactNode }) {
     return <div>Loading...</div>;
   }
 
-  if (session && !session.user) router.push("/onboarding/completeDetails");
-  return <>{session.user && children}</>;
+  if (!session) {
+    signIn();
+    return null;
+  }
+
+  if (!session.user) {
+    router.push("/onboarding/completeDetails");
+    return null;
+  }
+
+  const pageAuth = (children as any).type.auth;
+  const { requiredRole } = pageAuth;
+
+  console.log("session.user.role", session.user.role, requiredRole);
+
+  if (session.user.role !== requiredRole) {
+    return <div> Unauthorized </div>; //change to unauthorized page?
+  }
+
+  return <>{children}</>;
 }
 
 export default MyApp;

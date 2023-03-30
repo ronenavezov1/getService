@@ -1,9 +1,12 @@
+import { NextPageWithAuth } from "next";
 import React from "react";
 
-const test = () => {
+const TestPage = () => {
   return <div>test</div>;
 };
 
-test.auth = true;
+TestPage.auth = {
+  requiredRole: "admin",
+};
 
-export default test;
+export default TestPage;

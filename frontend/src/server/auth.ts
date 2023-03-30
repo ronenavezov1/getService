@@ -17,13 +17,13 @@ import { env } from "~/env.mjs";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user:
-      | ({
-          id: unknown;
-          // ...other properties
-          // role: UserRole;
-        } & DefaultSession["user"])
-      | null;
+    user: any;
+    //     | ({
+    //       id: unknown;
+    //       // ...other properties
+    //       // role: UserRole;
+    //     } & DefaultSession["user"])
+    // | null;
     jwtToken: JWT;
   }
 
@@ -108,7 +108,7 @@ export const getServerAuthSession = (ctx: {
  */
 async function setUserFromDb(session: Session) {
   //TODO: change url to backend
-  const userRes = await fetch(`${env.BASE_API_URL}/users`, {
+  const userRes = await fetch(`${env.BASE_API_URL}/test/1`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

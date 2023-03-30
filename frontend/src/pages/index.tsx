@@ -8,7 +8,6 @@ const Home: NextPageWithAuth = () => {
     return (
       <>
         Signed in as {JSON.stringify(session)} <br />
-        {}
         <button onClick={() => signOut()}>Sign out</button>
       </>
     );
@@ -20,6 +19,5 @@ const Home: NextPageWithAuth = () => {
     </>
   );
 };
-Home.auth = true;
 
 export default Home;
