@@ -1,7 +1,7 @@
-import { type NextPage } from "next";
+import { type NextPageWithAuth } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 
-const Home: NextPage = () => {
+const Home: NextPageWithAuth = () => {
   const { data: session } = useSession();
 
   if (session) {
@@ -20,5 +20,6 @@ const Home: NextPage = () => {
     </>
   );
 };
+Home.auth = true;
 
 export default Home;

@@ -108,7 +108,7 @@ export const getServerAuthSession = (ctx: {
  */
 async function setUserFromDb(session: Session) {
   //TODO: change url to backend
-  const userRes = await fetch(`${env.BASE_API_URL}/users/`, {
+  const userRes = await fetch(`${env.BASE_API_URL}/users`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

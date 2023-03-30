@@ -9,6 +9,7 @@ const completeDetails = () => {
   const { data: session } = useSession(); //replace with user query
   const formHook = useForm({
     defaultValues: {
+      //TODO: update with user data
       name: "",
       phone: "123",
     },
@@ -52,6 +53,8 @@ const completeDetails = () => {
         <Header />
         <NameInput />
         <PhoneInput />
+        <IdInput />
+        <AddressInput />
 
         <div>
           <input
@@ -127,6 +130,66 @@ const PhoneInput: FC = () => {
       <ErrorMessage
         errors={errors}
         name="phone"
+        render={({ message }) => (
+          <p className=" p-1 text-xs text-red-600">{message}</p>
+        )}
+      />
+    </div>
+  );
+};
+
+const IdInput: FC = () => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
+  return (
+    <div>
+      <label
+        htmlFor="id"
+        className="mb-2 block text-sm font-bold text-gray-700"
+      >
+        ID number
+      </label>
+      <input
+        id="id"
+        {...register("id", { required: "ID is required " })}
+        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+      />
+      <ErrorMessage
+        errors={errors}
+        name="id"
+        render={({ message }) => (
+          <p className=" p-1 text-xs text-red-600">{message}</p>
+        )}
+      />
+    </div>
+  );
+};
+
+const AddressInput: FC = () => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
+  return (
+    <div>
+      <label
+        htmlFor="address"
+        className="mb-2 block text-sm font-bold text-gray-700"
+      >
+        Address
+      </label>
+      <input
+        id="address"
+        {...register("address", { required: "ID is required " })}
+        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+      />
+      <ErrorMessage
+        errors={errors}
+        name="address"
         render={({ message }) => (
           <p className=" p-1 text-xs text-red-600">{message}</p>
         )}

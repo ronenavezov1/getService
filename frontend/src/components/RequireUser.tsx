@@ -13,7 +13,7 @@ const RequireUser = ({ children }: RequireUserProps) => {
   if (status === "loading") return <div>loading...</div>;
   if (status === "unauthenticated") signIn();
 
-  if (session && !session.user) router.push();
+  if (session && !session.user) router.push("/onboarding/completeDetails");
 
   //TOOD add check for full user and redirect to profile page if not complete
 
