@@ -39,11 +39,6 @@ function Auth({ children }: AuthProps) {
     return <div>Loading...</div>;
   }
 
-  if (!session) {
-    signIn();
-    return null;
-  }
-
   if (!session.user) {
     router.push("/onboarding/completeDetails");
     return null;
@@ -51,8 +46,6 @@ function Auth({ children }: AuthProps) {
 
   const pageAuth = (children as any).type.auth;
   const { requiredRole } = pageAuth;
-
-  console.log("session.user.role", session.user.role, requiredRole);
 
   if (session.user.role !== requiredRole) {
     return <div> Unauthorized </div>; //change to unauthorized page?
