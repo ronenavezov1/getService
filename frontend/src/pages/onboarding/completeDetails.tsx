@@ -4,12 +4,12 @@ import { useRouter } from "next/router";
 import { FC } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 
-const profile = () => {
+const completeDetails = () => {
   const router = useRouter();
   const { data: session } = useSession(); //replace with user query
   const formHook = useForm({
     defaultValues: {
-      name: session?.user.name ?? "",
+      name: "",
       phone: "123",
     },
     mode: "onChange",
@@ -25,6 +25,7 @@ const profile = () => {
     phone: string;
   };
 
+  //TODO: fix this
   const onSubmit = async (data: userInputs) => {
     const test = await fetch(`https://pokeapi.co/api/v2/pokemon/${data.phone}`);
     const res = await test.json();
@@ -134,4 +135,4 @@ const PhoneInput: FC = () => {
   );
 };
 
-export default profile;
+export default completeDetails;

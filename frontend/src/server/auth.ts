@@ -4,6 +4,8 @@ import {
   type NextAuthOptions,
   type DefaultSession,
 } from "next-auth";
+import { Session } from "next-auth/core/types";
+import { JWT } from "next-auth/jwt/types";
 import GoogleProvider from "next-auth/providers/google";
 import { env } from "~/env.mjs";
 
@@ -15,12 +17,14 @@ import { env } from "~/env.mjs";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: {
-      id: string | undefined;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
-    accessToken: string | undefined;
+    user:
+      | ({
+          id: unknown;
+          // ...other properties
+          // role: UserRole;
+        } & DefaultSession["user"])
+      | null;
+    jwtToken: JWT;
   }
 
   // interface User {
@@ -47,23 +51,23 @@ export const authOptions: NextAuthOptions = {
         token.accessToken = account.access_token;
 
         //debugging
-        console.log("token", token);
-        console.log("account", account);
-        console.log("profile", profile);
-        console.log("user", user);
+        // console.log("token", token);
+        // console.log("account", account);
+        // console.log("profile", profile);
+        // console.log("user", user);
       }
 
       if (user) {
         token.id = user.id;
       }
+
       return token;
     },
 
+    // Send properties to the client, like an access_token and user id from a provider.
     async session({ session, token }) {
-      // Send properties to the client, like an access_token and user id from a provider.
-      // session.accessToken = token.accessToken as string | undefined;
-      // session.user.id = token.id as string | undefined;
-
+      session.jwtToken = token;
+      await setUserFromDb(session);
       return session;
     },
   },
@@ -96,3 +100,27 @@ export const getServerAuthSession = (ctx: {
 }) => {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
+
+/**
+ * Fetches the user from the database and sets it on the session.
+ * On failure, the user is set to null.
+ * @param session
+ */
+async function setUserFromDb(session: Session) {
+  //TODO: change url to backend
+  const userRes = await fetch(`${env.BASE_API_URL}/users/`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!userRes.ok) {
+    console.log("NextAuth:Failed to fetch user"); //debugging
+    session.user = null;
+    return;
+  }
+
+  const user = await userRes.json();
+  session.user = user;
+}
