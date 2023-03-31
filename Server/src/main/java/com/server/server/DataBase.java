@@ -35,13 +35,4 @@ public class DataBase {
         return ds.getConnection();
     }
 
-    public static void test(){
-        try(Connection connection = getConnection()){
-            try(PreparedStatement statement = connection.prepareStatement("select * from test")){
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
