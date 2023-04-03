@@ -1,5 +1,5 @@
-import { type NextPageWithAuth } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { NextPageWithAuth } from "./_app";
 
 const Home: NextPageWithAuth = () => {
   const { data: session } = useSession();

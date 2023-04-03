@@ -108,19 +108,25 @@ export const getServerAuthSession = (ctx: {
  */
 async function setUserFromDb(session: Session) {
   //TODO: change url to backend
-  const userRes = await fetch(`${env.BASE_API_URL}/test/2`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
 
-  if (!userRes.ok) {
-    console.log("NextAuth:Failed to fetch user"); //debugging
+  try {
+    const userRes = await fetch(`${env.BASE_API_URL}/test/1`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!userRes.ok) {
+      console.log("NextAuth:Failed to fetch user"); //debugging
+      session.user = null;
+      return;
+    }
+
+    const user = await userRes.json();
+    session.user = user;
+  } catch (err) {
+    console.log("NextAuth:Failed to fetch user", err); //debugging
     session.user = null;
-    return;
   }
-
-  const user = await userRes.json();
-  session.user = user;
 }

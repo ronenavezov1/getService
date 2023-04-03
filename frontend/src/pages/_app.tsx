@@ -1,14 +1,25 @@
 import { type AppProps } from "next/app";
-import { SessionProvider, signIn, useSession } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import "~/styles/globals.css";
-
-import type { NextComponentType, PageWithAuth } from "next"; //Import Component type
+import type { NextComponentType, NextPage } from "next"; //Import Component type
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 
 type AuthAppProps = AppProps & {
-  Component: NextComponentType & PageWithAuth; // add auth type
+  Component: NextComponentType & PageWithAuth;
 };
+
+export type PageWithAuth = {
+  auth?: {
+    requiredRole: string;
+  };
+};
+
+export type NextPageWithAuth<Props = {}, InitialProps = Props> = NextPage<
+  Props,
+  InitialProps
+> &
+  PageWithAuth;
 
 const MyApp = ({
   Component,

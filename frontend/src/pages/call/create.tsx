@@ -1,4 +1,4 @@
-import { type NextPageWithAuth } from "next";
+import { NextPageWithAuth } from "../_app";
 
 const Create: NextPageWithAuth = () => {
   return <div>call/create</div>;

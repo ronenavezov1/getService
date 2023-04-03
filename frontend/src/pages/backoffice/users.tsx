@@ -1,4 +1,4 @@
-import { type NextPageWithAuth } from "next";
+import { NextPageWithAuth } from "../_app";
 
 const Users: NextPageWithAuth = () => {
   return <div>backoffice/users</div>;
