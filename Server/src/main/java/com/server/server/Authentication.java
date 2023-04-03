@@ -6,7 +6,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 public class Authentication {
     private static final String senderUsername = "ronigeogenie@gmail.com";
-    private static final String senderPassword = "lilajlxgycicnqwf";
+    private static final String senderPassword = "";
     public static boolean isNullOrEmpty(String... strings){
         for (String string : strings) {
             if (string == null || string.isEmpty())
