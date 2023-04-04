@@ -17,20 +17,14 @@ import { env } from "~/env.mjs";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: any;
-    //     | ({
-    //       id: unknown;
-    //       // ...other properties
-    //       // role: UserRole;
-    //     } & DefaultSession["user"])
-    // | null;
+    //TODO: add user interface instead of any
+    user: any & DefaultSession["user"];
     jwtToken: JWT;
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    role: string;
+  }
 }
 
 /**
@@ -51,10 +45,10 @@ export const authOptions: NextAuthOptions = {
         token.accessToken = account.access_token;
 
         //debugging
-        // console.log("token", token);
-        // console.log("account", account);
-        // console.log("profile", profile);
-        // console.log("user", user);
+        console.log("token", token);
+        console.log("account", account);
+        console.log("profile", profile);
+        console.log("user", user);
       }
 
       if (user) {
@@ -107,7 +101,7 @@ export const getServerAuthSession = (ctx: {
  * @param session
  */
 async function setUserFromDb(session: Session) {
-  //TODO: change url to backend
+  //TODO: implement this
 
   try {
     const userRes = await fetch(`${env.BASE_API_URL}/test/1`, {
@@ -118,7 +112,7 @@ async function setUserFromDb(session: Session) {
     });
 
     if (!userRes.ok) {
-      console.log("NextAuth:Failed to fetch user"); //debugging
+      console.log("NextAuth:!userRes.ok"); //debugging
       session.user = null;
       return;
     }

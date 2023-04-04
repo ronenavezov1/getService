@@ -9,7 +9,8 @@ type AuthAppProps = AppProps & {
   Component: NextComponentType & PageWithAuth;
 };
 
-export type PageWithAuth = {
+// new page type
+type PageWithAuth = {
   auth?: {
     requiredRole: string;
   };
@@ -50,7 +51,7 @@ function Auth({ children }: AuthProps) {
     return <div>Loading...</div>;
   }
 
-  if (!session.user) {
+  if (session.user) {
     router.push("/onboarding/completeDetails");
     return null;
   }
@@ -58,7 +59,7 @@ function Auth({ children }: AuthProps) {
   const pageAuth = (children as any).type.auth;
   const { requiredRole } = pageAuth;
 
-  if (session.user.role !== requiredRole) {
+  if (session.user !== requiredRole) {
     return <div> Unauthorized </div>; //change to unauthorized page?
   }
 

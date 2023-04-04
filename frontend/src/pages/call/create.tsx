@@ -4,6 +4,6 @@ const Create: NextPageWithAuth = () => {
   return <div>call/create</div>;
 };
 
-Create.auth = { requiredRole: "user" };
+Create.auth = { requiredRole: "customer" };
 
 export default Create;
