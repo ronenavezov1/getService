@@ -8,31 +8,24 @@ import { z } from "zod";
 import { SubmitHandler } from "react-hook-form/dist/types";
 
 const completeDetails = () => {
-  const ServiceProviderSchema = z.object({
+  const UserSchema = z.object({
     firstName: z.string().min(1, { message: "First name is required" }),
     lastName: z.string().min(1, { message: "Last name is required" }),
     phone: z.number().min(1, { message: "Phone number is required" }),
     city: z.number().min(1, { message: "City is required" }),
     address: z.string().min(1, { message: "Adress is required" }),
+  });
+
+  const ServiceProviderSchema = UserSchema.extend({
     type: z.literal("serviceProvider"),
     profession: z.string().min(1, { message: "Profession is required" }),
   });
 
-  const CustomerSchema = z.object({
-    firstName: z.string().min(1, { message: "First name is required" }),
-    lastName: z.string().min(1, { message: "Last name is required" }),
-    phone: z.number().min(1, { message: "Phone number is required" }),
-    city: z.number().min(1, { message: "City is required" }),
-    address: z.string().min(1, { message: "Adress is required" }),
+  const CustomerSchema = UserSchema.extend({
     type: z.literal("customer"),
   });
 
-  const AdminSchema = z.object({
-    firstName: z.string().min(1, { message: "First name is required" }),
-    lastName: z.string().min(1, { message: "Last name is required" }),
-    phone: z.number().min(1, { message: "Phone number is required" }),
-    city: z.number().min(1, { message: "City is required" }),
-    address: z.string().min(1, { message: "Adress is required" }),
+  const AdminSchema = UserSchema.extend({
     type: z.literal("admin"),
   });
 
