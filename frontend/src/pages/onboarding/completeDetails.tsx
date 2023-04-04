@@ -25,16 +25,11 @@ const completeDetails = () => {
     type: z.literal("customer"),
   });
 
-  const AdminSchema = UserSchema.extend({
-    type: z.literal("admin"),
-  });
-
   //TODO: admin schema???
 
   const formSchema = z.discriminatedUnion("type", [
     ServiceProviderSchema,
     CustomerSchema,
-    AdminSchema,
   ]);
 
   //TODO: fix Invalid discriminator value. Expected 'serviceProvider' | 'customer' | 'admin' in type
@@ -52,7 +47,6 @@ const completeDetails = () => {
     watch,
     formState: { isSubmitting },
   } = formHook;
-
   const userType = watch("type");
 
   //TODO: implement this
@@ -77,15 +71,13 @@ const completeDetails = () => {
     <FormProvider {...formHook}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="container m-auto grid max-w-lg  gap-4 p-4  "
+        className=" m-auto grid max-w-lg gap-4 bg-blue-400 p-2 "
       >
         <Header />
-
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-2">
           <FirstNameInput />
           <LastNameInput />
         </div>
-
         <PhoneInput />
         <AddressInput />
         <CityInput />
@@ -304,7 +296,6 @@ const TypeInput: FC = () => {
   const options = [
     { value: "customer", label: "Customer" },
     { value: "serviceProvider", label: "Service Provider" },
-    { value: "admin", label: "Admin" },
   ];
 
   return (
