@@ -26,9 +26,16 @@ public class UsersServlet extends HttpServlet {
         if (action.isEmpty())
             return;
         switch (action) {
+            case "test":
+                test123(request, response);
+                break;
             default:
                 return;
         }
+    }
+
+    private void test123(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.getWriter().print(DataBase.test());
     }
 
     public void destroy() {

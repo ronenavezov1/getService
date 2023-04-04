@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.*;
 public class DataBase {
-    private static final String POSTGRESQL_NAME = "jdbc/mysql";
+    private static final String POSTGRESQL_NAME = "jdbc/postgres";
     private static javax.sql.DataSource ds = null;
 
     private static Connection getConnection() throws SQLException {
@@ -35,4 +35,18 @@ public class DataBase {
         return ds.getConnection();
     }
 
+    public static String test(){
+        try(Connection conn = getConnection()){
+            try(PreparedStatement statement = conn.prepareStatement("SELECT name FROM public.city\n" +
+                    "ORDER BY name ASC ")){
+                try(ResultSet resultSet = statement.executeQuery()){
+                    if (resultSet.next())
+                        return resultSet.getString(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return "nan";
+    }
 }
