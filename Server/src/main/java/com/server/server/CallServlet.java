@@ -1,0 +1,43 @@
+package com.server.server;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@WebServlet(name = "CallServlet", value = "/call/*")
+public class CallServlet extends HttpServlet {
+
+    public static final String OPEN_CALL = "Open";
+    public static final String CLOSE_CALL = "Close";
+    public static final String RECEIVED_CALL = "Received";
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        String requestURI = request.getRequestURI();
+        if (requestURI == null || requestURI.isEmpty())
+            return;
+        int lastIndexOfForwardSlash = requestURI.lastIndexOf('/');
+        if (lastIndexOfForwardSlash == -1)
+            return;
+        String action = requestURI.substring(lastIndexOfForwardSlash + 1);
+        if (action.isEmpty())
+            return;
+        switch (action) {
+            default:
+                return;
+        }
+    }
+
+    @Override
+    public void destroy() {
+    }
+}
