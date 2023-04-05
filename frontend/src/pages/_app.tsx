@@ -4,6 +4,8 @@ import "~/styles/globals.css";
 import type { NextComponentType, NextPage } from "next"; //Import Component type
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
+import { QueryClient, QueryClientProvider, useQuery } from "react-query";
+import { env } from "~/env.mjs";
 
 type AuthAppProps = AppProps & {
   Component: NextComponentType & PageWithAuth;
@@ -12,7 +14,7 @@ type AuthAppProps = AppProps & {
 // new page type
 type PageWithAuth = {
   auth?: {
-    requiredRole: string;
+    requiredRoles: string[];
   };
 };
 
@@ -22,19 +24,23 @@ export type NextPageWithAuth<Props = {}, InitialProps = Props> = NextPage<
 > &
   PageWithAuth;
 
+const queryClient = new QueryClient();
+
 const MyApp = ({
   Component,
   pageProps: { session, ...pageProps },
 }: AuthAppProps) => {
   return (
     <SessionProvider session={session}>
-      {Component.auth ? (
-        <Auth>
+      <QueryClientProvider client={queryClient}>
+        {Component.auth ? (
+          <Auth>
+            <Component {...pageProps} />
+          </Auth>
+        ) : (
           <Component {...pageProps} />
-        </Auth>
-      ) : (
-        <Component {...pageProps} />
-      )}
+        )}
+      </QueryClientProvider>
     </SessionProvider>
   );
 };
@@ -46,20 +52,28 @@ type AuthProps = {
 function Auth({ children }: AuthProps) {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
+  const { data: user, isLoading } = useQuery("user", () =>
+    fetch(`http://localhost:4000/api/test/1`).then((res) => {
+      console.log(res);
+      return res.json();
+    })
+  );
 
-  if (status === "loading") {
+  if (status === "loading" || isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (session.user) {
+  console.log("user:", user);
+
+  if (user.isCompletedOnBoarding === false) {
     router.push("/onboarding/completeDetails");
     return null;
   }
 
   const pageAuth = (children as any).type.auth;
-  const { requiredRole } = pageAuth;
+  const { requiredRoles } = pageAuth;
 
-  if (session.user !== requiredRole) {
+  if (!!!requiredRoles.includes(user.role)) {
     return <div> Unauthorized </div>; //change to unauthorized page?
   }
 

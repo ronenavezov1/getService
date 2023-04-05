@@ -1,9 +1,9 @@
-import { type NextPageWithAuth } from "next";
+import { NextPageWithAuth } from "../_app";
 
 const Status: NextPageWithAuth = () => {
   return <div>provider/status</div>;
 };
 
-Status.auth = { role: "provider" };
+Status.auth = { requiredRoles: ["provider"] };
 
 export default Status;

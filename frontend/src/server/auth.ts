@@ -7,6 +7,7 @@ import {
 import { Session } from "next-auth/core/types";
 import { JWT } from "next-auth/jwt/types";
 import GoogleProvider from "next-auth/providers/google";
+import { redirect } from "next/dist/server/api-utils";
 import { env } from "~/env.mjs";
 
 /**
@@ -39,16 +40,20 @@ export const authOptions: NextAuthOptions = {
   jwt: {},
 
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      return baseUrl; //redirect to home page after sign in or sign out
+    },
+
     async jwt({ token, account, user, profile }) {
       // Persist the OAuth access_token and or the user id to the token right after signin
       if (account) {
         token.accessToken = account.access_token;
 
         //debugging
-        console.log("token", token);
-        console.log("account", account);
-        console.log("profile", profile);
-        console.log("user", user);
+        // console.log("token", token);
+        // console.log("account", account);
+        // console.log("profile", profile);
+        // console.log("user", user);
       }
 
       if (user) {
@@ -61,7 +66,7 @@ export const authOptions: NextAuthOptions = {
     // Send properties to the client, like an access_token and user id from a provider.
     async session({ session, token }) {
       session.jwtToken = token;
-      await setUserFromDb(session);
+      //await setUserFromDb(session);
       return session;
     },
   },
@@ -96,6 +101,7 @@ export const getServerAuthSession = (ctx: {
 };
 
 /**
+ * TODO: remove? currenty implemented in _app.tsx
  * Fetches the user from the database and sets it on the session.
  * On failure, the user is set to null.
  * @param session

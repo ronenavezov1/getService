@@ -4,6 +4,6 @@ const Status: NextPageWithAuth = () => {
   return <div>call/status</div>;
 };
 
-Status.auth = { requiredRole: "customer" };
+Status.auth = { requiredRoles: ["customer"] };
 
 export default Status;
