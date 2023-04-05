@@ -8,13 +8,11 @@ const fetchAuthed = async (
   const res = await fetch(input, init);
 
   if (res.status === 401) {
-    await signOut();
+    await signOut({ callbackUrl: "http://localhost:3000" });
     return Promise.reject(new Error("Unauthorized"));
   }
 
   return res;
 };
-
-
 
 export default fetchAuthed;

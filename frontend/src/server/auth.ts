@@ -40,10 +40,6 @@ export const authOptions: NextAuthOptions = {
   jwt: {},
 
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      return baseUrl; //redirect to home page after sign in or sign out
-    },
-
     async jwt({ token, account, user, profile }) {
       // Persist the OAuth access_token and or the user id to the token right after signin
       if (account) {
@@ -86,6 +82,9 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  pages: {
+    signIn: "/signin",
+  },
 };
 
 /**

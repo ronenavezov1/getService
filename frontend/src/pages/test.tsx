@@ -1,19 +1,15 @@
 import { NextPageWithAuth } from "./_app";
 import React from "react";
 import { useQuery } from "react-query";
-import { env } from "process";
-import { signOut } from "next-auth/react";
-import fetchAuthed from "~/utils/fetchAuthed";
+import { fetchUser } from "~/api/user";
 
-async function fetchUsers() {
-  const res = await fetchAuthed("http://localhost:4000/api/test/1");
-  const data = await res.json();
-  console.log("res:", data);
-  return data;
-}
+// async function fetchUsers() {
+//   const res = await fetchAuthed("http://localhost:4000/api/test/1");
+//   const data = await res.json();
+// }
 
 const TestPage = () => {
-  const query = useQuery("user", fetchUsers);
+  const query = useQuery("user", fetchUser);
   const { data: user, isLoading } = query;
 
   if (isLoading) {
@@ -21,7 +17,7 @@ const TestPage = () => {
   }
 
   console.log(user);
-  return <div>{`user: worked`}</div>;
+  return <div>{`user: ${JSON.stringify(user)}`}</div>;
 };
 
 TestPage.auth = {

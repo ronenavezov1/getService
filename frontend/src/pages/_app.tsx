@@ -5,7 +5,6 @@ import type { NextComponentType, NextPage } from "next"; //Import Component type
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
-import { env } from "~/env.mjs";
 
 type AuthAppProps = AppProps & {
   Component: NextComponentType & PageWithAuth;
@@ -73,8 +72,12 @@ function Auth({ children }: AuthProps) {
   const pageAuth = (children as any).type.auth;
   const { requiredRoles } = pageAuth;
 
-  if (!!!requiredRoles.includes(user.role)) {
-    return <div> Unauthorized </div>; //change to unauthorized page?
+  console.log("requiredRoles:", requiredRoles);
+  console.log("userRole:", user.role);
+  console.log("includes", requiredRoles.includes(user.role));
+
+  if (!requiredRoles.includes(user.role)) {
+    return <div> Unauthorized </div>; // TODO : change to unauthorized page?
   }
 
   return <>{children}</>;
