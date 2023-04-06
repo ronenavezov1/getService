@@ -11,5 +11,5 @@
 }
 
 .label {
-  @apply block text-sm font-bold text-indigo-500;
+  @apply mb-1 block text-sm font-bold text-indigo-500;
 }

@@ -68,7 +68,7 @@ const completeDetails = () => {
   const userType = watch("type");
 
   return (
-    <div className=" grid justify-center gap-2 pt-2">
+    <div className="grid justify-center gap-2 pt-2">
       <FormProvider {...formHook}>
         <Header />
         <form

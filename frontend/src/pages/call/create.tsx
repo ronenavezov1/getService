@@ -40,7 +40,7 @@ const Create: NextPageWithAuth = () => {
         <Header />
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className=" modal grid max-w-lg  gap-4  "
+          className=" modal grid max-w-lg  gap-2  "
         >
           <ServiceInput />
           <DescriptionInput />
