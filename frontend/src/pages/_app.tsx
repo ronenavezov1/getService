@@ -1,5 +1,5 @@
 import { type AppProps } from "next/app";
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider, signIn, useSession } from "next-auth/react";
 import "~/styles/globals.css";
 import type { NextComponentType, NextPage } from "next"; //Import Component type
 import { useRouter } from "next/router";
@@ -32,13 +32,15 @@ const MyApp = ({
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
-        {Component.auth ? (
-          <Auth>
+        <div className="min-h-screen min-w-fit  bg-indigo-500">
+          {Component.auth ? (
+            <Auth>
+              <Component {...pageProps} />
+            </Auth>
+          ) : (
             <Component {...pageProps} />
-          </Auth>
-        ) : (
-          <Component {...pageProps} />
-        )}
+          )}
+        </div>
       </QueryClientProvider>
     </SessionProvider>
   );
@@ -53,7 +55,6 @@ function Auth({ children }: AuthProps) {
   const { data: session, status } = useSession({ required: true });
   const { data: user, isLoading } = useQuery("user", () =>
     fetch(`http://localhost:4000/api/test/1`).then((res) => {
-      console.log(res);
       return res.json();
     })
   );
@@ -61,8 +62,6 @@ function Auth({ children }: AuthProps) {
   if (status === "loading" || isLoading) {
     return <div>Loading...</div>;
   }
-
-  console.log("user:", user);
 
   if (user.isCompletedOnBoarding === false) {
     router.push("/onboarding/completeDetails");
@@ -72,9 +71,9 @@ function Auth({ children }: AuthProps) {
   const pageAuth = (children as any).type.auth;
   const { requiredRoles } = pageAuth;
 
-  console.log("requiredRoles:", requiredRoles);
-  console.log("userRole:", user.role);
-  console.log("includes", requiredRoles.includes(user.role));
+  // console.log("requiredRoles:", requiredRoles);
+  // console.log("userRole:", user.role);
+  // console.log("includes", requiredRoles.includes(user.role));
 
   if (!requiredRoles.includes(user.role)) {
     return <div> Unauthorized </div>; // TODO : change to unauthorized page?

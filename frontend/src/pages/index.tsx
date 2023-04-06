@@ -6,10 +6,13 @@ const Home: NextPageWithAuth = () => {
 
   if (session) {
     return (
-      <>
-        Signed in as {JSON.stringify(session)} <br />
+      <div className=" modal">
+        <h1 className="text-6xl">
+          Signed in as {JSON.stringify(session)} <br />
+          {JSON.stringify(session.user)}
+        </h1>
         <button onClick={() => signOut()}>Sign out</button>
-      </>
+      </div>
     );
   }
   return (

@@ -9,14 +9,14 @@ import { fetchUser } from "~/api/user";
 // }
 
 const TestPage = () => {
-  const query = useQuery("user", fetchUser);
+  const id = "1"; //TODO uuid testing
+  const query = useQuery(["user", id], () => fetchUser(id));
   const { data: user, isLoading } = query;
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  console.log(user);
   return <div>{`user: ${JSON.stringify(user)}`}</div>;
 };
 

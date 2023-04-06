@@ -19,7 +19,9 @@ import { env } from "~/env.mjs";
 declare module "next-auth" {
   interface Session extends DefaultSession {
     //TODO: add user interface instead of any
-    user: any & DefaultSession["user"];
+    user: {
+      id: string;
+    } & DefaultSession["user"];
     jwtToken: JWT;
   }
 
@@ -46,10 +48,10 @@ export const authOptions: NextAuthOptions = {
         token.accessToken = account.access_token;
 
         //debugging
-        // console.log("token", token);
-        // console.log("account", account);
-        // console.log("profile", profile);
-        // console.log("user", user);
+        console.log("token", token);
+        console.log("account", account);
+        console.log("profile", profile);
+        console.log("user", user);
       }
 
       if (user) {
@@ -99,33 +101,33 @@ export const getServerAuthSession = (ctx: {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
 
-/**
- * TODO: remove? currenty implemented in _app.tsx
- * Fetches the user from the database and sets it on the session.
- * On failure, the user is set to null.
- * @param session
- */
-async function setUserFromDb(session: Session) {
-  //TODO: implement this
+// /**
+//  * TODO: remove? currenty implemented in _app.tsx
+//  * Fetches the user from the database and sets it on the session.
+//  * On failure, the user is set to null.
+//  * @param session
+//  */
+// async function setUserFromDb(session: Session) {
+//   //TODO: implement this
 
-  try {
-    const userRes = await fetch(`${env.BASE_API_URL}/test/1`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+//   try {
+//     const userRes = await fetch(`${env.BASE_API_URL}/test/1`, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
 
-    if (!userRes.ok) {
-      console.log("NextAuth:!userRes.ok"); //debugging
-      session.user = null;
-      return;
-    }
+//     if (!userRes.ok) {
+//       console.log("NextAuth:!userRes.ok"); //debugging
+//       session.user = null;
+//       return;
+//     }
 
-    const user = await userRes.json();
-    session.user = user;
-  } catch (err) {
-    console.log("NextAuth:Failed to fetch user", err); //debugging
-    session.user = null;
-  }
-}
+//     const user = await userRes.json();
+//     session.user = user;
+//   } catch (err) {
+//     console.log("NextAuth:Failed to fetch user", err); //debugging
+//     session.user = null;
+//   }
+// }
