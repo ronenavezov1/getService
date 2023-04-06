@@ -1,16 +1,11 @@
 import { NextPageWithAuth } from "./_app";
 import React from "react";
 import { useQuery } from "react-query";
-import { fetchUser } from "~/api/user";
-
-// async function fetchUsers() {
-//   const res = await fetchAuthed("http://localhost:4000/api/test/1");
-//   const data = await res.json();
-// }
+import { fetchUserById } from "~/api/user";
 
 const TestPage = () => {
-  const id = "1"; //TODO uuid testing
-  const query = useQuery(["user", id], () => fetchUser(id));
+  const id = "117175447261374290443";
+  const query = useQuery(["user", id], () => fetchUserById(id));
   const { data: user, isLoading } = query;
 
   if (isLoading) {

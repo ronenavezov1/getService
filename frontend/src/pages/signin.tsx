@@ -11,12 +11,15 @@ const SignIn: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ providers }) => {
   return (
-    <div className="container m-auto grid justify-center ">
-      <h1 className=" ">Sign in to continue</h1>
-
-      {Object.values(providers).map((provider) => (
-        <ProviderBtn provider={provider} />
-      ))}
+    <div className="flex h-full w-full flex-col items-center gap-2 p-2">
+      <div>
+        <h1 className="text-5xl text-yellow-400 ">Sign in</h1>
+      </div>
+      <div className=" card w-full max-w-lg ">
+        {Object.values(providers).map((provider) => (
+          <ProviderBtn provider={provider} />
+        ))}
+      </div>
     </div>
   );
 };

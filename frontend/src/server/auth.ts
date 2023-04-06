@@ -19,14 +19,12 @@ import { env } from "~/env.mjs";
 declare module "next-auth" {
   interface Session extends DefaultSession {
     //TODO: add user interface instead of any
-    user: {
-      id: string;
-    } & DefaultSession["user"];
-    jwtToken: JWT;
+    user: User & DefaultSession["user"];
+    accessToken: string;
   }
 
   interface User {
-    role: string;
+    id: string;
   }
 }
 
@@ -46,25 +44,21 @@ export const authOptions: NextAuthOptions = {
       // Persist the OAuth access_token and or the user id to the token right after signin
       if (account) {
         token.accessToken = account.access_token;
-
-        //debugging
-        console.log("token", token);
-        console.log("account", account);
-        console.log("profile", profile);
-        console.log("user", user);
+        // //debugging
+        // console.log("token", token);
+        // console.log("account", account);
+        // console.log("profile", profile);
+        // console.log("user", user);
       }
-
-      if (user) {
-        token.id = user.id;
-      }
+      if (user) token.id = user.id;
 
       return token;
     },
 
     // Send properties to the client, like an access_token and user id from a provider.
     async session({ session, token }) {
-      session.jwtToken = token;
-      //await setUserFromDb(session);
+      session.accessToken = token.accessToken as string;
+      session.user.id = token.id as string;
       return session;
     },
   },

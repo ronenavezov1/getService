@@ -5,6 +5,7 @@ import type { NextComponentType, NextPage } from "next"; //Import Component type
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
+import { fetchUserById } from "~/api/user";
 
 type AuthAppProps = AppProps & {
   Component: NextComponentType & PageWithAuth;
@@ -53,10 +54,12 @@ type AuthProps = {
 function Auth({ children }: AuthProps) {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
-  const { data: user, isLoading } = useQuery("user", () =>
-    fetch(`http://localhost:4000/api/test/1`).then((res) => {
-      return res.json();
-    })
+  const { data: user, isLoading } = useQuery(
+    ["user", session?.user.id],
+    () => fetchUserById(session!.user.id),
+    {
+      enabled: !!session,
+    }
   );
 
   if (status === "loading" || isLoading) {

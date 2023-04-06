@@ -73,7 +73,7 @@ const completeDetails = () => {
         <Header />
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className=" modal grid max-w-lg  gap-2  "
+          className=" card grid max-w-lg  gap-2  "
         >
           <div className="flex justify-between gap-2">
             <FirstNameInput />

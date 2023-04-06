@@ -3,14 +3,12 @@ import { NextPageWithAuth } from "./_app";
 
 const Home: NextPageWithAuth = () => {
   const { data: session } = useSession();
+  console.log(session);
 
   if (session) {
     return (
-      <div className=" modal">
-        <h1 className="text-6xl">
-          Signed in as {JSON.stringify(session)} <br />
-          {JSON.stringify(session.user)}
-        </h1>
+      <div className="container">
+        <p className="text-xl">{`${JSON.stringify(session)}`}</p>
         <button onClick={() => signOut()}>Sign out</button>
       </div>
     );
