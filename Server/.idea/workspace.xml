@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
+      <artifact name="Server:war" />
       <artifact name="Server:war exploded" />
     </artifacts-to-build>
   </component>
@@ -48,13 +49,18 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "project.structure.last.edited": "Project",
+    "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "preferences.lookFeel",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ronia\GitHub\getService\Server\target\Server" />
+    </key>
+  </component>
   <component name="RunManager" selected="Tomcat Server.Tomcat 9.0.73">
     <configuration name="index.jsp" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:8080/Server_war_exploded/index.jsp">
       <method v="2" />
@@ -172,6 +178,7 @@
       <workItem from="1680640425091" duration="3346000" />
       <workItem from="1680701384786" duration="3888000" />
       <workItem from="1680732344666" duration="3743000" />
+      <workItem from="1680759875120" duration="8220000" />
     </task>
     <servers />
   </component>

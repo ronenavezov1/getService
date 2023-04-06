@@ -7,6 +7,6 @@
 <body>
 <h1><%= "knock knock!" %></h1>
 <br/>
-<a href="/Server_war_exploded/user/test">who's there?</a>
+<a href="/Server_war_exploded/util/getCities">who's there?</a>
 </body>
 </html>
