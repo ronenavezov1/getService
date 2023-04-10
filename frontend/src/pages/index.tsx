@@ -7,8 +7,10 @@ const Home: NextPageWithAuth = () => {
 
   if (session) {
     return (
-      <div className="container">
-        <p className="text-xl">{`${JSON.stringify(session)}`}</p>
+      <div className="container ">
+        <p className=" w-full break-words text-xl">{`${JSON.stringify(
+          session
+        )}`}</p>
         <button onClick={() => signOut()}>Sign out</button>
       </div>
     );

@@ -17,7 +17,7 @@ const SignIn: NextPage<
       </div>
       <div className=" card w-full max-w-lg ">
         {Object.values(providers).map((provider) => (
-          <ProviderBtn provider={provider} />
+          <ProviderBtn key={provider.name} provider={provider} />
         ))}
       </div>
     </div>
@@ -33,14 +33,9 @@ interface ProviderBtnProps {
 /*Button to sign in with a provider*/
 const ProviderBtn: FC<ProviderBtnProps> = ({ provider }) => {
   return (
-    <div key={provider.name}>
-      <button
-        className={`${provider.id}Btn`}
-        onClick={() => signIn(provider.id)}
-      >
-        <span className="inline-block">Continue with {provider.name}</span>
-      </button>
-    </div>
+    <button className={`${provider.id}Btn`} onClick={() => signIn(provider.id)}>
+      <span className="inline-block">Continue with {provider.name}</span>
+    </button>
   );
 };
 
