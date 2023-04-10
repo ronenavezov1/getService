@@ -1,5 +1,6 @@
-package com.server.server;
+package com.server.storage;
 
+import com.server.models.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -9,7 +10,9 @@ import javax.naming.NamingException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-public class DataBase {
+import java.util.UUID;
+
+public class StorageManager {
     private static final String POSTGRESQL_NAME = "jdbc/postgres";
     private static javax.sql.DataSource ds = null;
 
@@ -26,6 +29,49 @@ public class DataBase {
             }
         }
         return ds.getConnection();
+    }
+
+    public static void addUser(User user) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(Queries.INSERT_USER)) {
+                statement.setString(1, user.getEmail());
+                statement.setString(2, user.getFirstName());
+                statement.setString(3, user.getLastName());
+                // TODO: add all fields
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static User getUser(String email) {
+        User user = new User();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(Queries.SELECT_USER_BY_EMAIL)) {
+                statement.setString(1, email);
+                ResultSet rs = statement.executeQuery();
+                if (rs.next()) {
+                    UUID id = (UUID) rs.getObject("user_id");
+                    String firstName = rs.getString("first_name");
+                    String lastName = rs.getString("last_name");
+                    String address = rs.getString("address");
+                    String city = rs.getString("city");
+                    String phone = rs.getString("phone");
+                    boolean isApproved = rs.getBoolean("is_approved");
+                    boolean isOnBoardingCompleted = rs.getBoolean("is_onboarding_completed");
+                    String type = rs.getString("type");
+                    user = new User(id, email, firstName, lastName, address, city, phone, type, isOnBoardingCompleted, isApproved);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
     }
 
     public static String getCities(String startWith){

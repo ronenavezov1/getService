@@ -1,11 +1,12 @@
 package com.server.server;
 
+import com.server.storage.StorageManager;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 
 @WebServlet(name = "UtilServlet", value = "/util/*")
@@ -16,7 +17,7 @@ public class UtilServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        cityJson = DataBase.getCities("");
+        cityJson = StorageManager.getCities("");
     }
 
     /** /util/getCities?startWith={string @optional}*/
@@ -48,7 +49,7 @@ public class UtilServlet extends HttpServlet {
         if(Authentication.isNullOrEmpty(startWith))
             response.getWriter().print(cityJson);
         else
-            response.getWriter().print(DataBase.getCities(startWith));
+            response.getWriter().print(StorageManager.getCities(startWith));
     }
 
     @Override
