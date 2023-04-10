@@ -64,7 +64,7 @@ const Create: NextPageWithAuth = () => {
 const Header: FC = () => {
   return (
     <div className="flex justify-center">
-      <h1 className="text-4xl">Create call</h1>
+      <h1 className="text-5xl text-yellow-400">Create call</h1>
     </div>
   );
 };

@@ -4,10 +4,7 @@ import {
   type NextAuthOptions,
   type DefaultSession,
 } from "next-auth";
-import { Session } from "next-auth/core/types";
-import { JWT } from "next-auth/jwt/types";
 import GoogleProvider from "next-auth/providers/google";
-import { redirect } from "next/dist/server/api-utils";
 import { env } from "~/env.mjs";
 
 /**
@@ -37,7 +34,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  jwt: {},
 
   callbacks: {
     async jwt({ token, account, user, profile }) {
@@ -94,34 +90,3 @@ export const getServerAuthSession = (ctx: {
 }) => {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
-
-// /**
-//  * TODO: remove? currenty implemented in _app.tsx
-//  * Fetches the user from the database and sets it on the session.
-//  * On failure, the user is set to null.
-//  * @param session
-//  */
-// async function setUserFromDb(session: Session) {
-//   //TODO: implement this
-
-//   try {
-//     const userRes = await fetch(`${env.BASE_API_URL}/test/1`, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     if (!userRes.ok) {
-//       console.log("NextAuth:!userRes.ok"); //debugging
-//       session.user = null;
-//       return;
-//     }
-
-//     const user = await userRes.json();
-//     session.user = user;
-//   } catch (err) {
-//     console.log("NextAuth:Failed to fetch user", err); //debugging
-//     session.user = null;
-//   }
-// }

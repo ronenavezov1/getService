@@ -5,7 +5,8 @@ import type { NextComponentType, NextPage } from "next"; //Import Component type
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
-import { fetchUserById } from "~/api/user";
+import Navbar from "~/components/Navbar";
+import { useUser } from "~/api/users";
 
 type AuthAppProps = AppProps & {
   Component: NextComponentType & PageWithAuth;
@@ -33,7 +34,7 @@ const MyApp = ({
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen min-w-fit  bg-indigo-500">
+        <div className="min-h-screen  bg-indigo-500">
           {Component.auth ? (
             <Auth>
               <Component {...pageProps} />
@@ -54,13 +55,7 @@ type AuthProps = {
 function Auth({ children }: AuthProps) {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
-  const { data: user, isLoading } = useQuery(
-    ["user", session?.user.id],
-    () => fetchUserById(session!.user.id),
-    {
-      enabled: !!session,
-    }
-  );
+  const { data: user, isLoading } = useUser(session?.user?.id);
 
   if (status === "loading" || isLoading) {
     return <div>Loading...</div>;
@@ -82,7 +77,12 @@ function Auth({ children }: AuthProps) {
     return <div> Unauthorized </div>; // TODO : change to unauthorized page?
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <Navbar name="UserName" />
+      {children}
+    </>
+  );
 }
 
 export default MyApp;
