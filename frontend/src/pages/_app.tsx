@@ -64,7 +64,7 @@ function Auth({ children }: AuthProps) {
     return <div>Loading...</div>;
   }
 
-  if (user.isCompletedOnBoarding === false) {
+  if (user?.isCompletedOnBoarding === false) {
     router.push("/onboarding/completeDetails");
     return null;
   }
@@ -76,7 +76,8 @@ function Auth({ children }: AuthProps) {
   // console.log("userRole:", user.role);
   // console.log("includes", requiredRoles.includes(user.role));
 
-  if (!requiredRoles.includes(user.role)) {
+  //no user will always be unauthorized
+  if (!requiredRoles.includes(user?.role)) {
     return <div> Unauthorized </div>; // TODO : change to unauthorized page?
   }
 
