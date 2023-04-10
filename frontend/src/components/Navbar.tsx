@@ -1,5 +1,6 @@
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { FC, useState } from "react";
+import { useUser } from "~/api/users";
 
 interface NavbarProps {
   name: string;

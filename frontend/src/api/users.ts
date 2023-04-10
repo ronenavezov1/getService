@@ -1,4 +1,4 @@
-import { UseQueryOptions, useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { env } from "~/env.mjs";
 import { fetchAuthed } from "~/utils/fetchAuthed";
 

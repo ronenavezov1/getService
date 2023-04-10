@@ -4,9 +4,10 @@ import "~/styles/globals.css";
 import type { NextComponentType, NextPage } from "next"; //Import Component type
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 import Navbar from "~/components/Navbar";
 import { useUser } from "~/api/users";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 type AuthAppProps = AppProps & {
   Component: NextComponentType & PageWithAuth;
@@ -42,6 +43,8 @@ const MyApp = ({
           ) : (
             <Component {...pageProps} />
           )}
+          {/* testing dev tool TODO:remove */}
+          <ReactQueryDevtools initialIsOpen={false} />
         </div>
       </QueryClientProvider>
     </SessionProvider>
@@ -55,9 +58,9 @@ type AuthProps = {
 function Auth({ children }: AuthProps) {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
-  const { data: user, isLoading } = useUser(session?.user?.id);
+  const { data: user, isLoading: isLoadingUser } = useUser(session?.user?.id);
 
-  if (status === "loading" || isLoading) {
+  if (status === "loading" || isLoadingUser) {
     return <div>Loading...</div>;
   }
 
