@@ -1,15 +1,16 @@
-import { type NextPageWithAuth } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { NextPageWithAuth } from "./_app";
 
 const Home: NextPageWithAuth = () => {
   const { data: session } = useSession();
+  console.log(session);
 
   if (session) {
     return (
-      <>
-        Signed in as {JSON.stringify(session)} <br />
+      <div className="container">
+        <p className="text-xl">{`${JSON.stringify(session)}`}</p>
         <button onClick={() => signOut()}>Sign out</button>
-      </>
+      </div>
     );
   }
   return (

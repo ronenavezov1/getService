@@ -2,83 +2,111 @@ import { ErrorMessage } from "@hookform/error-message";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { FC } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { z } from "zod";
+import { SubmitHandler } from "react-hook-form/dist/types";
+
+const UserSchema = z.object({
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
+  phone: z.number().min(1, { message: "Phone number is required" }),
+  city: z.number().min(1, { message: "City is required" }),
+  address: z.string().min(1, { message: "Address is required" }),
+});
+
+const ServiceProviderSchema = UserSchema.extend({
+  type: z.literal("serviceProvider"),
+  profession: z.string().min(1, { message: "Profession is required" }),
+});
+
+const CustomerSchema = UserSchema.extend({
+  type: z.literal("customer"),
+});
+
+const compeleteDetailsFormSchema = z.discriminatedUnion("type", [
+  ServiceProviderSchema,
+  CustomerSchema,
+]);
+
+//TODO: implement this
+const onSubmit: SubmitHandler<compeleteDetailsFormSchemaType> = async (
+  data
+) => {
+  const test = await fetch(`https://pokeapi.co/api/v2/pokemon/${data.phone}`);
+  const res = await test.json();
+  console.log("res", res);
+
+  // const res = await fetch("/api/user", {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     "Authorization": `Bearer ${session?.accessToken}
+  //   },
+  //   body: JSON.stringify(data),
+  // });
+
+  // await router.push("/");
+};
+
+type compeleteDetailsFormSchemaType = z.infer<
+  typeof compeleteDetailsFormSchema
+>;
 
 const completeDetails = () => {
   const router = useRouter();
-  const { data: session } = useSession(); //replace with user query
-  const formHook = useForm({
-    defaultValues: {
-      //TODO: update with user data
-      name: "",
-      phone: "123",
-    },
+  const { data: session } = useSession({ required: true });
+  const formHook = useForm<compeleteDetailsFormSchemaType>({
     mode: "onChange",
+    resolver: zodResolver(compeleteDetailsFormSchema),
   });
-
   const {
     handleSubmit,
+    watch,
     formState: { isSubmitting },
   } = formHook;
-
-  type userInputs = {
-    name: string;
-    phone: string;
-  };
-
-  //TODO: fix this
-  const onSubmit = async (data: userInputs) => {
-    const test = await fetch(`https://pokeapi.co/api/v2/pokemon/${data.phone}`);
-    const res = await test.json();
-    console.log("res", res);
-
-    // const res = await fetch("/api/user", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "Authorization": `Bearer ${session?.accessToken}
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-
-    // await router.push("/");
-  };
+  const userType = watch("type");
 
   return (
-    <FormProvider {...formHook}>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className=" m-auto grid h-screen max-w-md content-center gap-4 p-4  "
-      >
+    <div className="grid justify-center gap-2 pt-2">
+      <FormProvider {...formHook}>
         <Header />
-        <NameInput />
-        <PhoneInput />
-        <IdInput />
-        <AddressInput />
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className=" card grid max-w-lg  gap-2  "
+        >
+          <div className="flex justify-between gap-2">
+            <FirstNameInput />
+            <LastNameInput />
+          </div>
+          <PhoneInput />
+          <AddressInput />
+          <CityInput />
+          <TypeInput />
+          {userType === "serviceProvider" && <ProfessionInput />}
 
-        <div>
           <input
-            className="m-auto flex"
+            className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
             disabled={isSubmitting}
             type="submit"
             value="Update profile"
           />
-        </div>
-      </form>
-    </FormProvider>
+        </form>
+      </FormProvider>
+    </div>
   );
 };
 
 const Header: FC = () => {
   return (
     <div className="text-center">
-      <h1 className=" text-xl ">Welcome</h1>
-      <h2>Please fill in the information</h2>
+      <h1 className="text-5xl text-yellow-400">GetService</h1>
+      <h1 className="text-xl  text-white"> Fill in the information </h1>
     </div>
   );
 };
 
-const NameInput: FC = () => {
+const FirstNameInput: FC = () => {
   const {
     register,
     formState: { errors },
@@ -86,22 +114,42 @@ const NameInput: FC = () => {
 
   return (
     <div>
-      <label
-        htmlFor="name"
-        className="mb-2 block text-sm font-bold text-gray-700"
-      >
-        Name
+      <label htmlFor="firstName" className="label">
+        First Name
       </label>
       <input
-        id="name"
-        {...register("name", { required: "Name is required " })}
-        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+        id="firstName"
+        {...register("firstName", { required: "First name is required " })}
+        className="input"
       />
       <ErrorMessage
         errors={errors}
-        name="name"
+        name="firstName"
         render={({ message }) => (
-          <p className=" p-1 text-xs text-red-600">{message}</p>
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
+        )}
+      />
+    </div>
+  );
+};
+
+const LastNameInput: FC = () => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
+  return (
+    <div>
+      <label htmlFor="lastName" className="label">
+        Last Name
+      </label>
+      <input id="lastName" {...register("lastName")} className="input" />
+      <ErrorMessage
+        errors={errors}
+        name="lastName"
+        render={({ message }) => (
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
       />
     </div>
@@ -116,22 +164,19 @@ const PhoneInput: FC = () => {
 
   return (
     <div>
-      <label
-        htmlFor="phone"
-        className="mb-2 block text-sm font-bold text-gray-700"
-      >
+      <label htmlFor="phone" className="label">
         Phone
       </label>
       <input
         id="phone"
-        {...register("phone", { required: "Phone is required " })}
-        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+        {...register("phone", { valueAsNumber: true })}
+        className="input"
       />
       <ErrorMessage
         errors={errors}
         name="phone"
         render={({ message }) => (
-          <p className=" p-1 text-xs text-red-600">{message}</p>
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
       />
     </div>
@@ -146,22 +191,15 @@ const IdInput: FC = () => {
 
   return (
     <div>
-      <label
-        htmlFor="id"
-        className="mb-2 block text-sm font-bold text-gray-700"
-      >
+      <label htmlFor="id" className="label">
         ID number
       </label>
-      <input
-        id="id"
-        {...register("id", { required: "ID is required " })}
-        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-      />
+      <input id="id" {...register("id")} className="input" />
       <ErrorMessage
         errors={errors}
         name="id"
         render={({ message }) => (
-          <p className=" p-1 text-xs text-red-600">{message}</p>
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
       />
     </div>
@@ -176,22 +214,107 @@ const AddressInput: FC = () => {
 
   return (
     <div>
-      <label
-        htmlFor="address"
-        className="mb-2 block text-sm font-bold text-gray-700"
-      >
+      <label htmlFor="address" className="label">
         Address
       </label>
-      <input
-        id="address"
-        {...register("address", { required: "ID is required " })}
-        className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-      />
+      <input id="address" {...register("address")} className="input" />
       <ErrorMessage
         errors={errors}
         name="address"
         render={({ message }) => (
-          <p className=" p-1 text-xs text-red-600">{message}</p>
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
+        )}
+      />
+    </div>
+  );
+};
+
+const CityInput: FC = () => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
+  return (
+    <div>
+      <label htmlFor="city" className="label">
+        City
+      </label>
+      <input
+        id="city"
+        {...register("city", { valueAsNumber: true })}
+        className="input"
+      />
+      <ErrorMessage
+        errors={errors}
+        name="city"
+        render={({ message }) => (
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
+        )}
+      />
+    </div>
+  );
+};
+
+const TypeInput: FC = () => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
+  //Consist all option, could be implemented with fetching from db in future
+  const options = [
+    { value: "customer", label: "Customer" },
+    { value: "serviceProvider", label: "Service Provider" },
+  ];
+
+  return (
+    <div>
+      <label htmlFor="type" className="label">
+        Type
+      </label>
+      <select id="type" {...register("type")} className="input">
+        <option value="" selected hidden>
+          Select type
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <ErrorMessage
+        errors={errors}
+        name="type"
+        render={({ message }) => (
+          <p className=" p-1 text-xs text-red-600">Invalid type</p>
+        )}
+      />
+    </div>
+  );
+};
+
+const ProfessionInput: FC = () => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
+  return (
+    <div>
+      <label htmlFor="profession" className="label">
+        Profession
+      </label>
+      <input
+        id="profession"
+        {...register("profession", { shouldUnregister: true })}
+        className="input"
+      />
+      <ErrorMessage
+        errors={errors}
+        name="profession"
+        render={({ message }) => (
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
       />
     </div>

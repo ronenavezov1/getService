@@ -1,9 +1,11 @@
-import { type NextPageWithAuth } from "next";
+import { NextPageWithAuth } from "../_app";
 
 const Pick: NextPageWithAuth = () => {
   return <div>provider/pick</div>;
 };
 
-Pick.auth = { role: "provider" };
+Pick.auth = {
+  requiredRoles: ["provider"],
+};
 
 export default Pick;
