@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
-      <artifact name="Server" />
+      <artifact name="api" />
     </artifacts-to-build>
   </component>
   <component name="AutoImportSettings">
@@ -48,7 +48,7 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "project.structure.last.edited": "Facets",
+    "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "settings.sync",
@@ -72,7 +72,7 @@
     <configuration name="Tomcat 9.0.73" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 9.0.73" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="$USER_HOME$/.jdks/corretto-1.8.0_362">
       <option name="OPEN_IN_BROWSER" value="false" />
       <deployment>
-        <artifact name="Server">
+        <artifact name="api">
           <settings>
             <option name="CONTEXT_PATH" value="/" />
           </settings>
@@ -152,7 +152,7 @@
       <method v="2">
         <option name="Make" enabled="true" />
         <option name="BuildArtifacts" enabled="true">
-          <artifact name="Server" />
+          <artifact name="api" />
         </option>
       </method>
     </configuration>
@@ -189,22 +189,12 @@
       <workItem from="1681203544504" duration="125000" />
       <workItem from="1681258930418" duration="6475000" />
       <workItem from="1681270298157" duration="6169000" />
+      <workItem from="1681302225042" duration="4646000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/server/server/UtilServlet.java</url>
-          <line>102</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

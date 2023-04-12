@@ -15,13 +15,14 @@ public class AuthorizationHandler {
      * @throws GeneralSecurityException
      */
     public static String authorize(HttpServletRequest request){
-        String idToken;
+        String idToken = request.getHeader("Authorization");
+        if(Authentication.isNullOrEmpty(idToken))
+            return null;
         try {
-            idToken = request.getHeader("Authorization");
             GoogleApiHandler.verify(idToken);
+            return idToken;
         }catch (IOException | GeneralSecurityException e){
-            idToken = null;
+            return null;
         }
-        return idToken;
     }
 }
