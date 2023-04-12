@@ -80,52 +80,71 @@ public class UtilServlet extends HttpServlet {
             response.getWriter().print(StorageManager.getCities(startWith));
     }
 
-    //todo: million checks
     private void onBoarding(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String idToken = AuthorizationHandler.authorize(request);
         if(idToken == null){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        StringBuilder body = new StringBuilder();
-        byte[] buffer = new byte[2048];
-        int read;
-        while ((read = request.getInputStream().read()) != -1)
-            body.append(new String(buffer, 0, read));
-
+        request.setCharacterEncoding("UTF-8");
+        StringBuilder json = new StringBuilder();
+        String temp;
+        while ((temp = request.getReader().readLine())!= null)
+            json.append(temp);
         long phoneNumber;
         String phoneNumberString;
         String address;
         String city;
         String profession;
         String id;
+        String type;
+        JSONObject jsonObject;
         try {
-            JSONObject jsonObject = new JSONObject(body.toString());
+            jsonObject = new JSONObject(json.toString());
             phoneNumberString = jsonObject.getString("phoneNumber");
             address = jsonObject.getString("address");
             city = jsonObject.getString("city");
             id = jsonObject.getString("id");
+            type = jsonObject.getString("type");
         }catch (JSONException e){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("false");
             return;
         }
 
-        if(Authentication.isNullOrEmpty(phoneNumberString, address, city, id)){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        if(Authentication.isNullOrEmpty(phoneNumberString, address, city, id, type)){
+            response.getWriter().print("false");
             return;
         }
 
         try{
             phoneNumber = Long.parseLong(phoneNumberString);
         }catch (NumberFormatException e){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("false");
             return;
         }
 
-        if(StorageManager.updateUser(phoneNumber, address, city, id)){
-            //todo: if worker add profession
+        if(StorageManager.updateUser(phoneNumber, address, city, id, type)){
+            if(type.equals("worker")) {
+                try {
+                    profession = jsonObject.getString("profession");
+                    if (Authentication.isNullOrEmpty(profession)) {
+                        response.getWriter().print("false");
+                        return;
+                    }
+                    if (StorageManager.updateWorkerProfession(id, profession)) {
+                        response.getWriter().print("true");
+                        return;
+                    }
+                } catch (JSONException e) {
+                    response.getWriter().print("false");
+                    return;
+                }
+            } else if (type.equals("user")) {
+                response.getWriter().print("true");
+                return;
+            }
         }
-        response.getWriter().print("true");
+        response.getWriter().print("false");
     }
 
     @Override

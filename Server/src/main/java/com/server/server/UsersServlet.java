@@ -67,7 +67,7 @@ public class UsersServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         String user = UserHandler.getUser(idToken);
         if(Authentication.isNullOrEmpty(user)){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         response.getWriter().print(user);

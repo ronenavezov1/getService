@@ -139,16 +139,48 @@ public class StorageManager {
         }
     }
 
-    public static boolean updateUser(long phoneNumber, String address, String city, String id) {
+    public static boolean updateUser(long phoneNumber, String address, String city, String id, String type) {
         try(Connection conn = getConnection()){
             try(PreparedStatement statement = conn.prepareStatement(
                         "update public.user\n" +
-                            "set phone = ?, address = ?, city = ?, is_onboarding_completed = true\n" +
-                            "where user_id = ?")){
+                            "set phone = ?, address = ?, city = ?, type = ?, is_onboarding_completed = true\n" +
+                            "where user_id = ?::uuid")){
                 statement.setLong(1, phoneNumber);
                 statement.setString(2, address);
                 statement.setString(3, city);
-                statement.setString(4, id);
+                statement.setString(4, type);
+                statement.setString(5, id);
+                return statement.executeUpdate() == 1;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean updateWorkerProfession(String id, String profession) {
+        try(Connection conn = getConnection()){
+            try(PreparedStatement statement = conn.prepareStatement(
+                    "insert into public.worker\n" +
+                            "values (?::uuid,?)")){
+                statement.setString(1, id);
+                statement.setString(2, profession);
+                return statement.executeUpdate() == 1;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try(Connection conn = getConnection()){
+            try(PreparedStatement statement = conn.prepareStatement(
+                    "update public.worker\n" +
+                            "set profession = ?" +
+                            "where worker_id = ?::uuid")){
+                statement.setString(1, profession);
+                statement.setString(2, id);
                 return statement.executeUpdate() == 1;
             } catch (SQLException e) {
                 e.printStackTrace();

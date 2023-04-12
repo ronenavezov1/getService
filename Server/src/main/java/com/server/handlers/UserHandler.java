@@ -6,7 +6,7 @@ import com.server.storage.StorageManager;
 
 public class UserHandler {
 
-    private static Gson gson = new GsonBuilder().serializeNulls().create();
+    private static final Gson gson = new GsonBuilder().serializeNulls().create();
 
     public static String getUser(String idToken) {
         try {
