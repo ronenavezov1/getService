@@ -138,5 +138,25 @@ public class StorageManager {
             }
         }
     }
+
+    public static boolean updateUser(long phoneNumber, String address, String city, String id) {
+        try(Connection conn = getConnection()){
+            try(PreparedStatement statement = conn.prepareStatement(
+                        "update public.user\n" +
+                            "set phone = ?, address = ?, city = ?, is_onboarding_completed = true\n" +
+                            "where user_id = ?")){
+                statement.setLong(1, phoneNumber);
+                statement.setString(2, address);
+                statement.setString(3, city);
+                statement.setString(4, id);
+                return statement.executeUpdate() == 1;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
 

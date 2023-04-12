@@ -1,5 +1,6 @@
 package com.server.server;
 
+import com.server.handlers.Authentication;
 import com.server.handlers.AuthorizationHandler;
 import com.server.handlers.UserHandler;
 
@@ -19,16 +20,6 @@ public class UsersServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setHeader("Access-Control-Allow-Origin", "*");
-
-        String idToken;
-        try {
-            idToken = AuthorizationHandler.authorize(request);
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print(e.getMessage());
-            return;
-        }
-
         String requestURI = request.getRequestURI();
         if (Authentication.isNullOrEmpty(requestURI))
             return;
@@ -40,7 +31,7 @@ public class UsersServlet extends HttpServlet {
             return;
         switch (action) {
             case "user":
-                getUser(response, idToken);
+                getUser(request, response);
             default:
                 return;
         }
@@ -49,16 +40,6 @@ public class UsersServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setHeader("Access-Control-Allow-Origin", "*");
-
-        String idToken;
-        try {
-            idToken = AuthorizationHandler.authorize(request);
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print(e.getMessage());
-            return;
-        }
-
         String requestURI = request.getRequestURI();
         if (Authentication.isNullOrEmpty(requestURI))
             return;
@@ -70,22 +51,38 @@ public class UsersServlet extends HttpServlet {
             return;
         switch (action) {
             case "user":
-                createUser(response, idToken);
+                createUser(request, response);
             default:
                 return;
         }
     }
 
-    public void destroy() {
-    }
-
-    private void getUser(HttpServletResponse response, String idToken) throws IOException {
+    private void getUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String idToken = AuthorizationHandler.authorize(request);
+        if(idToken == null){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().print(UserHandler.getUser(idToken));
+        String user = UserHandler.getUser(idToken);
+        if(Authentication.isNullOrEmpty(user)){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        response.getWriter().print(user);
     }
 
-    private void createUser(HttpServletResponse response, String idToken) throws IOException {
+    private void createUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String idToken = AuthorizationHandler.authorize(request);
+        if(idToken == null){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
         UserHandler.createUser(idToken);
+    }
+
+    @Override
+    public void destroy() {
     }
 }

@@ -13,7 +13,7 @@ public class UserHandler {
             String email = GoogleApiHandler.getEmail(idToken);
             return gson.toJson(StorageManager.getUser(email));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
