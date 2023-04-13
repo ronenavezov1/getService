@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { NextPageWithAuth } from "../_app";
 import {
   FormProvider,
   SubmitHandler,
@@ -9,6 +8,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FC } from "react";
 import { ErrorMessage } from "@hookform/error-message";
+import { NextPageWithAuth, UserRole } from "~/components/Auth";
 
 const callSchema = z.object({
   service: z.string().min(1, { message: "Service is required" }),
@@ -172,6 +172,8 @@ const CityInput: FC = () => {
   );
 };
 
-Create.auth = { requiredRoles: ["customer", "admin", "provider"] };
+Create.auth = {
+  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.PROVIDER],
+};
 
 export default Create;

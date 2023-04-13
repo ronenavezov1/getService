@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { env } from "~/env.mjs";
 import { fetchAuthed } from "~/utils/fetchAuthed";
 
@@ -11,5 +12,18 @@ const fetchUserById = async (id: string) => {
 };
 
 export const useUser = (id: string | undefined) => {
-  return useQuery(["user", id], () => fetchUserById(id!), { enabled: !!id });
+  return useQuery(["user", id], () => fetchUserById(id!), {
+    enabled: !!id,
+    staleTime: Infinity,
+    cacheTime: Infinity,
+  });
+};
+
+/**
+ * Returns user from db by using id from nextAuth session
+ * @returns {User} User object
+ */
+export const useUserBySession = () => {
+  const { data: session } = useSession();
+  return useUser(session?.user?.id);
 };

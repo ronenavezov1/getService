@@ -1,9 +1,9 @@
 import { signIn, signOut, useSession } from "next-auth/react";
-import { NextPageWithAuth } from "./_app";
+import { NextPageWithAuth, UserRole } from "~/components/Auth";
 
 const Home: NextPageWithAuth = () => {
   const { data: session } = useSession();
-  console.log(session);
+  // console.log(session);
 
   if (session) {
     return (
@@ -21,6 +21,10 @@ const Home: NextPageWithAuth = () => {
       <button onClick={() => signIn()}>Sign in</button>
     </>
   );
+};
+
+Home.auth = {
+  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.PROVIDER],
 };
 
 export default Home;

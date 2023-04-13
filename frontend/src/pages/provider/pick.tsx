@@ -1,11 +1,11 @@
-import { NextPageWithAuth } from "../_app";
+import { NextPageWithAuth, UserRole } from "~/components/Auth";
 
 const Pick: NextPageWithAuth = () => {
   return <div>provider/pick</div>;
 };
 
 Pick.auth = {
-  requiredRoles: ["provider"],
+  requiredRoles: [UserRole.ADMIN, UserRole.PROVIDER],
 };
 
 export default Pick;

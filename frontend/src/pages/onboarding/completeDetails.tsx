@@ -5,7 +5,7 @@ import { FC } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
-import { SubmitHandler } from "react-hook-form/dist/types";
+import type { SubmitHandler } from "react-hook-form/dist/types";
 
 const UserSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -175,29 +175,6 @@ const PhoneInput: FC = () => {
       <ErrorMessage
         errors={errors}
         name="phone"
-        render={({ message }) => (
-          <p className=" pt-1 text-xs text-red-600">{message}</p>
-        )}
-      />
-    </div>
-  );
-};
-
-const IdInput: FC = () => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
-
-  return (
-    <div>
-      <label htmlFor="id" className="label">
-        ID number
-      </label>
-      <input id="id" {...register("id")} className="input" />
-      <ErrorMessage
-        errors={errors}
-        name="id"
         render={({ message }) => (
           <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
