@@ -214,16 +214,19 @@ const CityInput: FC = () => {
     formState: { errors },
   } = useFormContext();
 
-  const { data: options } = useCities();
+  const { data: cities } = useCities();
 
   return (
     <div>
       <label htmlFor="city" className="label">
         City
       </label>
-      <select id="city" {...register("city")} className="input">
-        {options &&
-          options.map((city) => (
+      <select id="city" defaultValue="" {...register("city")} className="input">
+        <option value="" hidden>
+          Select city
+        </option>
+        {cities &&
+          cities.map((city) => (
             <option key={city.name} value={city.name}>
               {city.name}
             </option>
@@ -260,13 +263,8 @@ const TypeInput: FC = () => {
       <label htmlFor="type" className="label">
         Type
       </label>
-      <select
-        id="type"
-        defaultValue="default"
-        {...register("type")}
-        className="input"
-      >
-        <option value="default" hidden={true}>
+      <select id="type" defaultValue="" {...register("type")} className="input">
+        <option value="" hidden={true}>
           Select type
         </option>
         {options}
