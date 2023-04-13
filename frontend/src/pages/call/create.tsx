@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { FC } from "react";
 import { ErrorMessage } from "@hookform/error-message";
 import { NextPageWithAuth, UserRole } from "~/components/Auth";
+import { useCities } from "~/api/cities";
 
 const callSchema = z.object({
   service: z.string().min(1, { message: "Service is required" }),
@@ -154,13 +155,23 @@ const CityInput: FC = () => {
   const {
     register,
     formState: { errors },
-  } = useFormContext<callCreateFormSchema>();
+  } = useFormContext();
+
+  const { data: options } = useCities();
+
   return (
     <div>
       <label htmlFor="city" className="label">
         City
       </label>
-      <input className="input" {...register("city")} type="text" id="city" />
+      <select id="city" {...register("city")} className="input">
+        {options &&
+          options.map((city) => (
+            <option key={city.name} value={city.name}>
+              {city.name}
+            </option>
+          ))}
+      </select>
       <ErrorMessage
         errors={errors}
         name="city"
@@ -173,7 +184,7 @@ const CityInput: FC = () => {
 };
 
 Create.auth = {
-  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.PROVIDER],
+  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.WORKER],
 };
 
 export default Create;

@@ -5,7 +5,7 @@ const Pick: NextPageWithAuth = () => {
 };
 
 Pick.auth = {
-  requiredRoles: [UserRole.ADMIN, UserRole.PROVIDER],
+  requiredRoles: [UserRole.ADMIN, UserRole.WORKER],
 };
 
 export default Pick;

@@ -6,57 +6,51 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
 import type { SubmitHandler } from "react-hook-form/dist/types";
+import { UserRole } from "~/components/Auth";
+import { useUser, useUserBySession } from "~/api/users";
+import { useCities } from "~/api/cities";
 
 const UserSchema = z.object({
+  id: z.string(), //TODO: what id?
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
   phone: z.number().min(1, { message: "Phone number is required" }),
-  city: z.number().min(1, { message: "City is required" }),
+  city: z.string().min(1, { message: "City is required" }),
   address: z.string().min(1, { message: "Address is required" }),
 });
 
-const ServiceProviderSchema = UserSchema.extend({
-  type: z.literal("serviceProvider"),
+const WorkerProviderSchema = UserSchema.extend({
+  type: z.literal(UserRole.WORKER),
   profession: z.string().min(1, { message: "Profession is required" }),
 });
 
 const CustomerSchema = UserSchema.extend({
-  type: z.literal("customer"),
+  type: z.literal(UserRole.CUSTOMER),
 });
 
 const compeleteDetailsFormSchema = z.discriminatedUnion("type", [
-  ServiceProviderSchema,
+  WorkerProviderSchema,
   CustomerSchema,
 ]);
 
-//TODO: implement this
-const onSubmit: SubmitHandler<compeleteDetailsFormSchemaType> = async (
-  data
-) => {
-  const test = await fetch(`https://pokeapi.co/api/v2/pokemon/${data.phone}`);
-  const res = await test.json();
-  console.log("res", res);
-
-  // const res = await fetch("/api/user", {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     "Authorization": `Bearer ${session?.accessToken}
-  //   },
-  //   body: JSON.stringify(data),
-  // });
-
-  // await router.push("/");
-};
+export type CustomerSchemaType = z.infer<typeof CustomerSchema>;
+export type WorkerSchemaType = z.infer<typeof WorkerProviderSchema>;
 
 type compeleteDetailsFormSchemaType = z.infer<
   typeof compeleteDetailsFormSchema
 >;
 
+type UserSchemaType = z.infer<typeof UserSchema>;
+
+//////////////////////////////////////////////////////////////
+
 const completeDetails = () => {
-  const router = useRouter();
-  const { data: session } = useSession({ required: true });
+  const { data: session, status } = useSession({ required: true });
   const formHook = useForm<compeleteDetailsFormSchemaType>({
+    // defaultValues: async () => {
+    //   const user = await useUserBySession();
+    //   return user as UserSchemaType;
+    // },
     mode: "onChange",
     resolver: zodResolver(compeleteDetailsFormSchema),
   });
@@ -67,12 +61,20 @@ const completeDetails = () => {
   } = formHook;
   const userType = watch("type");
 
+  const onSubmitHandler = (data: any) => {
+    console.log(data);
+  };
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="grid justify-center gap-2 pt-2">
       <FormProvider {...formHook}>
         <Header />
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmitHandler)}
           className=" card grid max-w-lg  gap-2  "
         >
           <div className="flex justify-between gap-2">
@@ -83,7 +85,7 @@ const completeDetails = () => {
           <AddressInput />
           <CityInput />
           <TypeInput />
-          {userType === "serviceProvider" && <ProfessionInput />}
+          {userType === UserRole.WORKER && <ProfessionInput />}
 
           <input
             className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
@@ -101,7 +103,7 @@ const Header: FC = () => {
   return (
     <div className="text-center">
       <h1 className="text-5xl text-yellow-400">GetService</h1>
-      <h1 className="text-xl  text-white"> Fill in the information </h1>
+      <h1 className="text-xl  text-white">Fill in the information</h1>
     </div>
   );
 };
@@ -212,16 +214,21 @@ const CityInput: FC = () => {
     formState: { errors },
   } = useFormContext();
 
+  const { data: options } = useCities();
+
   return (
     <div>
       <label htmlFor="city" className="label">
         City
       </label>
-      <input
-        id="city"
-        {...register("city", { valueAsNumber: true })}
-        className="input"
-      />
+      <select id="city" {...register("city")} className="input">
+        {options &&
+          options.map((city) => (
+            <option key={city.name} value={city.name}>
+              {city.name}
+            </option>
+          ))}
+      </select>
       <ErrorMessage
         errors={errors}
         name="city"
@@ -239,33 +246,35 @@ const TypeInput: FC = () => {
     formState: { errors },
   } = useFormContext();
 
-  //Consist all option, could be implemented with fetching from db in future
-  const options = [
-    { value: "customer", label: "Customer" },
-    { value: "serviceProvider", label: "Service Provider" },
-  ];
+  //Consist all options from Auth enum without ADMIN
+  const options = Object.values(UserRole)
+    .filter((value) => value !== UserRole.ADMIN)
+    .map((value) => (
+      <option key={value} value={value}>
+        {value}
+      </option>
+    ));
 
   return (
     <div>
       <label htmlFor="type" className="label">
         Type
       </label>
-      <select id="type" {...register("type")} className="input">
-        <option value="" selected hidden>
+      <select
+        id="type"
+        defaultValue="default"
+        {...register("type")}
+        className="input"
+      >
+        <option value="default" hidden={true}>
           Select type
         </option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {options}
       </select>
       <ErrorMessage
         errors={errors}
         name="type"
-        render={({ message }) => (
-          <p className=" p-1 text-xs text-red-600">Invalid type</p>
-        )}
+        render={() => <p className=" p-1 text-xs text-red-600">Invalid type</p>}
       />
     </div>
   );

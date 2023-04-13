@@ -5,7 +5,7 @@ const Status: NextPageWithAuth = () => {
 };
 
 Status.auth = {
-  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.PROVIDER],
+  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.WORKER],
 };
 
 export default Status;

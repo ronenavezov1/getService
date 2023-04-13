@@ -24,7 +24,7 @@ const Home: NextPageWithAuth = () => {
 };
 
 Home.auth = {
-  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.PROVIDER],
+  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.WORKER],
 };
 
 export default Home;

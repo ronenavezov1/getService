@@ -3,17 +3,17 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { useUser, useUserBySession } from "~/api/users";
+import { useUser } from "~/api/users";
 
 //Auth types
 export enum UserRole {
   ADMIN = "admin",
   CUSTOMER = "customer",
-  PROVIDER = "provider",
+  WORKER = "worker",
 }
 
 export interface PageWithAuth {
-  auth?: {
+  auth: {
     requiredRoles: UserRole[];
   };
 }
@@ -49,7 +49,6 @@ const Auth = ({ children }: AuthProps) => {
 
   const pageAuth = (children as any).type.auth;
   const { requiredRoles } = pageAuth;
-
   // console.log("requiredRoles:", requiredRoles);
   // console.log("userRole:", user.role);
   // console.log("includes", requiredRoles.includes(user.role));

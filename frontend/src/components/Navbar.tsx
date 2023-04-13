@@ -1,8 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { UserRole } from "./Auth";
+import Link from "next/link";
 
 interface NavbarProps {
   name: string;
@@ -11,22 +11,16 @@ interface NavbarProps {
 
 const Navbar: FC<NavbarProps> = ({ name, role }) => {
   const [isOpen, setIsOpen] = useState(false);
-  console.log(role);
+  const onBurgerClickHandler = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
-    <div className="flex flex-col gap-4 bg-indigo-600 p-2  shadow-md">
+    <div className="flex flex-col gap-4 bg-indigo-600 p-2 shadow-md">
       <div className="flex justify-between">
-        <div>
-          <LeftNavBar name={name} />
-        </div>
-        <div className="flex">
-          <RightNavBar role={role} />
-          <button className="w-8 sm:hidden" onClick={() => setIsOpen(!isOpen)}>
-            <BurgerMenuIcon />
-          </button>
-        </div>
+        <LeftNavBar name={name} />
+        <RightNavBar role={role} onClickHandler={onBurgerClickHandler} />
       </div>
-
       {isOpen && <BurgerMenu role={role} />}
     </div>
   );
@@ -41,72 +35,61 @@ interface RoleProps {
 }
 
 const LeftNavBar: FC<LeftNavBarProps> = ({ name }) => {
-  const rounter = useRouter();
-  const onClickHandler = async () => {
-    await rounter.push("/");
-  };
   return (
-    <div className=" flex gap-4">
-      <a
-        className="cursor-pointer text-3xl  font-bold text-yellow-400 transition-colors  hover:text-yellow-500"
-        onClick={onClickHandler}
+    <div className=" flex items-center gap-4">
+      <Link
+        className="cursor-pointer text-3xl font-bold text-yellow-400 transition-colors  hover:text-yellow-500"
+        href="/"
       >
         Get Service
-      </a>
-      <h1 className=" self-end text-sm text-white"> {name}</h1>
+      </Link>
+      <h1 className="text-sm text-white "> {name}</h1>
     </div>
   );
 };
 
-const RightNavBar: FC<RoleProps> = ({ role }) => {
+interface RightNavBarProps extends RoleProps {
+  onClickHandler: React.MouseEventHandler<HTMLButtonElement>;
+}
+
+const RightNavBar: FC<RightNavBarProps> = ({ role, onClickHandler }) => {
   return (
-    <div className="gap- hidden place-items-center gap-8 sm:flex">
-      <Links role={role} />
+    <div className="flex">
+      <div className="hidden place-items-center gap-8 md:flex">
+        <Links role={role} />
+      </div>
+      <button className="w-8 md:hidden" onClick={onClickHandler}>
+        <BurgerMenuIcon />
+      </button>
     </div>
   );
 };
 
 const Links: FC<RoleProps> = ({ role }) => {
-  const router = useRouter();
-  const onStatusClickHandler = async () => {
-    await router.push("/call/status");
-  };
-  const onCreateCallClickHandler = async () => {
-    await router.push("/call/create");
-  };
-
-  const onPickClickHandler = async () => {
-    await router.push("/provider/pick");
-  };
-
-  const onUsersClickHandler = async () => {
-    await router.push("/backoffice/users");
-  };
-
   return (
     <>
       {/* user links  */}
 
-      <a className="navLink" onClick={onStatusClickHandler}>
+      <Link className="navLink" href={"/call/status"}>
         Status
-      </a>
+      </Link>
 
-      <a className="navLink" onClick={onCreateCallClickHandler}>
+      <Link className="navLink" href={"/call/create"}>
         Create call
-      </a>
+      </Link>
 
       {/* provider/admin links  */}
-      {(role === UserRole.ADMIN || role === UserRole.PROVIDER) && (
-        <a className="navLink" onClick={onPickClickHandler}>
+      {(role === UserRole.ADMIN || role === UserRole.WORKER) && (
+        <Link className="navLink" href={"/provider/pick"}>
           Pick
-        </a>
+        </Link>
       )}
 
       {/* admin links  */}
       {role === UserRole.ADMIN && (
-        <a className="navLink" onClick={onUsersClickHandler}>
+        <Link className="navLink" href={"/backoffice/users"}>
           Users
-        </a>
+        </Link>
       )}
 
       <LogoutBtn />
@@ -145,7 +128,7 @@ const BurgerMenuIcon: FC = () => {
 
 const BurgerMenu: FC<RoleProps> = ({ role }) => {
   return (
-    <div className="  flex flex-col gap-4  text-center sm:hidden">
+    <div className="  flex flex-col gap-4 text-center md:hidden">
       <Links role={role} />
     </div>
   );
@@ -155,8 +138,8 @@ const LogoutBtn: FC = () => {
   const queryClient = useQueryClient();
 
   const onClickHandler = async () => {
-    queryClient.invalidateQueries({ queryKey: ["user"] });
     await signOut();
+    queryClient.invalidateQueries({ queryKey: ["user"] });
   };
 
   return (
