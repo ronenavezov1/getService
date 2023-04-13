@@ -16,12 +16,12 @@ public class AuthorizationHandler {
      */
     public static String authorize(HttpServletRequest request){
         String idToken = request.getHeader("Authorization");
-        if(Authentication.isNullOrEmpty(idToken))
+        if (Authentication.isNullOrEmpty(idToken))
             return null;
         try {
             GoogleApiHandler.verify(idToken);
             return idToken;
-        }catch (IOException | GeneralSecurityException e){
+        } catch (Exception e) {
             return null;
         }
     }

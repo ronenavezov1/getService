@@ -15,7 +15,7 @@ public class UsersServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String idToken = AuthorizationHandler.authorize(request);
-        if(idToken == null){
+        if (idToken == null){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -23,7 +23,7 @@ public class UsersServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String user = UserHandler.getUser(idToken);
-        if(Authentication.isNullOrEmpty(user)){
+        if (Authentication.isNullOrEmpty(user)){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -34,7 +34,7 @@ public class UsersServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setHeader("Access-Control-Allow-Origin", "*");
         String idToken = AuthorizationHandler.authorize(request);
-        if(idToken == null){
+        if (idToken == null){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
