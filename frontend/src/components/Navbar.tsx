@@ -5,11 +5,12 @@ import { UserRole } from "./Auth";
 import Link from "next/link";
 
 interface NavbarProps {
-  name: string;
+  firstName: string;
+  lastName: string;
   role: UserRole;
 }
 
-const Navbar: FC<NavbarProps> = ({ name, role }) => {
+const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
   const [isOpen, setIsOpen] = useState(false);
   const onBurgerClickHandler = () => {
     setIsOpen(!isOpen);
@@ -18,7 +19,7 @@ const Navbar: FC<NavbarProps> = ({ name, role }) => {
   return (
     <div className="flex flex-col gap-4 bg-indigo-600 p-2 shadow-md">
       <div className="flex justify-between">
-        <LeftNavBar name={name} />
+        <LeftNavBar firstName={firstName} lastName={lastName} />
         <RightNavBar role={role} onClickHandler={onBurgerClickHandler} />
       </div>
       {isOpen && <BurgerMenu role={role} />}
@@ -27,14 +28,15 @@ const Navbar: FC<NavbarProps> = ({ name, role }) => {
 };
 
 interface LeftNavBarProps {
-  name: string;
+  firstName: string;
+  lastName: string;
 }
 
 interface RoleProps {
   role: UserRole;
 }
 
-const LeftNavBar: FC<LeftNavBarProps> = ({ name }) => {
+const LeftNavBar: FC<LeftNavBarProps> = ({ firstName, lastName }) => {
   return (
     <div className=" flex items-center gap-4">
       <Link
@@ -43,7 +45,7 @@ const LeftNavBar: FC<LeftNavBarProps> = ({ name }) => {
       >
         Get Service
       </Link>
-      <h1 className="text-sm text-white "> {name}</h1>
+      <h1 className="text-sm text-white "> {`${firstName} ${lastName}`}</h1>
     </div>
   );
 };

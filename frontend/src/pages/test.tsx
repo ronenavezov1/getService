@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useCities } from "~/api/cities";
-import { useUser, useUserBySession } from "~/api/users";
+import { useUserByEmail, useUserBySession } from "~/api/users";
 import { NextPageWithAuth, UserRole } from "~/components/Auth";
 import { fetchAuthed } from "~/utils/fetchAuthed";
 

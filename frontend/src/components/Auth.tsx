@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { useUser } from "~/api/users";
+import { useUserByEmail } from "~/api/users";
 
 //Auth types
 export enum UserRole {
@@ -32,7 +32,9 @@ interface AuthProps {
 const Auth = ({ children }: AuthProps) => {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
-  const { data: user, isLoading: isLoadingUser } = useUser(session?.user?.id);
+  const { data: user, isLoading: isLoadingUser } = useUserByEmail(
+    session?.user?.email
+  );
 
   if (status === "loading" || isLoadingUser) {
     return <div>Loading...</div>;
@@ -60,7 +62,11 @@ const Auth = ({ children }: AuthProps) => {
 
   return (
     <>
-      <Navbar name={user.name} role={user.role} />
+      <Navbar
+        firstName={user.firstName}
+        lastName={user.lastName}
+        role={user.role}
+      />
       {children}
     </>
   );

@@ -1,26 +1,45 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { UserRole } from "~/components/Auth";
 import { env } from "~/env.mjs";
-import {
-  CustomerSchemaType,
-  WorkerSchemaType,
-} from "~/pages/onboarding/completeDetails";
+import { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
 import { fetchAuthed } from "~/utils/fetchAuthed";
 
 const BASE_USER_API_URL = `${env.NEXT_PUBLIC_BASE_API_URL}users`;
 
 interface User {
   id: string;
-  name: string;
-  role: UserRole;
+  firstName: string;
+  lastName: string;
+  email: string;
+  adress: string;
+  city: string;
   isCompletedOnBoarding: boolean;
 }
 
-const getUserById = async (id: string) => {
-  const res = await fetchAuthed(`${BASE_USER_API_URL}/${id}`);
+interface Customer extends User {
+  role: UserRole.CUSTOMER;
+}
+
+interface Worker extends User {
+  role: UserRole.WORKER;
+  proffesion: string;
+}
+
+const getUserByEmail = async (email: string) => {
+  const res = await fetchAuthed(`${BASE_USER_API_URL}/${email}`);
   const data = await res.json();
-  return data as User;
+  return data as Customer | Worker;
+};
+
+const postUser = async (user: CompeleteDetailsFormSchemaType) => {
+  const res = await fetchAuthed(`${BASE_USER_API_URL}`, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(user),
+  });
+  const data = await res.json();
+  return data;
 };
 
 /**
@@ -28,9 +47,9 @@ const getUserById = async (id: string) => {
  * only fetches if id is defined
  * @param id id of user to fetch
  */
-export const useUser = (id: string | undefined) => {
-  return useQuery(["user", id], () => getUserById(id!), {
-    enabled: !!id,
+export const useUserByEmail = (email?: string | null) => {
+  return useQuery(["user", email], () => getUserByEmail(email!), {
+    enabled: !!email,
     staleTime: Infinity,
     cacheTime: Infinity,
   });
@@ -42,27 +61,14 @@ export const useUser = (id: string | undefined) => {
  */
 export const useUserBySession = () => {
   const { data: session } = useSession();
-  return useUser(session?.user?.id);
+  return useUserByEmail(session?.user?.email);
 };
 
 /**
- *return mutation to create user
- *
+ *Return mutation to create user
+ *invalidates user query on success
+ * @param queryClient
  */
 export const useCreateUser = () => {
-  return useMutation(
-    async (user: CustomerSchemaType | WorkerSchemaType) => {
-      const res = await fetchAuthed(`${BASE_USER_API_URL}`, {
-        method: "POST",
-        body: JSON.stringify(user),
-      });
-      const data = await res.json();
-      return data as User;
-    },
-    {
-      onSuccess: (data) => {
-        console.log("data", data);
-      },
-    }
-  );
+  return useMutation(postUser);
 };

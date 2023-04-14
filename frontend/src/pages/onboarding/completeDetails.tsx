@@ -1,17 +1,15 @@
 import { ErrorMessage } from "@hookform/error-message";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import { FC } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
-import type { SubmitHandler } from "react-hook-form/dist/types";
 import { UserRole } from "~/components/Auth";
-import { useUser, useUserBySession } from "~/api/users";
 import { useCities } from "~/api/cities";
+import { useCreateUser } from "~/api/users";
+import { useQueryClient } from "@tanstack/react-query";
 
 const UserSchema = z.object({
-  id: z.string(), //TODO: what id?
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
   phone: z.number().min(1, { message: "Phone number is required" }),
@@ -33,24 +31,17 @@ const compeleteDetailsFormSchema = z.discriminatedUnion("type", [
   CustomerSchema,
 ]);
 
-export type CustomerSchemaType = z.infer<typeof CustomerSchema>;
-export type WorkerSchemaType = z.infer<typeof WorkerProviderSchema>;
-
-type compeleteDetailsFormSchemaType = z.infer<
+export type CompeleteDetailsFormSchemaType = z.infer<
   typeof compeleteDetailsFormSchema
 >;
-
-type UserSchemaType = z.infer<typeof UserSchema>;
 
 //////////////////////////////////////////////////////////////
 
 const completeDetails = () => {
-  const { data: session, status } = useSession({ required: true });
-  const formHook = useForm<compeleteDetailsFormSchemaType>({
-    // defaultValues: async () => {
-    //   const user = await useUserBySession();
-    //   return user as UserSchemaType;
-    // },
+  const { status } = useSession({ required: true });
+  const queryClient = useQueryClient();
+  const { mutateAsync } = useCreateUser();
+  const formHook = useForm<CompeleteDetailsFormSchemaType>({
     mode: "onChange",
     resolver: zodResolver(compeleteDetailsFormSchema),
   });
@@ -61,13 +52,15 @@ const completeDetails = () => {
   } = formHook;
   const userType = watch("type");
 
-  const onSubmitHandler = (data: any) => {
-    console.log(data);
+  const onSubmitHandler = async (data: any) => {
+    await mutateAsync(data, {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["cities"]);
+      },
+    });
   };
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
+  if (status === "loading") return <div>Loading...</div>;
 
   return (
     <div className="grid justify-center gap-2 pt-2">
