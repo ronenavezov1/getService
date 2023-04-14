@@ -31,20 +31,38 @@ public class StorageManager {
         return ds.getConnection();
     }
 
-    public static void addUser(User user) {
+    public static boolean isEmailExists(String email) throws SQLException {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(Queries.INSERT_USER)) {
-                statement.setString(1, user.getEmail());
-                statement.setString(2, user.getFirstName());
-                statement.setString(3, user.getLastName());
-                // TODO: add all fields
-                statement.executeUpdate();
+            try (PreparedStatement statement = connection.prepareStatement("select email from public.user where email = ?")){
+                statement.setString(1, email);
+                try (ResultSet resultSet = statement.executeQuery()){
+                    return resultSet.next();
+                }
+            }
+        }
+    }
+
+    public static boolean addUser(String email, String firstName, String lastName, long phoneNumber, String address, String city, String id, String type) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "insert into public.user (user_id, email, first_name, last_name, address, city, phone, type) values " +
+                    "(?::uuid, ?, ?, ?, ?, ?, ?, ?)")) {
+                statement.setString(1, id);
+                statement.setString(2, email);
+                statement.setString(3, firstName);
+                statement.setString(4, lastName);
+                statement.setString(5, address);
+                statement.setString(6, city);
+                statement.setLong(7, phoneNumber);
+                statement.setString(8, type);
+                return statement.executeUpdate() == 1;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return false;
     }
 
     public static User getUser(String email) {
@@ -139,17 +157,20 @@ public class StorageManager {
         }
     }
 
-    public static boolean updateUser(long phoneNumber, String address, String city, String id, String type) {
+    public static boolean updateUser(String email, String firstName, String lastName, long phoneNumber, String address, String city, String id, String type) {
         try(Connection conn = getConnection()){
             try(PreparedStatement statement = conn.prepareStatement(
                         "update public.user\n" +
-                            "set phone = ?, address = ?, city = ?, type = ?, is_onboarding_completed = true\n" +
+                            "set email = ?, firat_name = ?, last_name = ?, phone = ?, address = ?, city = ?, type = ?, is_onboarding_completed = true\n" +
                             "where user_id = ?::uuid")){
-                statement.setLong(1, phoneNumber);
-                statement.setString(2, address);
-                statement.setString(3, city);
-                statement.setString(4, type);
-                statement.setString(5, id);
+                statement.setString(1, email);
+                statement.setString(2, firstName);
+                statement.setString(3, lastName);
+                statement.setLong(4, phoneNumber);
+                statement.setString(5, address);
+                statement.setString(6, city);
+                statement.setString(7, type);
+                statement.setString(8, id);
                 return statement.executeUpdate() == 1;
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -160,11 +181,11 @@ public class StorageManager {
         return false;
     }
 
-    public static boolean updateWorkerProfession(String id, String profession) {
-        try(Connection conn = getConnection()){
-            try(PreparedStatement statement = conn.prepareStatement(
+    public static boolean addWorkerProfession(String id, String profession) {
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement statement = conn.prepareStatement(
                     "insert into public.worker\n" +
-                            "values (?::uuid,?)")){
+                            "values (?::uuid,?)")) {
                 statement.setString(1, id);
                 statement.setString(2, profession);
                 return statement.executeUpdate() == 1;
@@ -174,6 +195,9 @@ public class StorageManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
+    }
+    public static boolean updateWorkerProfession(String id, String profession) {
         try(Connection conn = getConnection()){
             try(PreparedStatement statement = conn.prepareStatement(
                     "update public.worker\n" +
