@@ -1,13 +1,19 @@
 import { ErrorMessage } from "@hookform/error-message";
 import { useSession } from "next-auth/react";
-import { FC } from "react";
+import { FC, useState, Fragment } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import {
+  FormProvider,
+  useForm,
+  useFormContext,
+  Controller,
+} from "react-hook-form";
 import { z } from "zod";
 import { UserRole } from "~/components/Auth";
 import { useCities } from "~/api/cities";
 import { useCreateUser } from "~/api/users";
 import { useQueryClient } from "@tanstack/react-query";
+import Select from "react-select";
 
 const UserSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -53,8 +59,10 @@ const completeDetails = () => {
   const userType = watch("type");
 
   const onSubmitHandler = async (data: any) => {
+    console.log(`submit` + " " + data);
     await mutateAsync(data, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        console.log(data);
         queryClient.invalidateQueries(["cities"]);
       },
     });
@@ -201,30 +209,84 @@ const AddressInput: FC = () => {
   );
 };
 
+// const CityInput: FC = () => {
+//   const {
+//     register,
+//     formState: { errors },
+//   } = useFormContext();
+
+//   const { data: cities } = useCities();
+
+//   return (
+//     <div>
+//       <label htmlFor="city" className="label">
+//         City
+//       </label>
+//       <select id="city" defaultValue="" {...register("city")} className="input">
+//         <option value="" hidden>
+//           Select city
+//         </option>
+//         {cities &&
+//           cities.map((city) => (
+//             <option key={city.name} value={city.name}>
+//               {city.name}
+//             </option>
+//           ))}
+//       </select>
+//       <ErrorMessage
+//         errors={errors}
+//         name="city"
+//         render={({ message }) => (
+//           <p className=" pt-1 text-xs text-red-600">{message}</p>
+//         )}
+//       />
+//     </div>
+//   );
+// };
+
 const CityInput: FC = () => {
   const {
     register,
+    control,
     formState: { errors },
   } = useFormContext();
 
   const { data: cities } = useCities();
+  const options = cities?.map((city) => ({
+    value: city.name,
+    label: city.name,
+  }));
 
   return (
     <div>
       <label htmlFor="city" className="label">
         City
       </label>
-      <select id="city" defaultValue="" {...register("city")} className="input">
-        <option value="" hidden>
-          Select city
-        </option>
-        {cities &&
-          cities.map((city) => (
-            <option key={city.name} value={city.name}>
-              {city.name}
-            </option>
-          ))}
-      </select>
+      <Controller
+        control={control}
+        name="city"
+        render={({ field: { onChange } }) => (
+          <Select
+            id="city"
+            placeholder="Select city"
+            options={options}
+            onChange={(e) => onChange(e?.value)}
+            styles={{
+              control: (provided) => ({
+                ...provided,
+                background: "",
+                border: 0,
+                boxShadow:
+                  "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+                borderRadius: "0.25rem",
+                "&:focus": {
+                  outline: "none",
+                },
+              }),
+            }}
+          />
+        )}
+      />
       <ErrorMessage
         errors={errors}
         name="city"
