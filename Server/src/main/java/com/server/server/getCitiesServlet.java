@@ -25,6 +25,7 @@ public class getCitiesServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Headers", "Authorization");
         response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         String startWith = request.getParameter("startWith");
