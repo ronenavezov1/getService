@@ -17,7 +17,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     //TODO: add user interface instead of any
     user: User & DefaultSession["user"];
-    accessToken: string;
+    idToken: string;
   }
 
   interface User {
@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account, user, profile }) {
       // Persist the OAuth access_token and or the user id to the token right after signin
       if (account) {
-        token.accessToken = account.access_token;
+        token.idToken = account.id_token;
         // //debugging
         // console.log("token", token);
         // console.log("account", account);
@@ -53,8 +53,9 @@ export const authOptions: NextAuthOptions = {
 
     // Send properties to the client, like an access_token and user id from a provider.
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
+      session.idToken = token.idToken as string;
       session.user.id = token.id as string;
+      console.log("idToken", session.idToken); //TODO:removec
       return session;
     },
   },

@@ -5,6 +5,9 @@ interface City {
   name: string;
 }
 
+//mock data
+// const BASE_CITY_API_URL = `${env.NEXT_PUBLIC_BASE_API_URL}cities`;
+
 const BASE_CITY_API_URL = `${env.NEXT_PUBLIC_BASE_API_URL}cities`;
 
 const fetchCites = async () => {

@@ -1,3 +1,4 @@
+import { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { NextPageWithAuth, UserRole } from "~/components/Auth";
 
@@ -11,6 +12,8 @@ const Home: NextPageWithAuth = () => {
         <p className=" w-full break-words text-xl">{`${JSON.stringify(
           session
         )}`}</p>
+
+        <p className=" w-full break-words text-xl">{`${session?.idToken}`}</p>
         <button onClick={() => signOut()}>Sign out</button>
       </div>
     );
