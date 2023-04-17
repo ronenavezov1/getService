@@ -11,6 +11,6 @@ import java.io.IOException;
 public class AdminServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+
     }
 }

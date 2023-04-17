@@ -19,7 +19,6 @@ public class UsersServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        response.setHeader("Access-Control-Allow-Origin", "*");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String user = UserHandler.getUser(idToken);
@@ -32,7 +31,6 @@ public class UsersServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
         String idToken = AuthorizationHandler.authorize(request);
         if (idToken == null){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

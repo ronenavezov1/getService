@@ -23,7 +23,6 @@ import java.util.UUID;
 public class onBoardingServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String idToken = AuthorizationHandler.authorize(request);
