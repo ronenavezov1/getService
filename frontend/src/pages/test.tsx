@@ -1,25 +1,11 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import React from "react";
 import { useCities } from "~/api/cities";
-import { useUserByEmail, useUserBySession } from "~/api/users";
-import { NextPageWithAuth, UserRole } from "~/components/Auth";
-import { fetchAuthed } from "~/utils/fetchAuthed";
 
 const TestPage = () => {
   const { data: session, status } = useSession({ required: true });
-  console.log(session?.idToken);
 
-  const { data: user, isLoading } = useQuery(["testUser"], () =>
-    fetch("http://get-service.eastus.cloudapp.azure.com:8080/api/cities", {
-      method: "GET",
-      headers: {
-        Authorization: `${session?.idToken}`,
-        "Content-Type": "application/json",
-      },
-    }).then((res) => res.json())
-  );
-
+  const { data: user, isLoading } = useCities(session?.idToken!);
   // const { data: cities, isLoading: isLoadingCities } = useCities();
 
   // const clickHandler = async () => {

@@ -13,7 +13,7 @@ const Home: NextPageWithAuth = () => {
           session
         )}`}</p>
 
-        <p className=" w-full break-words text-xl">{`${session?.idToken}`}</p>
+        {/* <p className=" w-full break-words text-xl">{`${session?.idToken}`}</p> */}
         <button onClick={() => signOut()}>Sign out</button>
       </div>
     );

@@ -7,15 +7,15 @@ import {
   useForm,
   useFormContext,
   Controller,
-  useController,
+  SubmitHandler,
 } from "react-hook-form";
 import { z } from "zod";
 import { UserRole } from "~/components/Auth";
 import { useCities } from "~/api/cities";
-import { useCreateUser } from "~/api/users";
+import { usePostUser } from "~/api/users";
 import { useQueryClient } from "@tanstack/react-query";
-import Select from "react-select";
 import { Combobox, Transition } from "@headlessui/react";
+import { useRouter } from "next/router";
 
 const UserSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -46,9 +46,10 @@ export type CompeleteDetailsFormSchemaType = z.infer<
 //////////////////////////////////////////////////////////////
 
 const completeDetails = () => {
-  const { status } = useSession({ required: true });
+  const router = useRouter();
+  const { data: session } = useSession({ required: true });
   const queryClient = useQueryClient();
-  const { mutateAsync } = useCreateUser();
+  const { mutateAsync } = usePostUser();
   const formHook = useForm<CompeleteDetailsFormSchemaType>({
     mode: "onChange",
     resolver: zodResolver(compeleteDetailsFormSchema),
@@ -56,22 +57,25 @@ const completeDetails = () => {
   const {
     handleSubmit,
     watch,
-    control,
     formState: { isSubmitting },
   } = formHook;
   const userType = watch("type");
 
-  const onSubmitHandler = async (data: any) => {
-    console.log(`submit` + " " + data);
+  const { data: cities } = useCities(session?.idToken);
+
+  /**
+   * Submits form data , invalidates user query and redirects to home page
+   */
+  const onSubmitHandler: SubmitHandler<CompeleteDetailsFormSchemaType> = async (
+    data
+  ) => {
     await mutateAsync(data, {
       onSuccess: (data) => {
-        console.log(data);
-        queryClient.invalidateQueries(["cities"]);
+        queryClient.invalidateQueries(["user"]);
       },
     });
+    await router.push("/");
   };
-
-  if (status === "loading") return <div>Loading...</div>;
 
   return (
     <div className="grid justify-center gap-2 pt-2">
@@ -87,7 +91,7 @@ const completeDetails = () => {
           </div>
           <PhoneInput />
           <AddressInput />
-          <CityInput />
+          <CityInput cities={cities} />
           <TypeInput />
           {userType === UserRole.WORKER && <ProfessionInput />}
 
@@ -212,109 +216,17 @@ const AddressInput: FC = () => {
   );
 };
 
-//regular
-// const CityInput: FC = () => {
-//   const {
-//     register,
-//     formState: { errors },
-//   } = useFormContext();
-
-//   const { data: cities } = useCities();
-
-//   return (
-//     <div>
-//       <label htmlFor="city" className="label">
-//         City
-//       </label>
-//       <select id="city" defaultValue="" {...register("city")} className="input">
-//         <option value="" hidden>
-//           Select city
-//         </option>
-//         {cities &&
-//           cities.map((city) => (
-//             <option key={city.name} value={city.name}>
-//               {city.name}
-//             </option>
-//           ))}
-//       </select>
-//       <ErrorMessage
-//         errors={errors}
-//         name="city"
-//         render={({ message }) => (
-//           <p className=" pt-1 text-xs text-red-600">{message}</p>
-//         )}
-//       />
-//     </div>
-//   );
-// };
-
-//react-select
-// const CityInput: FC = () => {
-//   const {
-//     register,
-//     control,
-//     formState: { errors },
-//   } = useFormContext();
-
-//   const { data: cities } = useCities();
-//   const options = cities?.map((city) => ({
-//     value: city.name,
-//     label: city.name,
-//   }));
-
-//   return (
-//     <div>
-//       <label htmlFor="city" className="label">
-//         City
-//       </label>
-//       <Controller
-//         control={control}
-//         name="city"
-//         render={({ field: { onChange } }) => (
-//           <Select
-//             id="city"
-//             placeholder="Select city"
-//             options={options}
-//             onChange={(e) => onChange(e?.value)}
-//             styles={{
-//               control: (provided) => ({
-//                 ...provided,
-//                 background: "",
-//                 border: 0,
-//                 boxShadow:
-//                   "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
-//                 borderRadius: "0.25rem",
-//                 "&:focus": {
-//                   outline: "none",
-//                 },
-//               }),
-//             }}
-//           />
-//         )}
-//       />
-//       <ErrorMessage
-//         errors={errors}
-//         name="city"
-//         render={({ message }) => (
-//           <p className=" pt-1 text-xs text-red-600">{message}</p>
-//         )}
-//       />
-//     </div>
-//   );
-// };
-
-const CityInput: FC = () => {
+const CityInput: FC<CityInputProps> = ({ cities }) => {
   const {
     control,
     formState: { errors },
   } = useFormContext();
   const [query, setQuery] = useState("");
-  const { data: cities } = useCities();
 
   const filteredCities =
     (query && cities?.length !== 0) === ""
       ? cities
-      : cities?.filter((city) =>
+      : cities?.filter((city: City) =>
           city.name.toLowerCase().includes(query.toLowerCase())
         );
 
@@ -354,7 +266,7 @@ const CityInput: FC = () => {
                       Nothing found.
                     </div>
                   ) : (
-                    filteredCities?.map((city) => (
+                    filteredCities?.map((city: City) => (
                       <Combobox.Option
                         className={({ active }) =>
                           `relative  cursor-default select-none py-2 pl-10 pr-4 ${

@@ -1,15 +1,18 @@
 import { z } from "zod";
 import {
+  Controller,
   FormProvider,
   SubmitHandler,
   useForm,
   useFormContext,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { FC } from "react";
+import { FC, Fragment, useState } from "react";
 import { ErrorMessage } from "@hookform/error-message";
 import { NextPageWithAuth, UserRole } from "~/components/Auth";
 import { useCities } from "~/api/cities";
+import { useSession } from "next-auth/react";
+import { Combobox, Transition } from "@headlessui/react";
 
 const callSchema = z.object({
   service: z.string().min(1, { message: "Service is required" }),
@@ -20,11 +23,6 @@ const callSchema = z.object({
 
 type callCreateFormSchema = z.infer<typeof callSchema>;
 
-//TODO : implement
-const onSubmit: SubmitHandler<callCreateFormSchema> = async (data) => {
-  console.log(data);
-};
-
 const Create: NextPageWithAuth = () => {
   const formHook = useForm<callCreateFormSchema>({
     mode: "onChange",
@@ -34,6 +32,13 @@ const Create: NextPageWithAuth = () => {
     handleSubmit,
     formState: { isSubmitting },
   } = formHook;
+  const { data: session } = useSession({ required: true });
+  const { data: cities } = useCities(session?.idToken);
+
+  //TODO : implement
+  const onSubmit: SubmitHandler<callCreateFormSchema> = async (data) => {
+    console.log(data);
+  };
 
   return (
     <div className=" grid justify-center gap-2 pt-2">
@@ -47,7 +52,7 @@ const Create: NextPageWithAuth = () => {
           <DescriptionInput />
           <div className="flex justify-between gap-2">
             <AddressInput />
-            <CityInput />
+            <CityInput cities={cities} />
           </div>
 
           <input
@@ -151,30 +156,76 @@ const AddressInput: FC = () => {
   );
 };
 
-const CityInput: FC = () => {
+const CityInput: FC<CityInputProps> = ({ cities }) => {
   const {
-    register,
+    control,
     formState: { errors },
   } = useFormContext();
+  const [query, setQuery] = useState("");
 
-  const { data: cities } = useCities();
+  const filteredCities =
+    (query && cities?.length !== 0) === ""
+      ? cities
+      : cities?.filter((city: City) =>
+          city.name.toLowerCase().includes(query.toLowerCase())
+        );
 
   return (
     <div>
-      <label htmlFor="city" className="label">
-        City
-      </label>
-      <select id="city" defaultValue="" {...register("city")} className="input">
-        <option value="" hidden>
-          Select city
-        </option>
-        {cities &&
-          cities.map((city) => (
-            <option key={city.name} value={city.name}>
-              {city.name}
-            </option>
-          ))}
-      </select>
+      <Controller
+        control={control}
+        name="city"
+        render={({ field: { onChange } }) => (
+          <Combobox onChange={onChange}>
+            <Combobox.Label className={"label"}>City</Combobox.Label>
+            <div className="relative mt-1 ">
+              <Combobox.Input
+                placeholder="Select city"
+                className="input"
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                }}
+              />
+
+              <Combobox.Button className="absolute right-0 h-full  pr-2 ">
+                <div className="text-gray-400" aria-hidden="true">
+                  x
+                </div>
+              </Combobox.Button>
+
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+                afterLeave={() => setQuery("")}
+              >
+                <Combobox.Options className=" absolute z-10 mt-1 max-h-36  w-full  overflow-auto rounded-md bg-white py-1 text-center text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  {filteredCities?.length === 0 && query !== "" ? (
+                    <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
+                      Nothing found.
+                    </div>
+                  ) : (
+                    filteredCities?.map((city: City) => (
+                      <Combobox.Option
+                        className={({ active }) =>
+                          `relative  cursor-default select-none py-2 pl-10 pr-4 ${
+                            active ? "bg-blue-500 text-white" : "text-gray-900"
+                          }`
+                        }
+                        key={city.name}
+                        value={city.name}
+                      >
+                        {city.name}
+                      </Combobox.Option>
+                    ))
+                  )}
+                </Combobox.Options>
+              </Transition>
+            </div>
+          </Combobox>
+        )}
+      />
       <ErrorMessage
         errors={errors}
         name="city"

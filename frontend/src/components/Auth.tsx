@@ -51,9 +51,6 @@ const Auth = ({ children }: AuthProps) => {
 
   const pageAuth = (children as any).type.auth;
   const { requiredRoles } = pageAuth;
-  // console.log("requiredRoles:", requiredRoles);
-  // console.log("userRole:", user.role);
-  // console.log("includes", requiredRoles.includes(user.role));
 
   //no user will always be unauthorized
   if (!requiredRoles.includes(user?.role)) {

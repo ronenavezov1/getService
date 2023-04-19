@@ -82,7 +82,7 @@ const Links: FC<RoleProps> = ({ role }) => {
 
       {/* provider/admin links  */}
       {(role === UserRole.ADMIN || role === UserRole.WORKER) && (
-        <Link className="navLink" href={"/provider/pick"}>
+        <Link className="navLink" href={"/worker/pick"}>
           Pick
         </Link>
       )}

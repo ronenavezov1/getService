@@ -15,7 +15,6 @@ import { env } from "~/env.mjs";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    //TODO: add user interface instead of any
     user: User & DefaultSession["user"];
     idToken: string;
   }
@@ -40,11 +39,7 @@ export const authOptions: NextAuthOptions = {
       // Persist the OAuth access_token and or the user id to the token right after signin
       if (account) {
         token.idToken = account.id_token;
-        // //debugging
-        // console.log("token", token);
-        // console.log("account", account);
-        // console.log("profile", profile);
-        // console.log("user", user);
+        token.accessToken = account.access_token;
       }
       if (user) token.id = user.id;
 
@@ -55,7 +50,6 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.idToken = token.idToken as string;
       session.user.id = token.id as string;
-      console.log("idToken", session.idToken); //TODO:removec
       return session;
     },
   },
