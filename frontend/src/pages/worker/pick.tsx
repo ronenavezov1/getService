@@ -1,7 +1,7 @@
 import { NextPageWithAuth, UserRole } from "~/components/Auth";
 
 const Pick: NextPageWithAuth = () => {
-  return <div>provider/pick</div>;
+  return <div>worker/pick</div>;
 };
 
 Pick.auth = {

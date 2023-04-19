@@ -13,6 +13,7 @@ import { NextPageWithAuth, UserRole } from "~/components/Auth";
 import { useCities } from "~/api/cities";
 import { useSession } from "next-auth/react";
 import { Combobox, Transition } from "@headlessui/react";
+import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 const callSchema = z.object({
   service: z.string().min(1, { message: "Service is required" }),
@@ -178,7 +179,7 @@ const CityInput: FC<CityInputProps> = ({ cities }) => {
         render={({ field: { onChange } }) => (
           <Combobox onChange={onChange}>
             <Combobox.Label className={"label"}>City</Combobox.Label>
-            <div className="relative mt-1 ">
+            <div className="relative mt-1 cursor-default ">
               <Combobox.Input
                 placeholder="Select city"
                 className="input"
@@ -187,10 +188,11 @@ const CityInput: FC<CityInputProps> = ({ cities }) => {
                 }}
               />
 
-              <Combobox.Button className="absolute right-0 h-full  pr-2 ">
-                <div className="text-gray-400" aria-hidden="true">
-                  x
-                </div>
+              <Combobox.Button className="absolute right-0 h-full pr-2 ">
+                <ChevronUpDownIcon
+                  className="h-5 w-5 fill-indigo-500 "
+                  aria-hidden="true"
+                />
               </Combobox.Button>
 
               <Transition
@@ -200,7 +202,7 @@ const CityInput: FC<CityInputProps> = ({ cities }) => {
                 leaveTo="opacity-0"
                 afterLeave={() => setQuery("")}
               >
-                <Combobox.Options className=" absolute z-10 mt-1 max-h-36  w-full  overflow-auto rounded-md bg-white py-1 text-center text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                <Combobox.Options className="comboboxOptions">
                   {filteredCities?.length === 0 && query !== "" ? (
                     <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                       Nothing found.

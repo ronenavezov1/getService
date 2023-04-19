@@ -1,6 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { env } from "~/env.mjs";
-import { useSession } from "next-auth/react";
 import axiosWithAuth from "./axiosConfig";
 
 interface City {

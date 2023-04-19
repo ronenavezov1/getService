@@ -2,7 +2,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { UserRole } from "~/components/Auth";
 import { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
-import { fetchAuthed } from "~/utils/fetchAuthed";
 import { axios } from "./axiosConfig";
 
 interface User {

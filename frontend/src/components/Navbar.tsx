@@ -3,6 +3,7 @@ import { signOut } from "next-auth/react";
 import { FC, useState } from "react";
 import { UserRole } from "./Auth";
 import Link from "next/link";
+import { Bars3Icon } from "@heroicons/react/20/solid";
 
 interface NavbarProps {
   firstName: string;
@@ -61,7 +62,7 @@ const RightNavBar: FC<RightNavBarProps> = ({ role, onClickHandler }) => {
         <Links role={role} />
       </div>
       <button className="w-8 md:hidden" onClick={onClickHandler}>
-        <BurgerMenuIcon />
+        <Bars3Icon className=" fill-yellow-400" />
       </button>
     </div>
   );
@@ -80,7 +81,7 @@ const Links: FC<RoleProps> = ({ role }) => {
         Create call
       </Link>
 
-      {/* provider/admin links  */}
+      {/* worker/admin links  */}
       {(role === UserRole.ADMIN || role === UserRole.WORKER) && (
         <Link className="navLink" href={"/worker/pick"}>
           Pick
@@ -96,35 +97,6 @@ const Links: FC<RoleProps> = ({ role }) => {
 
       <LogoutBtn />
     </>
-  );
-};
-
-const BurgerMenuIcon: FC = () => {
-  return (
-    <svg
-      viewBox="0 0 24.00 24.00"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      stroke="#ffffff"
-    >
-      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-      <g
-        id="SVGRepo_tracerCarrier"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        stroke="#CCCCCC"
-        strokeWidth="0.096"
-      ></g>
-      <g id="SVGRepo_iconCarrier">
-        <path
-          d="M4 17H20M4 12H20M4 7H20"
-          stroke="#ca8a04"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        ></path>
-      </g>
-    </svg>
   );
 };
 
