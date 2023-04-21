@@ -42,9 +42,8 @@ const Create: NextPageWithAuth = () => {
   };
 
   return (
-    <div className=" grid justify-center gap-2 pt-2">
+    <div className=" grid justify-center gap-2 ">
       <FormProvider {...formHook}>
-        <Header />
         <form
           onSubmit={handleSubmit(onSubmit)}
           className=" card grid max-w-lg  gap-2  "

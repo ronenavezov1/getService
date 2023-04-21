@@ -13,7 +13,7 @@ import {
 import { z } from "zod";
 import { UserRole } from "~/components/Auth";
 import { useCities } from "~/api/cities";
-import { usePostUser } from "~/api/users";
+import { usePostUser } from "~/api/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { Combobox, Transition } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
@@ -91,8 +91,10 @@ const completeDetails = () => {
             <LastNameInput />
           </div>
           <PhoneInput />
-          <AddressInput />
-          <CityInput cities={cities} />
+          <div className="flex justify-between gap-2">
+            <AddressInput />
+            <CityInput cities={cities} />
+          </div>
           <TypeInput />
           {userType === UserRole.WORKER && <ProfessionInput />}
 

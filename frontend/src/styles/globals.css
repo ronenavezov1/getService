@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .card {
-  @apply m-2 rounded-lg bg-stone-100 p-2 shadow-md;
+  @apply rounded-xl bg-stone-100 p-2 shadow-md;
 }
 
 .input {

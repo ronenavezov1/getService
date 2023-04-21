@@ -18,7 +18,7 @@ const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 bg-indigo-600 p-2 shadow-md">
+    <div className="mb-2 flex flex-col gap-4 bg-indigo-600 p-2 shadow-md">
       <div className="flex justify-between">
         <LeftNavBar firstName={firstName} lastName={lastName} />
         <RightNavBar role={role} onClickHandler={onBurgerClickHandler} />

@@ -3,9 +3,10 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { useUserByEmail } from "~/api/users";
+import { useUserByEmail } from "~/api/user";
+import { MessageCardCentered, MessageCard } from "./MessageCards";
 
-//Auth types
+//////////////////////////////////////////////// types
 export enum UserRole {
   ADMIN = "admin",
   CUSTOMER = "customer",
@@ -24,7 +25,7 @@ export type NextPageWithAuth<Props = {}, InitialProps = Props> = NextPage<
 > &
   PageWithAuth;
 
-//Auth component
+////////////////////////////////////////////////////
 interface AuthProps {
   children: ReactNode;
 }
@@ -37,14 +38,14 @@ const Auth = ({ children }: AuthProps) => {
   );
 
   if (status === "loading" || isLoadingUser) {
-    return <div>Loading...</div>;
+    return <MessageCardCentered message="Loading User" />;
   }
 
   if (!user) {
-    return <div>No user</div>;
+    return <MessageCardCentered message="User not found" />;
   }
 
-  if (user?.isCompletedOnBoarding === false) {
+  if (user.isCompletedOnBoarding === false) {
     router.push("/onboarding/completeDetails");
     return null;
   }
@@ -54,7 +55,7 @@ const Auth = ({ children }: AuthProps) => {
 
   //no user will always be unauthorized
   if (!requiredRoles.includes(user?.role)) {
-    return <div> Unauthorized </div>; // TODO : change to unauthorized page?
+    return <MessageCardCentered message="Unauthorized" />;
   }
 
   return (
