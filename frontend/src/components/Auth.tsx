@@ -37,7 +37,11 @@ const Auth = ({ children }: AuthProps) => {
     session?.user?.email
   );
 
-  if (status === "loading" || isLoadingUser) {
+  if (status === "loading") {
+    return <MessageCardCentered message="Loading Session" />;
+  }
+
+  if (isLoadingUser) {
     return <MessageCardCentered message="Loading User" />;
   }
 

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { signOut } from "next-auth/react";
 import { env } from "~/env.mjs";
 
 // Set base URL for all requests
@@ -12,6 +11,14 @@ const defaultAxios = axios.create({
   },
 });
 
+// defaultAxios.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const errorResponse = error.response.data as ErrorRespone;
+//     return Promise.reject(error);
+//   }
+// );
+
 export { defaultAxios as axios };
 
 export const axiosWithAuth = (idToken: string) => {
@@ -23,15 +30,16 @@ export const axiosWithAuth = (idToken: string) => {
     },
   });
 
-  instance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-      if (error.response.status === 401) {
-        await signOut();
-      }
-      return Promise.reject(error);
-    }
-  );
+  // instance.interceptors.response.use(
+  //   (response) => response
+  //   async (error) => {
+  //     if (error.response.status === 401) {
+  //       await signOut();
+  //       return Promise.reject(error);
+  //     }
+  //     return Promise.reject(error);
+  //   }
+  // );
 
   return instance;
 };
