@@ -1,5 +1,5 @@
-import { FC, MouseEventHandler, ReactNode } from "react";
-import { Call } from "~/api/call";
+import type { FC, MouseEventHandler, ReactNode } from "react";
+import type { Call } from "~/api/call";
 
 enum StatusColorButton {
   "new" = "bg-zinc-500 hover:bg-zinc-600",
@@ -7,11 +7,11 @@ enum StatusColorButton {
   "done" = "bg-green-500 hover:bg-green-600",
 }
 
-enum StatusColor {
-  "new" = "zinc",
-  "inProgress" = "amber",
-  "done" = "green",
-}
+// enum StatusColor {
+//   "new" = "zinc",
+//   "inProgress" = "amber",
+//   "done" = "green",
+// }
 
 interface CallCardProps {
   call: Call;

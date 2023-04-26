@@ -8,16 +8,16 @@ interface City {
 const BASE_CITY_API_URL = "/cities";
 
 const fetchCites = async (idToken: string) => {
-  const { data } = await axiosWithAuth(idToken).get(BASE_CITY_API_URL);
-  return data as City[];
+  const { data } = await axiosWithAuth(idToken).get<City[]>(BASE_CITY_API_URL);
+  return data;
 };
 
 /**
  * Returns all cities from db and caches them
  * @returns returns all cities from db
  */
-export const useCities = (idToken: string | undefined) => {
-  return useQuery(["cities", idToken], () => fetchCites(idToken!), {
+export const useCities = (idToken: string) => {
+  return useQuery(["cities", idToken], () => fetchCites(idToken), {
     enabled: !!idToken,
     staleTime: Infinity,
     cacheTime: Infinity,

@@ -1,4 +1,4 @@
-import { NextPageWithAuth, UserRole } from "~/components/Auth";
+import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 
 const Users: NextPageWithAuth = () => {
   return <div>backoffice/users</div>;

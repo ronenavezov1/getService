@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
-import { FC, Fragment, useState } from "react";
+import { type FC, Fragment, useState } from "react";
 import { UserRole } from "./Auth";
 import Link from "next/link";
-import { Bars3Icon, ChevronDownIcon } from "@heroicons/react/20/solid";
+import { Bars3Icon } from "@heroicons/react/20/solid";
 import { Menu, Transition } from "@headlessui/react";
 
 interface NavbarProps {
@@ -104,12 +104,12 @@ const LogoutBtn: FC = () => {
 
   const onClickHandler = async () => {
     await signOut();
-    queryClient.invalidateQueries({ queryKey: ["user"] });
+    await queryClient.invalidateQueries({ queryKey: ["user"] });
   };
 
   return (
     <button
-      onClick={onClickHandler}
+      onClick={void onClickHandler}
       className="rounded-lg bg-yellow-400  p-1 font-bold text-slate-700 hover:bg-yellow-500"
     >
       Logout

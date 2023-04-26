@@ -1,7 +1,10 @@
 import { useSession } from "next-auth/react";
-import { GetServerSideProps } from "next/types";
+import type {
+  GetServerSidePropsResult,
+  GetServerSidePropsContext,
+} from "next/types";
 import { useGetCall } from "~/api/call";
-import { NextPageWithAuth, UserRole } from "~/components/Auth";
+import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import { CallForm } from "~/components/CallForm";
 import { MessageCard } from "~/components/MessageCards";
 
@@ -11,7 +14,7 @@ interface CallIndexProps {
 
 const Edit: NextPageWithAuth<CallIndexProps> = ({ callID }) => {
   const { data: session } = useSession();
-  const { data: calls, isLoading } = useGetCall(session?.idToken!, {
+  const { data: calls, isLoading } = useGetCall(session?.idToken ?? "", {
     id: callID,
   });
 
@@ -28,16 +31,15 @@ const Edit: NextPageWithAuth<CallIndexProps> = ({ callID }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<CallIndexProps> = async ({
+export const getServerSideProps = ({
   query,
-}) => {
+}: GetServerSidePropsContext): GetServerSidePropsResult<{ id: string }> => {
   const { id } = query;
 
   return {
-    props: { callID: id as string },
+    props: { id: id as string },
   };
 };
-
 Edit.auth = {
   requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.WORKER],
 };

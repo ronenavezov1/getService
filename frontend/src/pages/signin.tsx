@@ -3,8 +3,8 @@ import type {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { ClientSafeProvider, getProviders, signIn } from "next-auth/react";
-import { FC } from "react";
+import { type ClientSafeProvider, getProviders, signIn } from "next-auth/react";
+import type { FC } from "react";
 import { getServerAuthSession } from "~/server/auth";
 
 const SignIn: NextPage<
@@ -33,7 +33,10 @@ interface ProviderBtnProps {
 /*Button to sign in with a provider*/
 const ProviderBtn: FC<ProviderBtnProps> = ({ provider }) => {
   return (
-    <button className={`${provider.id}Btn`} onClick={() => signIn(provider.id)}>
+    <button
+      className={`${provider.id}Btn`}
+      onClick={() => void signIn(provider.id)}
+    >
       <span className="inline-block">Continue with {provider.name}</span>
     </button>
   );

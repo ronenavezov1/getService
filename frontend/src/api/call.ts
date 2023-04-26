@@ -23,8 +23,10 @@ export interface Call {
 const BASE_CALL_API_URL = `/call`;
 
 const getUserCalls = async (idToken: string) => {
-  const { data } = await axiosWithAuth(idToken).get(`${BASE_CALL_API_URL}`);
-  return data as Call[];
+  const { data } = await axiosWithAuth(idToken).get<Call[]>(
+    `${BASE_CALL_API_URL}`
+  );
+  return data;
 };
 
 interface CallQueryParams {
@@ -36,10 +38,13 @@ interface CallQueryParams {
 
 const getCall = async (idToken: string, queryParams: CallQueryParams) => {
   const { id, status, customerId, workerId } = queryParams;
-  const { data } = await axiosWithAuth(idToken).get(`${BASE_CALL_API_URL}`, {
-    params: { id, status, customerId, workerId },
-  });
-  return data as Call[];
+  const { data } = await axiosWithAuth(idToken).get<Call[]>(
+    `${BASE_CALL_API_URL}`,
+    {
+      params: { id, status, customerId, workerId },
+    }
+  );
+  return data;
 };
 
 export const useGetCall = (
@@ -57,18 +62,19 @@ export const useGetCall = (
   );
 };
 
-const getCallbyId = async (idToken: string, callId: string) => {
-  const { data } = await axiosWithAuth(idToken).get(
-    `${BASE_CALL_API_URL}/${callId}`
-  );
-  return data as Call;
-};
+// const getCallbyId = async (idToken: string, callId: string) => {
+//   const { data } = await axiosWithAuth(idToken).get(
+//     `${BASE_CALL_API_URL}/${callId}`
+//   );
+//   return data as Call;
+// };
 
+//TODO:what delete call response returns?
 const deleteCall = async (idToken: string, callId: string) => {
-  const { data } = await axiosWithAuth(idToken).delete(
+  const { data } = await axiosWithAuth(idToken).delete<Call>(
     `${BASE_CALL_API_URL}/${callId}`
   );
-  return data as Call;
+  return data;
 };
 
 // const updateCall = async (idToken: string, call: Call) => {
@@ -79,12 +85,13 @@ const deleteCall = async (idToken: string, callId: string) => {
 //   return data as Call;
 // };
 
+//TODO? what response returns? call?
 const createCall = async (idToken: string, call: callCreateFormSchema) => {
-  const { data } = await axiosWithAuth(idToken).post(
+  const { data } = await axiosWithAuth(idToken).post<Call>(
     `${BASE_CALL_API_URL}`,
     call
   );
-  return data as Call;
+  return data;
 };
 
 export const useCreateCall = (idToken: string) => {
@@ -99,10 +106,10 @@ export const useDeleteCall = (idToken: string) => {
   );
 };
 
-export const useUserCalls = (idToken?: string) => {
+export const useUserCalls = (idToken: string) => {
   return useQuery(
     ["userCalls", idToken],
-    async () => await getUserCalls(idToken!),
+    async () => await getUserCalls(idToken),
     {
       enabled: !!idToken,
       staleTime: Infinity,

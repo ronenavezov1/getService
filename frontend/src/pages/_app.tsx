@@ -7,9 +7,10 @@ import "~/styles/globals.css";
 import type { NextComponentType } from "next"; //Import Component type
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Auth, { PageWithAuth } from "~/components/Auth";
+import Auth, { type PageWithAuth } from "~/components/Auth";
 import { ToastContainer, toast } from "react-toastify";
-import { AxiosError, isAxiosError } from "axios";
+import { type AxiosError, isAxiosError } from "axios";
+import { Session } from "next-auth";
 
 type AuthAppProps = AppProps & {
   Component: NextComponentType & PageWithAuth;
@@ -28,7 +29,7 @@ interface ErrorResponse {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      onError: async (err: unknown) => {
+      onError: (err: unknown) => {
         if (isAxiosError(err)) {
           const axiosError = err as AxiosError<ErrorResponse>;
 
@@ -36,7 +37,8 @@ const queryClient = new QueryClient({
             const WAITING_TIME = 5000;
 
             toast.error("Unauthorized, logging out...");
-            return await setTimeout(async () => await signOut(), WAITING_TIME);
+            setTimeout(() => void signOut(), WAITING_TIME);
+            return;
           }
 
           toast.error(axiosError.response?.data.message ?? "An error occurred");
@@ -53,7 +55,7 @@ const MyApp = ({
   pageProps: { session, ...pageProps },
 }: AuthAppProps) => {
   return (
-    <SessionProvider session={session}>
+    <SessionProvider session={session as Session | undefined | null}>
       <QueryClientProvider client={queryClient}>
         {/* toast container */}
         <ToastContainer

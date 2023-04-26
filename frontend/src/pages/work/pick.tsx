@@ -1,4 +1,4 @@
-import { NextPageWithAuth, UserRole } from "~/components/Auth";
+import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 
 const Pick: NextPageWithAuth = () => {
   return <div>worker/pick</div>;

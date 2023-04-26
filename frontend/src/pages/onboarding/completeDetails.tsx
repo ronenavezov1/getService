@@ -1,14 +1,14 @@
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import { FC, useState, Fragment } from "react";
+import { type FC, useState, Fragment } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormProvider,
   useForm,
   useFormContext,
   Controller,
-  SubmitHandler,
+  type SubmitHandler,
 } from "react-hook-form";
 import { z } from "zod";
 import { UserRole } from "~/components/Auth";
@@ -46,11 +46,11 @@ export type CompeleteDetailsFormSchemaType = z.infer<
 
 //////////////////////////////////////////////////////////////
 
-const completeDetails = () => {
+const CompleteDetails: FC = () => {
   const router = useRouter();
   const { data: session } = useSession({ required: true });
   const queryClient = useQueryClient();
-  const { mutateAsync } = usePostUser();
+  const { mutate } = usePostUser();
   const formHook = useForm<CompeleteDetailsFormSchemaType>({
     mode: "onChange",
     resolver: zodResolver(compeleteDetailsFormSchema),
@@ -62,7 +62,7 @@ const completeDetails = () => {
   } = formHook;
   const userType = watch("type");
 
-  const { data: cities } = useCities(session?.idToken);
+  const { data: cities } = useCities(session?.idToken ?? "");
 
   /**
    * Submits form data , invalidates user query and redirects to home page
@@ -70,9 +70,9 @@ const completeDetails = () => {
   const onSubmitHandler: SubmitHandler<CompeleteDetailsFormSchemaType> = async (
     data
   ) => {
-    await mutateAsync(data, {
-      onSuccess: (data) => {
-        queryClient.invalidateQueries(["user"]);
+    mutate(data, {
+      onSuccess: () => {
+        void queryClient.invalidateQueries(["user"]);
       },
     });
     await router.push("/");
@@ -83,7 +83,7 @@ const completeDetails = () => {
       <FormProvider {...formHook}>
         <Header />
         <form
-          onSubmit={handleSubmit(onSubmitHandler)}
+          onSubmit={void handleSubmit(onSubmitHandler)}
           className=" card grid max-w-lg  gap-2  "
         >
           <div className="flex justify-between gap-2">
@@ -363,4 +363,4 @@ const ProfessionInput: FC = () => {
   );
 };
 
-export default completeDetails;
+export default CompleteDetails;

@@ -2,12 +2,12 @@ import { z } from "zod";
 import {
   Controller,
   FormProvider,
-  SubmitHandler,
+  type SubmitHandler,
   useForm,
   useFormContext,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FC, Fragment, useState } from "react";
+import { type FC, Fragment, useState } from "react";
 import { ErrorMessage } from "@hookform/error-message";
 import { useCities } from "~/api/cities";
 import { useSession } from "next-auth/react";
@@ -39,13 +39,13 @@ export const CallForm: FC<CallFormProps> = ({ onSubmit, defaultValues }) => {
     formState: { isSubmitting },
   } = formHook;
   const { data: session } = useSession({ required: true });
-  const { data: cities } = useCities(session?.idToken);
+  const { data: cities } = useCities(session?.idToken ?? "");
 
   return (
     <>
       <FormProvider {...formHook}>
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={void handleSubmit(onSubmit)}
           className=" card grid max-w-lg  gap-2  "
         >
           <ServiceInput />
@@ -66,13 +66,13 @@ export const CallForm: FC<CallFormProps> = ({ onSubmit, defaultValues }) => {
   );
 };
 
-const Header: FC = () => {
-  return (
-    <div className="flex justify-center">
-      <h1 className="text-5xl text-yellow-400">Create call</h1>
-    </div>
-  );
-};
+// const Header: FC = () => {
+//   return (
+//     <div className="flex justify-center">
+//       <h1 className="text-5xl text-yellow-400">Create call</h1>
+//     </div>
+//   );
+// };
 
 const ServiceInput: FC = () => {
   const {
@@ -176,7 +176,10 @@ const CityInput: FC<CityInputProps> = ({ cities }) => {
         control={control}
         name="city"
         render={({ field: { onChange } }) => (
-          <Combobox onChange={onChange} defaultValue={getValues("city")}>
+          <Combobox
+            onChange={onChange}
+            defaultValue={getValues("city") as string}
+          >
             <Combobox.Label className={"label"}>City</Combobox.Label>
             <div className="relative mt-1 cursor-default ">
               <Combobox.Input

@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { UserRole } from "~/components/Auth";
-import { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
+import type { UserRole } from "~/components/Auth";
+import type { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
 import axiosWithAuth, { axios } from "./axiosConfig";
 
 interface User {
@@ -30,18 +30,26 @@ interface Worker extends User {
 const BASE_USER_API_URL = `/users`;
 
 const getUserByEmail = async (email: string) => {
-  const { data } = await axios.get(`${BASE_USER_API_URL}/${email}`);
-  return data as Customer | Worker;
+  const { data } = await axios.get<Customer | Worker | Admin>(
+    `${BASE_USER_API_URL}/${email}`
+  );
+  return data;
 };
 
+//TODO:what post respose returns?
 const postUser = async (user: CompeleteDetailsFormSchemaType) => {
-  const { data } = await axios.post(`${BASE_USER_API_URL}`, user);
+  const { data } = await axios.post<Customer | Worker | Admin>(
+    `${BASE_USER_API_URL}`,
+    user
+  );
   return data;
 };
 
 const getUserByIdToken = async (idToken: string) => {
-  const { data } = await axiosWithAuth(idToken).get(`${BASE_USER_API_URL}`);
-  return data as Customer | Worker | Admin;
+  const { data } = await axiosWithAuth(idToken).get<Customer | Worker | Admin>(
+    `${BASE_USER_API_URL}`
+  );
+  return data;
 };
 
 export const useGetUserByIdToken = (idToken: string) => {
@@ -55,8 +63,8 @@ export const useGetUserByIdToken = (idToken: string) => {
  * only fetches if id is defined
  * @param id id of user to fetch
  */
-export const useUserByEmail = (email?: string | null) => {
-  return useQuery(["user", email], () => getUserByEmail(email!), {
+export const useUserByEmail = (email: string) => {
+  return useQuery(["user", email], () => getUserByEmail(email), {
     enabled: !!email,
     staleTime: Infinity,
     cacheTime: Infinity,
@@ -70,7 +78,7 @@ export const useUserByEmail = (email?: string | null) => {
  */
 export const useUserBySession = () => {
   const { data: session } = useSession();
-  return useUserByEmail(session?.user?.email);
+  return useUserByEmail(session?.user?.email ?? "");
 };
 
 /**

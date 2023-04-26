@@ -1,6 +1,5 @@
-import { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { NextPageWithAuth, UserRole } from "~/components/Auth";
+import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 
 const Home: NextPageWithAuth = () => {
   const { data: session } = useSession();
@@ -14,14 +13,14 @@ const Home: NextPageWithAuth = () => {
         )}`}</p>
 
         {/* <p className=" w-full break-words text-xl">{`${session?.idToken}`}</p> */}
-        <button onClick={() => signOut()}>Sign out</button>
+        <button onClick={() => void signOut()}>Sign out</button>
       </div>
     );
   }
   return (
     <>
       Not signed in <br />
-      <button onClick={() => signIn()}>Sign in</button>
+      <button onClick={() => void signIn()}>Sign in</button>
     </>
   );
 };

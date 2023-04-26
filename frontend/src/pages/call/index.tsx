@@ -2,15 +2,19 @@ import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { FC } from "react";
-import { Call, useDeleteCall, useGetCall, useUserCalls } from "~/api/call";
-import { NextPageWithAuth, UserRole } from "~/components/Auth";
+import type { FC } from "react";
+import { type Call, useDeleteCall, useGetCall } from "~/api/call";
+import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import { MessageCard } from "~/components/MessageCards";
 
 const Status: NextPageWithAuth = () => {
   const { data: session, status } = useSession();
-  const { data: calls, isLoading, isFetching } = useGetCall(session?.idToken!);
+  const {
+    data: calls,
+    isLoading,
+    isFetching,
+  } = useGetCall(session?.idToken ?? "");
   const router = useRouter();
 
   const onBodyClickHandler = async (id: string) =>
@@ -27,9 +31,9 @@ const Status: NextPageWithAuth = () => {
             <CallCard
               key={call.id}
               call={call}
-              onBodyClick={async () => await onBodyClickHandler(call.id)}
+              onBodyClick={() => void onBodyClickHandler(call.id)}
               fullSize={false}
-              actionRow={<ActionRow callId={call.id} />}
+              actionRow={<ActionRow callId={call.id} isFetching={isFetching} />}
             />
           ))
       )}
@@ -57,7 +61,7 @@ interface ActionRowProps {
 const ActionRow: FC<ActionRowProps> = ({ callId, isFetching }) => {
   const { asPath, push } = useRouter();
   const { data: session, status } = useSession();
-  const { mutateAsync, isIdle } = useDeleteCall(session?.idToken ?? "");
+  const { mutate, isIdle } = useDeleteCall(session?.idToken ?? "");
   const queryClient = useQueryClient();
 
   const handleOnEditClick = async () => {
@@ -70,15 +74,15 @@ const ActionRow: FC<ActionRowProps> = ({ callId, isFetching }) => {
 
   return (
     <>
-      <button disabled={isFetching} onClick={handleOnEditClick}>
+      <button disabled={isFetching} onClick={void handleOnEditClick}>
         <PencilSquareIcon className="w-5 fill-blue-600 " />
       </button>
       <button
         disabled={!isIdle}
-        onClick={async () => {
-          await mutateAsync(callId, {
+        onClick={() => {
+          mutate(callId, {
             onSuccess: () => {
-              return queryClient.invalidateQueries(["userCalls"]);
+              void queryClient.invalidateQueries(["userCalls"]);
             },
           });
         }}
