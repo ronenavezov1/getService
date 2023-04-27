@@ -5,7 +5,6 @@ import com.server.handlers.AuthorizationHandler;
 import com.server.handlers.UserHandler;
 
 import java.io.*;
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 
@@ -27,15 +26,5 @@ public class UsersServlet extends HttpServlet {
             return;
         }
         response.getWriter().print(user);
-    }
-
-    @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String idToken = AuthorizationHandler.authorize(request);
-        if (idToken == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        UserHandler.createUser(idToken);
     }
 }

@@ -1,7 +1,7 @@
 package com.server.server;
 
 import com.server.handlers.Authentication;
-import com.server.storage.StorageManager;
+import com.server.storage.QueryHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,7 +18,7 @@ public class getCitiesServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        cityJson = StorageManager.getCities("");
+        cityJson = QueryHandler.getCities("");
     }
 
     /** ?startWith={string @optional}*/
@@ -30,7 +30,7 @@ public class getCitiesServlet extends HttpServlet {
         if(Authentication.isNullOrEmpty(startWith))
             response.getWriter().print(cityJson);
         else
-            response.getWriter().print(StorageManager.getCities(startWith));
+            response.getWriter().print(QueryHandler.getCities(startWith));
     }
 }
 

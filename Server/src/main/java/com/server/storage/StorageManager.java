@@ -1,18 +1,15 @@
 package com.server.storage;
 
-import com.server.models.User;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.sql.*;
-import java.util.UUID;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class StorageManager {
+
     private static final String POSTGRESQL_NAME = "jdbc/postgres";
     private static javax.sql.DataSource ds = null;
 
@@ -30,189 +27,41 @@ public class StorageManager {
         }
         return ds.getConnection();
     }
-
-    public static boolean isEmailExists(String email) throws SQLException {
+    public static boolean executeUpdate(String query, Object... args) {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("select email from public.user where email = ?")){
-                statement.setString(1, email);
-                try (ResultSet resultSet = statement.executeQuery()){
-                    return resultSet.next();
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                int idx = 1;
+                for (Object arg: args) {
+                    if (arg instanceof String) {
+                        statement.setString(idx, (String) arg);
+                    }
+                    idx++;
                 }
-            }
-        }
-    }
-
-    public static boolean addUser(String email, String firstName, String lastName, long phoneNumber, String address, String city, String id, String type) {
-        try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(
-                    "insert into public.user (user_id, email, first_name, last_name, address, city, phone, type) values " +
-                    "(?::uuid, ?, ?, ?, ?, ?, ?, ?)")) {
-                statement.setString(1, id);
-                statement.setString(2, email);
-                statement.setString(3, firstName);
-                statement.setString(4, lastName);
-                statement.setString(5, address);
-                statement.setString(6, city);
-                statement.setLong(7, phoneNumber);
-                statement.setString(8, type);
                 return statement.executeUpdate() == 1;
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw e;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return false;
     }
 
-    public static User getUser(String email) {
-        User user = new User();
+    public static ResultSet executeQuery(String query, Object... args) {
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(Queries.SELECT_USER_BY_EMAIL)) {
-                statement.setString(1, email);
-                ResultSet rs = statement.executeQuery();
-                if (rs.next()) {
-                    UUID id = (UUID) rs.getObject("user_id");
-                    String firstName = rs.getString("first_name");
-                    String lastName = rs.getString("last_name");
-                    String address = rs.getString("address");
-                    String city = rs.getString("city");
-                    String phone = rs.getString("phone");
-                    boolean isApproved = rs.getBoolean("is_approved");
-                    boolean isOnBoardingCompleted = rs.getBoolean("is_onboarding_completed");
-                    String type = rs.getString("type");
-                    user = new User(id, email, firstName, lastName, address, city, phone, type, isOnBoardingCompleted, isApproved);
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                int idx = 1;
+                for (Object arg: args) {
+                    if (arg instanceof String) {
+                        statement.setString(idx, (String) arg);
+                    }
+                    idx++;
                 }
+                return statement.executeQuery();
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw e;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return user;
-    }
-
-    public static String getCities(String startWith){
-        JSONArray jsonFiles = new JSONArray();
-        try(Connection conn = getConnection()){
-            try(PreparedStatement statement = conn.prepareStatement(
-                        "SELECT name " +
-                            "FROM public.city " +
-                            "WHERE starts_with(public.city.name, ?)\n" +
-                            "ORDER BY name ASC ")){
-                statement.setString(1, startWith);
-                try(ResultSet resultSet = statement.executeQuery()){
-                    while (resultSet.next()) {
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("name", resultSet.getString(1));
-                        jsonFiles.put(jsonObject);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return jsonFiles.toString();
-    }
-
-    //[{"name":"lod"}]
-    public static void addCitiesFromJsonFile(File file){
-        JSONArray jsonFiles = null;
-        try(FileInputStream fileInputStream = new FileInputStream(file)){
-                try(Reader reader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);){
-                    try(BufferedReader bufferedReader = new BufferedReader(reader)){
-                        String line;
-                        StringBuilder s = new StringBuilder();
-                        while ((line = bufferedReader.readLine()) != null) {
-                            s.append(line);
-                        }
-                        jsonFiles = new JSONArray(s.toString());
-                    }catch (IOException e){
-                        throw new RuntimeException(e);
-                    }
-                }catch (IOException e){
-                    throw new RuntimeException(e);
-                }
-            
-        } catch (SecurityException | IOException e){
-            throw new RuntimeException(e);
-        }
-        if(!jsonFiles.isEmpty()){
-            try(Connection connection = getConnection()){
-                for (int i = 0; i < jsonFiles.length(); i++) {
-                    try(PreparedStatement statement = connection.prepareStatement("insert into city values (?)")){
-                        statement.setString(1, (String) jsonFiles.getJSONObject(i).get("name"));
-                        statement.executeUpdate();
-                    }catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    public static boolean updateUser(String email, String firstName, String lastName, long phoneNumber, String address, String city, String id, String type) {
-        try(Connection conn = getConnection()){
-            try(PreparedStatement statement = conn.prepareStatement(
-                        "update public.user\n" +
-                            "set email = ?, firat_name = ?, last_name = ?, phone = ?, address = ?, city = ?, type = ?, is_onboarding_completed = true\n" +
-                            "where user_id = ?::uuid")){
-                statement.setString(1, email);
-                statement.setString(2, firstName);
-                statement.setString(3, lastName);
-                statement.setLong(4, phoneNumber);
-                statement.setString(5, address);
-                statement.setString(6, city);
-                statement.setString(7, type);
-                statement.setString(8, id);
-                return statement.executeUpdate() == 1;
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public static boolean addWorkerProfession(String id, String profession) {
-        try (Connection conn = getConnection()) {
-            try (PreparedStatement statement = conn.prepareStatement(
-                    "insert into public.worker\n" +
-                            "values (?::uuid,?)")) {
-                statement.setString(1, id);
-                statement.setString(2, profession);
-                return statement.executeUpdate() == 1;
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    public static boolean updateWorkerProfession(String id, String profession) {
-        try(Connection conn = getConnection()){
-            try(PreparedStatement statement = conn.prepareStatement(
-                    "update public.worker\n" +
-                            "set profession = ?" +
-                            "where worker_id = ?::uuid")){
-                statement.setString(1, profession);
-                statement.setString(2, id);
-                return statement.executeUpdate() == 1;
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 }
-
