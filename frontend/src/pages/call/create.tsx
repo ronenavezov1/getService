@@ -8,13 +8,13 @@ import { CallForm, type callCreateFormSchema } from "~/components/CallForm";
 const Create: NextPageWithAuth = () => {
   const router = useRouter();
   const { data: session } = useSession();
-  const { mutate: createCall } = useCreateCall(session?.idToken ?? "");
+  const { mutate } = useCreateCall(session?.idToken ?? "");
   const queryClient = useQueryClient();
 
   const onSubmit = (data: callCreateFormSchema) => {
-    createCall(data, {
+    mutate(data, {
       onSuccess: () => {
-        void queryClient.invalidateQueries(["userCalls", session?.idToken]);
+        void queryClient.invalidateQueries(["call"]);
         void router.push("/call");
       },
     });

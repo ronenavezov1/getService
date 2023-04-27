@@ -25,8 +25,9 @@ const Status: NextPageWithAuth = () => {
       {isLoading || status == "loading" ? (
         <MessageCard message={"Loading user calls"} />
       ) : (
+        calls &&
         calls
-          ?.sort(sortByDate)
+          .sort(sortByDate)
           .map((call) => (
             <CallCard
               key={call.id}
@@ -64,8 +65,8 @@ const ActionRow: FC<ActionRowProps> = ({ callId, isFetching }) => {
   const { mutate, isIdle } = useDeleteCall(session?.idToken ?? "");
   const queryClient = useQueryClient();
 
-  const handleOnEditClick = async () => {
-    await push(`${asPath}/${callId}`);
+  const handleOnEditClick = () => {
+    void push(`${asPath}/${callId}/edit`);
   };
 
   if (status == "loading") {
@@ -74,7 +75,7 @@ const ActionRow: FC<ActionRowProps> = ({ callId, isFetching }) => {
 
   return (
     <>
-      <button disabled={isFetching} onClick={void handleOnEditClick}>
+      <button disabled={isFetching} onClick={handleOnEditClick}>
         <PencilSquareIcon className="w-5 fill-blue-600 " />
       </button>
       <button
@@ -82,7 +83,7 @@ const ActionRow: FC<ActionRowProps> = ({ callId, isFetching }) => {
         onClick={() => {
           mutate(callId, {
             onSuccess: () => {
-              void queryClient.invalidateQueries(["userCalls"]);
+              void queryClient.invalidateQueries(["call"]);
             },
           });
         }}

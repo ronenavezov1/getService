@@ -45,7 +45,7 @@ export const CallForm: FC<CallFormProps> = ({ onSubmit, defaultValues }) => {
     <>
       <FormProvider {...formHook}>
         <form
-          onSubmit={void handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit)}
           className=" card grid max-w-lg  gap-2  "
         >
           <ServiceInput />

@@ -83,7 +83,7 @@ const CompleteDetails: FC = () => {
       <FormProvider {...formHook}>
         <Header />
         <form
-          onSubmit={void handleSubmit(onSubmitHandler)}
+          onSubmit={handleSubmit(onSubmitHandler)}
           className=" card grid max-w-lg  gap-2  "
         >
           <div className="flex justify-between gap-2">
