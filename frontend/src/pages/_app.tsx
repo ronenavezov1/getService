@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Auth, { type PageWithAuth } from "~/components/Auth";
 import { ToastContainer, toast } from "react-toastify";
 import { type AxiosError, isAxiosError } from "axios";
-import { Session } from "next-auth";
+import type { Session } from "next-auth/core/types";
 
 type AuthAppProps = AppProps & {
   Component: NextComponentType & PageWithAuth;
@@ -61,12 +61,12 @@ const MyApp = ({
         <ToastContainer
           position="top-center"
           autoClose={5000}
-          toastClassName={"m-2 bg-indigo-900 text-yellow-500"}
+          toastClassName={"m-2"}
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick
           rtl={false}
-          pauseOnFocusLoss
+          pauseOnFocusLoss={false}
           draggable
           pauseOnHover
         />

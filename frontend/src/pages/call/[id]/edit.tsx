@@ -1,6 +1,5 @@
 import { useSession } from "next-auth/react";
 import type {
-  GetServerSideProps,
   GetServerSidePropsContext,
   GetServerSidePropsResult,
 } from "next/types";

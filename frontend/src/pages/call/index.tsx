@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import type { FC } from "react";
+import { toast } from "react-toastify";
 import { type Call, useDeleteCall, useGetCall } from "~/api/call";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
@@ -75,7 +76,7 @@ const ActionRow: FC<ActionRowProps> = ({ callId, isFetching }) => {
 
   return (
     <>
-      <button disabled={isFetching} onClick={handleOnEditClick}>
+      <button disabled={isFetching || !isIdle} onClick={handleOnEditClick}>
         <PencilSquareIcon className="w-5 fill-blue-600 " />
       </button>
       <button
@@ -84,6 +85,7 @@ const ActionRow: FC<ActionRowProps> = ({ callId, isFetching }) => {
           mutate(callId, {
             onSuccess: () => {
               void queryClient.invalidateQueries(["call"]);
+              toast.success("Call deleted successfully");
             },
           });
         }}
