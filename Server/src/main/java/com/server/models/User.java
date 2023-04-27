@@ -3,7 +3,6 @@ package com.server.models;
 import java.util.UUID;
 
 public class User {
-
     protected UUID id;
     protected String email;
     protected String firstName;
@@ -16,6 +15,7 @@ public class User {
     protected boolean isOnBoardingCompleted = false;
 
     public User() {
+        id = UUID.randomUUID();
     }
 
     public User(UUID id, String email, String firstName, String lastName) {

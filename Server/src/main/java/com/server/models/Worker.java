@@ -6,6 +6,10 @@ public class Worker extends User {
 
     private String profession;
 
+    public Worker() {
+        super();
+    }
+
     public Worker(UUID id, String email, String firstName, String lastName) {
         super(id, email, firstName, lastName);
     }
