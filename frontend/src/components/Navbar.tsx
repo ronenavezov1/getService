@@ -4,7 +4,7 @@ import { type FC, Fragment, useState } from "react";
 import { UserRole } from "./Auth";
 import Link from "next/link";
 import { Bars3Icon } from "@heroicons/react/20/solid";
-import { Menu, Transition } from "@headlessui/react";
+import { Menu, Popover, Transition } from "@headlessui/react";
 
 interface NavbarProps {
   firstName: string;
@@ -14,17 +14,13 @@ interface NavbarProps {
 
 const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const onBurgerMenuClickHandler = () => {
-    setIsOpen(!isOpen);
-  };
 
   return (
-    <div className=" flex flex-col gap-4 bg-indigo-600 p-2 shadow-md">
+    <div className="relative flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
       <div className="flex justify-between">
         <LeftNavBar firstName={firstName} lastName={lastName} />
-        <RightNavBar role={role} onClickHandler={onBurgerMenuClickHandler} />
+        <RightNavBar role={role} />
       </div>
-      {isOpen && <BurgerMenu role={role} />}
     </div>
   );
 };
@@ -49,19 +45,71 @@ const LeftNavBar: FC<LeftNavBarProps> = ({ firstName, lastName }) => {
   );
 };
 
-interface RightNavBarProps extends RoleProps {
-  onClickHandler: React.MouseEventHandler<HTMLButtonElement>;
-}
-
-const RightNavBar: FC<RightNavBarProps> = ({ role, onClickHandler }) => {
+const RightNavBar: FC<RoleProps> = ({ role }) => {
   return (
-    <div className="flex ">
+    <div className="flex h-full">
       <div className="hidden place-items-center gap-8 md:flex">
         <Links role={role} />
       </div>
-      <button className="w-8 md:hidden" onClick={onClickHandler}>
-        <Bars3Icon className=" fill-yellow-400" />
-      </button>
+
+      {/* <Popover.Button className="w-8 md:hidden"> */}
+      <Menu as="div" className="relative text-center text-white md:hidden ">
+        <Menu.Button className="inline-flex h-full w-full justify-center focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 md:max-w-xl ">
+          {({ open }) => (
+            <span
+              className={`${
+                open ? "bg-indigo-800 text-yellow-500" : "text-white"
+              } w-full rounded-t-md p-2`}
+            >
+              burger
+            </span>
+          )}
+        </Menu.Button>
+
+        <Transition
+          as={Fragment}
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
+        >
+          <Menu.Items className="absolute left-0 grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
+            <div>
+              <Menu.Item>
+                {({ active }) => (
+                  <Link href={"/call"}>
+                    <button
+                      className={`${
+                        active ? "bg-indigo-800 text-yellow-500" : "text-white"
+                      } w-full  p-2`}
+                    >
+                      status
+                    </button>
+                  </Link>
+                )}
+              </Menu.Item>
+            </div>
+
+            <div>
+              <Menu.Item>
+                {({ active }) => (
+                  <Link href={"/call/create"}>
+                    <button
+                      className={`${
+                        active ? "bg-indigo-800 text-yellow-500" : "text-white"
+                      }  w-full  p-2`}
+                    >
+                      create
+                    </button>
+                  </Link>
+                )}
+              </Menu.Item>
+            </div>
+          </Menu.Items>
+        </Transition>
+      </Menu>
     </div>
   );
 };
@@ -144,7 +192,7 @@ const CallsMenu: FC = () => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="mm grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
+        <Menu.Items className=" grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
           <div>
             <Menu.Item>
               {({ active }) => (

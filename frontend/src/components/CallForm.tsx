@@ -8,8 +8,6 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type FC } from "react";
 import { ErrorMessage } from "@hookform/error-message";
-import { useCities } from "~/api/cities";
-import { useSession } from "next-auth/react";
 import { CityInput } from "./Inputs/CityInput";
 
 const callSchema = z.object({
@@ -36,8 +34,6 @@ export const CallForm: FC<CallFormProps> = ({ onSubmit, defaultValues }) => {
     handleSubmit,
     formState: { isSubmitting },
   } = formHook;
-  const { data: session } = useSession({ required: true });
-  const { data: cities } = useCities(session?.idToken ?? "");
 
   return (
     <>
@@ -49,8 +45,12 @@ export const CallForm: FC<CallFormProps> = ({ onSubmit, defaultValues }) => {
           <ServiceInput />
           <DescriptionInput />
           <div className="flex justify-between gap-2">
-            <AddressInput />
-            <CityInput cities={cities} />
+            <div>
+              <AddressInput />
+            </div>
+            <div>
+              <CityInput />
+            </div>
           </div>
 
           <input
@@ -132,7 +132,7 @@ const AddressInput: FC = () => {
     formState: { errors },
   } = useFormContext<callCreateFormSchema>();
   return (
-    <div>
+    <>
       <label htmlFor="address" className="label">
         Address
       </label>
@@ -149,6 +149,6 @@ const AddressInput: FC = () => {
           <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
       />
-    </div>
+    </>
   );
 };

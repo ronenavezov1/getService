@@ -9,7 +9,7 @@ export const ProfessionInput: FC = () => {
   } = useFormContext();
 
   return (
-    <div>
+    <>
       <label htmlFor="profession" className="label">
         Profession
       </label>
@@ -25,7 +25,7 @@ export const ProfessionInput: FC = () => {
           <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
       />
-    </div>
+    </>
   );
 };
 

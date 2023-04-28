@@ -11,7 +11,6 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { UserRole } from "~/components/Auth";
-import { useCities } from "~/api/cities";
 import { usePostUser } from "~/api/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { CityInput } from "~/components/Inputs/CityInput";
@@ -61,8 +60,6 @@ const CompleteDetails: FC = () => {
   } = formHook;
   const userType = watch("type");
 
-  const { data: cities } = useCities(session?.idToken ?? "");
-
   /**
    * Submits form data , invalidates user query and redirects to home page
    */
@@ -92,7 +89,7 @@ const CompleteDetails: FC = () => {
           <PhoneInput />
           <div className="flex justify-between gap-2">
             <AddressInput />
-            <CityInput cities={cities} />
+            <CityInput />
           </div>
           <TypeInput />
           {userType === UserRole.WORKER && <ProfessionInput />}
@@ -183,6 +180,7 @@ const PhoneInput: FC = () => {
         id="phone"
         {...register("phone", { valueAsNumber: true })}
         className="input"
+        type="number"
       />
       <ErrorMessage
         errors={errors}

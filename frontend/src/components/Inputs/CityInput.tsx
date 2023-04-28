@@ -5,14 +5,18 @@ import { ErrorMessage } from "@hookform/error-message";
 
 import { Combobox, Transition } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { useSession } from "next-auth/react";
+import { useCities } from "~/api/cities";
 
-export const CityInput: FC<CityInputProps> = ({ cities }) => {
+export const CityInput: FC = () => {
+  const { data: session } = useSession();
   const {
     control,
     formState: { errors },
     getValues,
   } = useFormContext();
   const [query, setQuery] = useState("");
+  const { data: cities } = useCities(session?.idToken ?? "");
 
   const filteredCities =
     (query && cities?.length !== 0) === ""
@@ -22,7 +26,7 @@ export const CityInput: FC<CityInputProps> = ({ cities }) => {
         );
 
   return (
-    <div>
+    <>
       <Controller
         control={control}
         name="city"
@@ -32,7 +36,7 @@ export const CityInput: FC<CityInputProps> = ({ cities }) => {
             defaultValue={getValues("city") as string}
           >
             <Combobox.Label className={"label"}>City</Combobox.Label>
-            <div className="relative mt-1 cursor-default ">
+            <div className="relative mt-1 w-full cursor-default ">
               <Combobox.Input
                 placeholder="Select city"
                 className="input"
@@ -88,7 +92,7 @@ export const CityInput: FC<CityInputProps> = ({ cities }) => {
           <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
       />
-    </div>
+    </>
   );
 };
 
