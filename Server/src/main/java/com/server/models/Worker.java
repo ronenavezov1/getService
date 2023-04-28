@@ -14,7 +14,7 @@ public class Worker extends User {
         super(id, email, firstName, lastName);
     }
 
-    public Worker(UUID id, String email, String firstName, String lastName, String address, String city, String phoneNumber, String type, boolean isApproved, boolean isOnBoardingCompleted, String profession) {
+    public Worker(UUID id, String email, String firstName, String lastName, String address, String city, long phoneNumber, String type, boolean isApproved, boolean isOnBoardingCompleted, String profession) {
         super(id, email, firstName, lastName, address, city, phoneNumber, type, isApproved, isOnBoardingCompleted);
         this.profession = profession;
     }

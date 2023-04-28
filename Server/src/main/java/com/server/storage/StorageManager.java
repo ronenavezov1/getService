@@ -27,41 +27,30 @@ public class StorageManager {
         }
         return ds.getConnection();
     }
-    public static boolean executeUpdate(String query, Object... args) {
+    public static int executeUpdate(String query, Statements statements) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
-                int idx = 1;
-                for (Object arg: args) {
-                    if (arg instanceof String) {
-                        statement.setString(idx, (String) arg);
-                    }
-                    idx++;
-                }
-                return statement.executeUpdate() == 1;
-            } catch (SQLException e) {
-                throw e;
+                statements.onPreparedStatement(statement);
+                return statement.executeUpdate();
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    public static ResultSet executeQuery(String query, Object... args) {
+    public static void executeQuery(String query, Statements statements, Results results) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
-                int idx = 1;
-                for (Object arg: args) {
-                    if (arg instanceof String) {
-                        statement.setString(idx, (String) arg);
-                    }
-                    idx++;
+                statements.onPreparedStatement(statement);
+                try (ResultSet resultSet = statement.executeQuery()){
+                    results.onResultSet(resultSet);
                 }
-                return statement.executeQuery();
-            } catch (SQLException e) {
-                throw e;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
+    }
+
+    interface Statements{
+        void onPreparedStatement(PreparedStatement statement) throws SQLException;
+    }
+    interface Results{
+        void onResultSet(ResultSet resultSet) throws SQLException;
     }
 }

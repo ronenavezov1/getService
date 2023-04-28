@@ -9,7 +9,7 @@ public class User {
     protected String lastName;
     protected String address;
     protected String city;
-    protected String phoneNumber;
+    protected long phoneNumber;
     protected String type;
     protected boolean isApproved = false;
     protected boolean isOnBoardingCompleted = false;
@@ -25,7 +25,7 @@ public class User {
         this.lastName = lastName;
     }
 
-    public User(UUID id, String email, String firstName, String lastName, String address, String city, String phoneNumber, String type, boolean isApproved, boolean isOnBoardingCompleted) {
+    public User(UUID id, String email, String firstName, String lastName, String address, String city, long phoneNumber, String type, boolean isApproved, boolean isOnBoardingCompleted) {
         this(id, email, firstName, lastName);
         this.address = address;
         this.city = city;
@@ -83,11 +83,11 @@ public class User {
         this.city = city;
     }
 
-    public String getPhoneNumber() {
+    public long getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    public void setPhoneNumber(long phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

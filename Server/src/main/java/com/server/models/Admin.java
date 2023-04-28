@@ -8,7 +8,7 @@ public class Admin extends User {
         id = UUID.randomUUID();
     }
 
-    public Admin(UUID id, String email, String firstName, String lastName, String address, String city, String phoneNumber, boolean isApproved, boolean isOnBoardingCompleted) {
+    public Admin(UUID id, String email, String firstName, String lastName, String address, String city, long phoneNumber, boolean isApproved, boolean isOnBoardingCompleted) {
         super(id, email, firstName, lastName, address, city, phoneNumber, "admin", isApproved, isOnBoardingCompleted);
     }
 }
