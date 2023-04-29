@@ -45,6 +45,7 @@ const Auth = ({ children }: AuthProps) => {
     firstName: "John",
     lastName: "Doe",
     role: UserRole.ADMIN,
+    isCompletedOnBoarding: true,
   };
 
   const pushToCompleteDetails = async () => {
