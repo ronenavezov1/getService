@@ -47,22 +47,29 @@ const LeftNavBar: FC<LeftNavBarProps> = ({ firstName, lastName }) => {
 
 const RightNavBar: FC<RoleProps> = ({ role }) => {
   return (
-    <div className="flex h-full">
+    <div className="flex ">
       <div className="hidden place-items-center gap-8 md:flex">
         <Links role={role} />
       </div>
 
       {/* <Popover.Button className="w-8 md:hidden"> */}
-      <Menu as="div" className="relative text-center text-white md:hidden ">
-        <Menu.Button className="inline-flex h-full w-full justify-center focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 md:max-w-xl ">
+      <Menu as="div" className="text-center text-white md:hidden ">
+        <Menu.Button
+          className={`justify-center focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 md:max-w-xl `}
+        >
           {({ open }) => (
-            <span
+            <Bars3Icon
               className={`${
-                open ? "bg-indigo-800 text-yellow-500" : "text-white"
-              } w-full rounded-t-md p-2`}
-            >
-              burger
-            </span>
+                open ? "rotate-90 transform " : " transform"
+              }h-8 w-8 fill-yellow-400 `}
+            />
+            // <span
+            //   className={`${
+            //     open ? "bg-indigo-800 text-yellow-500" : "text-white"
+            //   } h-full w-full rounded-t-md p-2`}
+            // >
+            //   burger
+            // </span>
           )}
         </Menu.Button>
 
@@ -75,7 +82,8 @@ const RightNavBar: FC<RoleProps> = ({ role }) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute left-0 grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
+          {/* todo: fix this */}
+          <Menu.Items className="absolute left-0 z-10 w-full  rounded-b-md bg-indigo-600 focus:outline-none  ">
             <div>
               <Menu.Item>
                 {({ active }) => (

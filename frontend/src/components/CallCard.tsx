@@ -53,7 +53,7 @@ const CallCard: FC<CallCardProps> = ({
   return (
     <div
       className={`${
-        fullSize ? "max-w-2xl" : "max-w-sm"
+        fullSize ? "max-w-2xl" : "max-w-xs"
       }   flex w-full flex-col rounded-xl border bg-gray-100 shadow-md`}
     >
       {/* Header */}

@@ -69,7 +69,7 @@ const PickQuery: FC = () => {
             >
               <div className="grow">sort</div>
               <ChevronLeftIcon
-                className={`${open ? "-rotate-90 transform" : ""}  h-5 `}
+                className={`${open ? "-rotate-90 transform" : ""}   h-5 `}
               />
             </Disclosure.Button>
             <Disclosure.Panel className="text-gray-500">
@@ -93,10 +93,10 @@ const PickQuery: FC = () => {
                 </div>
 
                 <input
-                  className="mt-2   rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
+                  className="mt-2 w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500"
                   disabled={isSubmitting}
                   type="submit"
-                  value="Update profile"
+                  value="Search"
                 />
               </form>
             </Disclosure.Panel>

@@ -36,6 +36,15 @@ const Auth = ({ children }: AuthProps) => {
     session?.user?.email ?? ""
   );
 
+  // user for debugging
+  // const isLoadingUser = false;
+
+  // const user = {
+  //   firstName: "John",
+  //   lastName: "Doe",
+  //   role: UserRole.ADMIN,
+  // }
+
   const pushToCompleteDetails = async () => {
     await router.push("/onboarding/completeDetails");
   };
