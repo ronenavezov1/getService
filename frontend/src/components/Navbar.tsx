@@ -1,10 +1,13 @@
+/* eslint-disable */
+//TODO:remove this
+
 import { useQueryClient } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
 import { type FC, Fragment, useState } from "react";
 import { UserRole } from "./Auth";
 import Link from "next/link";
 import { Bars3Icon } from "@heroicons/react/20/solid";
-import { Menu, Popover, Transition } from "@headlessui/react";
+import { Menu, Transition } from "@headlessui/react";
 
 interface NavbarProps {
   firstName: string;
@@ -13,8 +16,6 @@ interface NavbarProps {
 }
 
 const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="relative flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
       <div className="flex justify-between">

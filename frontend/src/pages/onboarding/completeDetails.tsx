@@ -15,6 +15,7 @@ import { usePostUser } from "~/api/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { CityInput } from "~/components/Inputs/CityInput";
 import ProfessionInput from "~/components/Inputs/ProfessionInput";
+import { MessageCardCentered } from "~/components/MessageCards";
 
 const UserSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -46,7 +47,7 @@ export type CompeleteDetailsFormSchemaType = z.infer<
 
 const CompleteDetails: FC = () => {
   const router = useRouter();
-  const { data: session } = useSession({ required: true });
+  const { status } = useSession({ required: true });
   const queryClient = useQueryClient();
   const { mutate } = usePostUser();
   const formHook = useForm<CompeleteDetailsFormSchemaType>({
@@ -73,6 +74,10 @@ const CompleteDetails: FC = () => {
     });
     await router.push("/");
   };
+
+  if (status === "loading") {
+    return <MessageCardCentered message="Loading Session" />;
+  }
 
   return (
     <div className="grid justify-center gap-2 pt-2">

@@ -1,12 +1,12 @@
 import { Disclosure } from "@headlessui/react";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type } from "os";
+
 import { type FC } from "react";
 import {
   FormProvider,
-  SubmitHandler,
+  type SubmitHandler,
   useForm,
   useFormContext,
 } from "react-hook-form";
@@ -122,7 +122,7 @@ const DateLimitInput: FC = () => {
         type="number"
         id="dateLimit"
         {...register("dateLimit", {
-          setValueAs: (v) => (v === "" ? 0 : parseInt(v, 10)),
+          setValueAs: (v: string) => (v === "" ? 0 : parseInt(v, 10)),
         })}
         defaultValue={0}
         className="input"

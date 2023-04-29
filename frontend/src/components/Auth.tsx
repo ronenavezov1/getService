@@ -32,18 +32,20 @@ interface AuthProps {
 const Auth = ({ children }: AuthProps) => {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
-  const { data: user, isLoading: isLoadingUser } = useUserByEmail(
-    session?.user?.email ?? ""
-  );
 
-  // user for debugging
-  // const isLoadingUser = false;
+  // comment this for user debugging
+  // const { data: user, isLoading: isLoadingUser } = useUserByEmail(
+  //   session?.user?.email ?? ""
+  // );
 
-  // const user = {
-  //   firstName: "John",
-  //   lastName: "Doe",
-  //   role: UserRole.ADMIN,
-  // }
+  //uncomment this user for debugging
+  const isLoadingUser = false;
+
+  const user = {
+    firstName: "John",
+    lastName: "Doe",
+    role: UserRole.ADMIN,
+  };
 
   const pushToCompleteDetails = async () => {
     await router.push("/onboarding/completeDetails");
