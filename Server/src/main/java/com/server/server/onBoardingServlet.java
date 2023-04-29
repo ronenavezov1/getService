@@ -34,6 +34,5 @@ public class onBoardingServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().print("onBoarding error: " + e.getMessage());
         }
-        response.getWriter().print("succeed");
     }
 }

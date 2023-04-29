@@ -1,5 +1,6 @@
 package com.server.storage;
 
+import com.server.models.Call;
 import com.server.models.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,6 +10,10 @@ import java.sql.*;
 import java.util.UUID;
 
 public class QueryHandler {
+    // CALL
+    public static void createCall(Call call){
+        //todo:create call's query handler
+    }
     
     // USER
     public static boolean insertUser(User user) {
@@ -34,7 +39,6 @@ public class QueryHandler {
 
     /**
      * fail if email not exists or city not in list
-     * @param email
      * @return return User on succeed, null otherwise
      */
     public static User getUser(final String email) {
@@ -43,18 +47,16 @@ public class QueryHandler {
             StorageManager.executeQuery(Queries.SELECT_USER_BY_EMAIL, (statement)->{
                 statement.setString(1, email);
             }, (resultSet)->{
-                if (resultSet.next()){
-                    UUID id = (UUID) resultSet.getObject("user_id");
-                    String firstName = resultSet.getString("first_name");
-                    String lastName = resultSet.getString("last_name");
-                    String address = resultSet.getString("address");
-                    String city = resultSet.getString("city");
-                    long phone = resultSet.getLong("phone");
-                    boolean isApproved = resultSet.getBoolean("is_approved");
-                    boolean isOnBoardingCompleted = resultSet.getBoolean("is_onboarding_completed");
-                    String type = resultSet.getString("type");
-                    user[0] = new User(id, email, firstName, lastName, address, city, phone, type, isOnBoardingCompleted, isApproved);
-                }
+                UUID id = (UUID) resultSet.getObject("user_id");
+                String firstName = resultSet.getString("first_name");
+                String lastName = resultSet.getString("last_name");
+                String address = resultSet.getString("address");
+                String city = resultSet.getString("city");
+                long phone = resultSet.getLong("phone");
+                boolean isApproved = resultSet.getBoolean("is_approved");
+                boolean isOnBoardingCompleted = resultSet.getBoolean("is_onboarding_completed");
+                String type = resultSet.getString("type");
+                user[0] = new User(id, email, firstName, lastName, address, city, phone, type, isOnBoardingCompleted, isApproved);
             });
         } catch (SQLException e) {
             e.printStackTrace();
@@ -81,15 +83,14 @@ public class QueryHandler {
     }
 
     // WORKER
-    public static boolean addWorkerProfession(String id, String profession) {
+    public static void addWorkerProfession(String id, String profession) {
         try {
-            return StorageManager.executeUpdate(Queries.INSERT_WORKER, (statement) -> {
+            StorageManager.executeUpdate(Queries.INSERT_WORKER, (statement) -> {
                 statement.setString(1, id);
                 statement.setString(2, profession);
-            }) == 1;
+            });
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
     }
 
@@ -114,11 +115,9 @@ public class QueryHandler {
                         statement.setString(1, startWith);
                     },
                     (resultSet) -> {
-                        while (resultSet.next()) {
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("name", resultSet.getString(1));
-                            jsonFiles.put(jsonObject);
-                        }
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name", resultSet.getString(1));
+                        jsonFiles.put(jsonObject);
                     });
         } catch (SQLException e) {
             return jsonFiles.toString();

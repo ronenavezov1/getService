@@ -2,6 +2,9 @@ package com.server.storage;
 
 public class Queries {
 
+    // CALL QUERIES
+    public static final String CREATE_CALL = "";//todo: create call's query
+
     // USER QUERIES
     public static final String SELECT_USER_BY_EMAIL = "SELECT * FROM public.user WHERE \"user\".email = ?";
     public static final String INSERT_USER          = "INSERT INTO public.user (user_id, email, first_name, last_name, address, city, phone, type, is_approved, is_onboarding_completed) " +

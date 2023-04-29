@@ -2,6 +2,7 @@ package com.server.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.server.exceptions.InvalidUserException;
 import com.server.models.User;
 import com.server.models.Worker;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.UUID;
 
 public class UserHandler {
 
@@ -27,31 +29,64 @@ public class UserHandler {
 
     public static void createUser(String idToken, String body) throws InvalidUserException {
         try {
-            String email = GoogleApiHandler.getEmail(idToken);
-            if(Authentication.isNullOrEmpty(email))
-                throw new InvalidUserException("Unreachable email");
+            //create and check what missing
+            JsonArray missing = new JsonArray();
+            boolean ifMissing = false;
             Gson gson = new Gson();
             User user;
-            JSONObject jsonObject = new JSONObject(body);
-            String type = jsonObject.getString("type");
-            if (Authentication.isNullOrEmpty(type)){
-                throw new InvalidUserException("Missing type");
+            String email = GoogleApiHandler.getEmail(idToken);
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = new JSONObject(body);
+            } catch (JSONException e){
+                throw new InvalidUserException("not in json format");
             }
-            switch (type) {
-                case "worker":
-                    user = gson.fromJson(body, Worker.class);
-                    break;
-                case "user":
-                    user = gson.fromJson(body, User.class);
-                    break;
-                default:
-                    throw new InvalidUserException("Unknown user type " + type);
+            String type = null;
+            try{
+                type = jsonObject.getString("type");
+            }catch (JSONException e){
+                missing.add("missing type");
+                ifMissing = true;
             }
-
-            user.setEmail(email);
+            if (type != null && type.equals("worker")) {
+                user = gson.fromJson(body, Worker.class);
+            } else {
+                user = gson.fromJson(body, User.class);
+            }
+            if(Authentication.isNullOrEmpty(email)){
+                missing.add("unreachable email");
+                ifMissing = true;
+            }
+            if(Authentication.isNullOrEmpty(user.getFirstName())){
+                missing.add("missing first name");
+                ifMissing = true;
+            }
+            if(Authentication.isNullOrEmpty( user.getLastName())){
+                missing.add("missing last name");
+                ifMissing = true;
+            }
+            if(Authentication.isNullOrEmpty(user.getAddress())){
+                missing.add("missing address");
+                ifMissing = true;
+            }
+            if(Authentication.isNullOrEmpty(user.getCity())){
+                missing.add("missing city");
+                ifMissing = true;
+            }
+            if(user.getPhoneNumber() == 0){
+                missing.add("missing phone number");
+                ifMissing = true;
+            }
             if(user instanceof Worker && Authentication.isNullOrEmpty(((Worker) user).getProfession())) {
-                throw new InvalidUserException("Missing profession");
+                missing.add("missing profession");
+                ifMissing = true;
             }
+            if(ifMissing)
+                throw new InvalidUserException(missing.toString());
+
+            //add
+            user.setId(UUID.randomUUID());
+            user.setEmail(email);
             if (QueryHandler.insertUser(user)) {
                 if (user instanceof Worker) {
                     QueryHandler.addWorkerProfession(user.getId().toString(), ((Worker) user).getProfession());

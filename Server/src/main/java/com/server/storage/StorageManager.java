@@ -41,7 +41,8 @@ public class StorageManager {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statements.onPreparedStatement(statement);
                 try (ResultSet resultSet = statement.executeQuery()){
-                    results.onResultSet(resultSet);
+                    while (resultSet.next())
+                        results.onResultSet(resultSet);
                 }
             }
         }
