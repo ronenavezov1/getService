@@ -30,6 +30,9 @@ public class CallHandler {
         if(Authentication.isNullOrEmpty(call.getCity())){
             ifMissing = true;
             missing.add("missing city");
+        }else if(!Authentication.isCityExist(call.getCity())){
+            ifMissing = true;
+            missing.add("I dont know what and where is " + call.getCity());
         }
         if(Authentication.isNullOrEmpty(call.getDescription())){
             ifMissing = true;

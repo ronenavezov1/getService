@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(name = "getCitiesServlet", value = "/cities")
+@WebServlet(name = "getCitiesServlet", value = "/cities", loadOnStartup = 1)
 public class getCitiesServlet extends HttpServlet {
 
     private String cityJson = "";
@@ -18,7 +18,7 @@ public class getCitiesServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        cityJson = QueryHandler.getCities("");
+        cityJson = QueryHandler.getCities("").toString();
     }
 
     /** ?startWith={string @optional}*/
@@ -30,7 +30,7 @@ public class getCitiesServlet extends HttpServlet {
         if(Authentication.isNullOrEmpty(startWith))
             response.getWriter().print(cityJson);
         else
-            response.getWriter().print(QueryHandler.getCities(startWith));
+            response.getWriter().print(QueryHandler.getCities(startWith).toString());
     }
 }
 

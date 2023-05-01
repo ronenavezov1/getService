@@ -29,6 +29,7 @@ public class CallServlet extends HttpServlet {
         }
         response.setContentType(ContentType.TEXT_PLAIN.toString());
         response.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8");
         BufferedReader reader = request.getReader();
         String line;
         StringBuilder sb = new StringBuilder();

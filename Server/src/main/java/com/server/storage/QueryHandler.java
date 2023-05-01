@@ -12,7 +12,25 @@ import java.util.UUID;
 public class QueryHandler {
     // CALL
     public static void createCall(Call call){
-        //todo:create call's query handler
+        String sql = "INSERT INTO public.call(\n" +
+                "\tcall_id, user_id, service, title, description, comment, status, address, city, creation_time)\n" +
+                "\tVALUES (?::uuid,?::uuid,?,?,?,?,?,?,?,?);";
+        try {
+            StorageManager.executeUpdate(sql, (statement)->{
+                statement.setString(1, call.getCallId().toString());
+                statement.setString(2, call.getCustomerId().toString());
+                statement.setString(3, call.getService());
+                statement.setString(4, call.getTitle());
+                statement.setString(5, call.getDescription());
+                statement.setString(6, call.getComment());
+                statement.setString(7, call.getStatus());
+                statement.setString(8, call.getAddress());
+                statement.setString(9, call.getCity());
+                statement.setLong(10, call.getCreationTime());
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     // USER
@@ -107,7 +125,7 @@ public class QueryHandler {
     }
 
     // CITY
-    public static String getCities(String startWith){
+    public static JSONArray getCities(String startWith){
         JSONArray jsonFiles = new JSONArray();
         try{
             StorageManager.executeQuery(Queries.SELECT_CITY,
@@ -120,9 +138,9 @@ public class QueryHandler {
                         jsonFiles.put(jsonObject);
                     });
         } catch (SQLException e) {
-            return jsonFiles.toString();
+            return jsonFiles;
         }
-        return jsonFiles.toString();
+        return jsonFiles;
     }
 
     // TODO: do we still need this code? yes if I need add more cities from file and I use same code if we wont add professional
