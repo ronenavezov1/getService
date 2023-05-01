@@ -3,7 +3,9 @@ package com.server.storage;
 public class Queries {
 
     // CALL QUERIES
-    public static final String CREATE_CALL = "";//todo: create call's query
+    public static final String CREATE_CALL = "INSERT INTO public.call(\n" +
+            "\tcall_id, user_id, service, title, description, comment, status, address, city, creation_time)\n" +
+            "\tVALUES (?::uuid,?::uuid,?,?,?,?,?,?,?,?);";
 
     // USER QUERIES
     public static final String SELECT_USER_BY_EMAIL = "SELECT * FROM public.user WHERE \"user\".email = ?";
