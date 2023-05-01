@@ -54,20 +54,15 @@ export const useGetCall = (
   const { id, status, customerId, workerId } = queryParams;
 
   return useQuery(
-    ["call", id, status, customerId, workerId],
+    ["call", { id, status, customerId, workerId }],
     async () => await getCall(idToken, { id, status, customerId, workerId }),
     {
       enabled: !!idToken,
+      staleTime: Infinity,
+      cacheTime: Infinity,
     }
   );
 };
-
-// const getCallbyId = async (idToken: string, callId: string) => {
-//   const { data } = await axiosWithAuth(idToken).get(
-//     `${BASE_CALL_API_URL}/${callId}`
-//   );
-//   return data as Call;
-// };
 
 //TODO:what delete call response returns?
 const deleteCall = async (idToken: string, callId: string) => {

@@ -37,19 +37,19 @@ const Auth = ({ children }: AuthProps) => {
   const { data: session, status } = useSession({ required: true });
 
   // comment this for user debugging
-  // const { data: user, isLoading: isLoadingUser } = useUserByEmail(
-  //   session?.user?.email ?? ""
-  // );
+  const { data: user, isLoading: isLoadingUser } = useUserByEmail(
+    session?.user?.email ?? ""
+  );
 
   //uncomment this user for debugging
-  const isLoadingUser = false;
+  // const isLoadingUser = false;
 
-  const user = {
-    firstName: "John",
-    lastName: "Doe",
-    role: UserRole.ADMIN,
-    isCompletedOnBoarding: true,
-  };
+  // const user = {
+  //   firstName: "John",
+  //   lastName: "Doe",
+  //   role: "admin" as UserRole,
+  //   isCompletedOnBoarding: true,
+  // };
 
   const pushToCompleteDetails = async () => {
     await router.push("/onboarding/completeDetails");

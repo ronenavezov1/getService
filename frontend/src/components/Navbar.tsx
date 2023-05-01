@@ -1,9 +1,6 @@
-/* eslint-disable */
-//TODO:remove this
-
 import { useQueryClient } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
-import { type FC, Fragment, useState } from "react";
+import { type FC, Fragment, type MouseEventHandler } from "react";
 import { UserRole } from "./Auth";
 import Link from "next/link";
 import { Bars3Icon } from "@heroicons/react/20/solid";
@@ -48,32 +45,120 @@ const LeftNavBar: FC<LeftNavBarProps> = ({ firstName, lastName }) => {
 
 const RightNavBar: FC<RoleProps> = ({ role }) => {
   return (
-    <div className="flex ">
-      <div className="hidden place-items-center gap-8 md:flex">
-        <Links role={role} />
-      </div>
+    <>
+      {/* Desktop menu */}
+      <Menu as="div" className="hidden grow  justify-end md:flex">
+        <Menu.Items className="flex w-full max-w-md gap-4 " static>
+          <Links role={role} />
+        </Menu.Items>
+      </Menu>
 
-      {/* <Popover.Button className="w-8 md:hidden"> */}
+      {/* mobile menu */}
       <Menu as="div" className="text-center text-white md:hidden ">
-        <Menu.Button
-          className={`justify-center focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 md:max-w-xl `}
-        >
-          {({ open }) => (
-            <Bars3Icon
-              className={`${
-                open ? "rotate-90 transform " : " transform"
-              }h-8 w-8 fill-yellow-400 `}
-            />
-            // <span
-            //   className={`${
-            //     open ? "bg-indigo-800 text-yellow-500" : "text-white"
-            //   } h-full w-full rounded-t-md p-2`}
-            // >
-            //   burger
-            // </span>
-          )}
-        </Menu.Button>
+        {({ close }) => (
+          <>
+            <Menu.Button
+              className={`justify-center focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 md:max-w-xl `}
+            >
+              {({ open }) => (
+                <Bars3Icon
+                  className={`${
+                    open ? "rotate-90 transform " : " transform"
+                  }h-8 w-8 fill-yellow-400 `}
+                />
+              )}
+            </Menu.Button>
 
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items className="absolute left-0 z-10 w-full  rounded-b-md bg-indigo-600 focus:outline-none  ">
+                <Links role={role} closeBurger={close} />
+              </Menu.Items>
+            </Transition>
+          </>
+        )}
+      </Menu>
+    </>
+  );
+};
+
+interface LinksProps extends RoleProps {
+  closeBurger?: MouseEventHandler<HTMLAnchorElement>;
+}
+
+const Links = ({ role, closeBurger: closePop }: LinksProps) => {
+  return (
+    <>
+      {/* user links  */}
+
+      <CallsMenuItems closeBurger={closePop} />
+
+      {/* worker/admin links  */}
+      {(role === UserRole.ADMIN || role === UserRole.WORKER) && (
+        <WorkMenuItems closeBurger={closePop} />
+      )}
+
+      {/* admin links  */}
+
+      {/* logout Button */}
+      <LogoutBtnMenuItem />
+    </>
+  );
+};
+
+const LogoutBtnMenuItem: FC = () => {
+  const queryClient = useQueryClient();
+
+  const onClickHandler = async () => {
+    await signOut();
+    await queryClient.invalidateQueries({ queryKey: ["user"] });
+  };
+
+  return (
+    <Menu.Item>
+      <button
+        onClick={onClickHandler}
+        className="w-full rounded-lg bg-yellow-400  p-1 font-bold text-slate-700 hover:bg-yellow-500"
+      >
+        Logout
+      </button>
+    </Menu.Item>
+  );
+};
+
+export default Navbar;
+
+interface PopMenuProps {
+  closeBurger?: MouseEventHandler<HTMLAnchorElement>;
+}
+
+const WorkMenuItems: FC<PopMenuProps> = ({ closeBurger }) => {
+  return (
+    <Menu.Item>
+      <Menu
+        as="div"
+        className="relative inline-block w-full text-center text-white "
+      >
+        <div className="">
+          <Menu.Button className="inline-flex h-full w-full justify-center focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 md:max-w-xl ">
+            {({ open }) => (
+              <span
+                className={`${
+                  open ? "bg-indigo-800 text-yellow-500" : "text-white"
+                } w-full rounded-t-md p-2`}
+              >
+                Work
+              </span>
+            )}
+          </Menu.Button>
+        </div>
         <Transition
           as={Fragment}
           enter="transition ease-out duration-100"
@@ -83,35 +168,18 @@ const RightNavBar: FC<RoleProps> = ({ role }) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          {/* todo: fix this */}
-          <Menu.Items className="absolute left-0 z-10 w-full  rounded-b-md bg-indigo-600 focus:outline-none  ">
+          <Menu.Items className=" grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
             <div>
               <Menu.Item>
                 {({ active }) => (
-                  <Link href={"/call"}>
-                    <button
-                      className={`${
-                        active ? "bg-indigo-800 text-yellow-500" : "text-white"
-                      } w-full  p-2`}
-                    >
-                      status
-                    </button>
-                  </Link>
-                )}
-              </Menu.Item>
-            </div>
-
-            <div>
-              <Menu.Item>
-                {({ active }) => (
-                  <Link href={"/call/create"}>
-                    <button
-                      className={`${
-                        active ? "bg-indigo-800 text-yellow-500" : "text-white"
-                      }  w-full  p-2`}
-                    >
-                      create
-                    </button>
+                  <Link
+                    href={"/work/pick"}
+                    onClick={closeBurger}
+                    className={`${
+                      active ? "bg-indigo-800 text-yellow-500" : "text-white"
+                    } block w-full  p-2`}
+                  >
+                    pick
                   </Link>
                 )}
               </Menu.Item>
@@ -119,67 +187,17 @@ const RightNavBar: FC<RoleProps> = ({ role }) => {
           </Menu.Items>
         </Transition>
       </Menu>
-    </div>
+    </Menu.Item>
   );
 };
 
-const Links: FC<RoleProps> = ({ role }) => {
+const CallsMenuItems = ({ closeBurger: closePop }: PopMenuProps) => {
   return (
-    <>
-      {/* user links  */}
-      <CallsMenu />
-
-      {/* worker/admin links  */}
-      {(role === UserRole.ADMIN || role === UserRole.WORKER) && (
-        <Link className="navLink" href={"/work/pick"}>
-          Pick
-        </Link>
-      )}
-
-      {/* admin links  */}
-      {role === UserRole.ADMIN && (
-        <Link className="navLink" href={"/backoffice/users"}>
-          Users
-        </Link>
-      )}
-
-      <LogoutBtn />
-    </>
-  );
-};
-
-const BurgerMenu: FC<RoleProps> = ({ role }) => {
-  return (
-    <div className="  flex flex-col gap-4 text-center md:hidden">
-      <Links role={role} />
-    </div>
-  );
-};
-
-const LogoutBtn: FC = () => {
-  const queryClient = useQueryClient();
-
-  const onClickHandler = async () => {
-    await signOut();
-    await queryClient.invalidateQueries({ queryKey: ["user"] });
-  };
-
-  return (
-    <button
-      onClick={void onClickHandler}
-      className="rounded-lg bg-yellow-400  p-1 font-bold text-slate-700 hover:bg-yellow-500"
-    >
-      Logout
-    </button>
-  );
-};
-
-export default Navbar;
-
-const CallsMenu: FC = () => {
-  return (
-    <Menu as="div" className=" relative inline-block text-center text-white ">
-      <div className="">
+    <Menu.Item>
+      <Menu
+        as="div"
+        className="relative inline-block w-full text-center text-white "
+      >
         <Menu.Button className="inline-flex h-full w-full justify-center focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 md:max-w-xl ">
           {({ open }) => (
             <span
@@ -191,28 +209,19 @@ const CallsMenu: FC = () => {
             </span>
           )}
         </Menu.Button>
-      </div>
-      <Transition
-        as={Fragment}
-        enter="transition ease-out duration-100"
-        enterFrom="transform opacity-0 scale-95"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-75"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
-      >
+
         <Menu.Items className=" grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
           <div>
             <Menu.Item>
               {({ active }) => (
-                <Link href={"/call"}>
-                  <button
-                    className={`${
-                      active ? "bg-indigo-800 text-yellow-500" : "text-white"
-                    } w-full  p-2`}
-                  >
-                    status
-                  </button>
+                <Link
+                  href={"/call"}
+                  onClick={closePop}
+                  className={`${
+                    active ? "bg-indigo-800 text-yellow-500" : "text-white"
+                  } block w-full  p-2`}
+                >
+                  status
                 </Link>
               )}
             </Menu.Item>
@@ -221,20 +230,20 @@ const CallsMenu: FC = () => {
           <div>
             <Menu.Item>
               {({ active }) => (
-                <Link href={"/call/create"}>
-                  <button
-                    className={`${
-                      active ? "bg-indigo-800 text-yellow-500" : "text-white"
-                    }  w-full  p-2`}
-                  >
-                    create
-                  </button>
+                <Link
+                  href={"/call/create"}
+                  onClick={closePop}
+                  className={`${
+                    active ? "bg-indigo-800 text-yellow-500" : "text-white"
+                  }  block w-full p-2`}
+                >
+                  create
                 </Link>
               )}
             </Menu.Item>
           </div>
         </Menu.Items>
-      </Transition>
-    </Menu>
+      </Menu>
+    </Menu.Item>
   );
 };
