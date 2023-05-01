@@ -6,7 +6,7 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import type { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { useUserByEmail } from "~/api/user";
+import { useGetUserByIdToken } from "~/api/user";
 import { MessageCardCentered } from "./MessageCards";
 
 //////////////////////////////////////////////// types
@@ -37,19 +37,19 @@ const Auth = ({ children }: AuthProps) => {
   const { data: session, status } = useSession({ required: true });
 
   // comment this for user debugging
-  const { data: user, isLoading: isLoadingUser } = useUserByEmail(
-    session?.user?.email ?? ""
-  );
+  // const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+  //   session?.idToken ?? ""
+  // );
 
   //uncomment this user for debugging
-  // const isLoadingUser = false;
+  const isLoadingUser = false;
 
-  // const user = {
-  //   firstName: "John",
-  //   lastName: "Doe",
-  //   role: "admin" as UserRole,
-  //   isCompletedOnBoarding: true,
-  // };
+  const user = {
+    firstName: "John",
+    lastName: "Doe",
+    role: "admin" as UserRole,
+    isCompletedOnBoarding: true,
+  };
 
   const pushToCompleteDetails = async () => {
     await router.push("/onboarding/completeDetails");

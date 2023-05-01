@@ -14,7 +14,6 @@ const fetchCites = async (idToken: string) => {
 
 /**
  * Returns all cities from db and caches them
- * @returns returns all cities from db
  */
 export const useCities = (idToken: string) => {
   return useQuery(["cities", idToken], () => fetchCites(idToken), {

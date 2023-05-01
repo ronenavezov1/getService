@@ -14,8 +14,8 @@ interface NavbarProps {
 
 const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
   return (
-    <div className="relative flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
-      <div className="flex justify-between">
+    <div className="   flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
+      <div className="  flex justify-between">
         <LeftNavBar firstName={firstName} lastName={lastName} />
         <RightNavBar role={role} />
       </div>
@@ -35,7 +35,7 @@ interface RoleProps {
 const LeftNavBar: FC<LeftNavBarProps> = ({ firstName, lastName }) => {
   return (
     <div className=" flex items-center gap-4">
-      <div className="text-3xl font-bold text-yellow-400 transition-colors  ">
+      <div className=" text-3xl font-bold text-yellow-400 transition-colors  ">
         Get Service
       </div>
       <h1 className="text-sm text-white "> {`${firstName} ${lastName}`}</h1>
@@ -54,17 +54,15 @@ const RightNavBar: FC<RoleProps> = ({ role }) => {
       </Popover>
 
       {/* mobile menu */}
-      <Popover as="div" className="text-center text-white md:hidden ">
+      <Popover as="div" className=" self-end text-white md:hidden ">
         {({ close }) => (
           <>
-            <Popover.Button
-              className={`justify-center focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 md:max-w-xl `}
-            >
+            <Popover.Button className={`  focus:outline-none  md:max-w-xl `}>
               {({ open }) => (
                 <Bars3Icon
                   className={`${
                     open ? "rotate-90 transform " : " transform"
-                  }h-8 w-8 fill-yellow-400 `}
+                  }w-8 h-8 fill-yellow-400 `}
                 />
               )}
             </Popover.Button>

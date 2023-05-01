@@ -27,14 +27,7 @@ interface Worker extends User {
   proffesion: string;
 }
 
-const BASE_USER_API_URL = `/users`;
-
-const getUserByEmail = async (email: string) => {
-  const { data } = await axios.get<Customer | Worker | Admin>(
-    `${BASE_USER_API_URL}/${email}`
-  );
-  return data;
-};
+const BASE_USER_API_URL = `/user`;
 
 //TODO:what post respose returns?
 const postUser = async (user: CompeleteDetailsFormSchemaType) => {
@@ -56,29 +49,6 @@ export const useGetUserByIdToken = (idToken: string) => {
   return useQuery(["user", idToken], () => getUserByIdToken(idToken), {
     enabled: !!idToken,
   });
-};
-
-/**
- * Returns user from db by using id, caches user for whole session
- * only fetches if id is defined
- * @param id id of user to fetch
- */
-export const useUserByEmail = (email: string) => {
-  return useQuery(["user", email], () => getUserByEmail(email), {
-    enabled: !!email,
-    staleTime: Infinity,
-    cacheTime: Infinity,
-  });
-};
-
-/**
- * TODO implement by token
- * Returns user from db by using id from nextAuth session
- * only fetches if id is defined
- */
-export const useUserBySession = () => {
-  const { data: session } = useSession();
-  return useUserByEmail(session?.user?.email ?? "");
 };
 
 /**
