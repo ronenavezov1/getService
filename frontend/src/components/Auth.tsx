@@ -37,19 +37,9 @@ const Auth = ({ children }: AuthProps) => {
   const { data: session, status } = useSession({ required: true });
 
   // comment this for user debugging
-  // const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
-  //   session?.idToken ?? ""
-  // );
-
-  //uncomment this user for debugging
-  const isLoadingUser = false;
-
-  const user = {
-    firstName: "John",
-    lastName: "Doe",
-    role: "admin" as UserRole,
-    isCompletedOnBoarding: true,
-  };
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
 
   const pushToCompleteDetails = async () => {
     await router.push("/onboarding/completeDetails");

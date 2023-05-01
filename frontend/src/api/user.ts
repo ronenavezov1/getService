@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
 import type { UserRole } from "~/components/Auth";
 import type { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
 import axiosWithAuth, { axios } from "./axiosConfig";
@@ -46,9 +45,20 @@ const getUserByIdToken = async (idToken: string) => {
 };
 
 export const useGetUserByIdToken = (idToken: string) => {
-  return useQuery(["user", idToken], () => getUserByIdToken(idToken), {
-    enabled: !!idToken,
-  });
+  // return useQuery(["user", idToken], () => getUserByIdToken(idToken), {
+  //   enabled: !!idToken,
+  // });
+
+  //TODO:remove this mock
+  const user = {
+    firstName: "John",
+    lastName: "Doe",
+    id: "testUserUuid",
+    role: "admin" as UserRole,
+    isCompletedOnBoarding: true,
+  };
+
+  return { data: user, isLoading: false, isError: false };
 };
 
 /**

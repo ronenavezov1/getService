@@ -34,11 +34,11 @@ interface RoleProps {
 
 const LeftNavBar: FC<LeftNavBarProps> = ({ firstName, lastName }) => {
   return (
-    <div className=" flex items-center gap-4">
+    <div className=" flex items-end  gap-4">
       <div className=" text-3xl font-bold text-yellow-400 transition-colors  ">
         Get Service
       </div>
-      <h1 className="text-sm text-white "> {`${firstName} ${lastName}`}</h1>
+      <h1 className="text-sm  text-white "> {`${firstName} ${lastName}`}</h1>
     </div>
   );
 };
@@ -54,7 +54,7 @@ const RightNavBar: FC<RoleProps> = ({ role }) => {
       </Popover>
 
       {/* mobile menu */}
-      <Popover as="div" className=" self-end text-white md:hidden ">
+      <Popover as="div" className="self-end  text-white md:hidden ">
         {({ close }) => (
           <>
             <Popover.Button className={`  focus:outline-none  md:max-w-xl `}>
@@ -62,7 +62,7 @@ const RightNavBar: FC<RoleProps> = ({ role }) => {
                 <Bars3Icon
                   className={`${
                     open ? "rotate-90 transform " : " transform"
-                  }w-8 h-8 fill-yellow-400 `}
+                  } h-8 w-8 fill-yellow-400 `}
                 />
               )}
             </Popover.Button>

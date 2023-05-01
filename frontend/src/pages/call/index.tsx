@@ -5,17 +5,22 @@ import { useRouter } from "next/router";
 import type { FC } from "react";
 import { toast } from "react-toastify";
 import { type Call, useDeleteCall, useGetCall } from "~/api/call";
+import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import { MessageCard } from "~/components/MessageCards";
+import { sortByDate } from "~/utils/sortUtils";
 
 const Status: NextPageWithAuth = () => {
   const { data: session, status } = useSession();
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
   const {
     data: calls,
-    isLoading,
+    isLoading: isLoadingCalls,
     isFetching,
-  } = useGetCall(session?.idToken ?? "");
+  } = useGetCall(session?.idToken ?? "", { customerId: user?.id });
   const router = useRouter();
 
   const onBodyClickHandler = async (id: string) =>
@@ -23,7 +28,7 @@ const Status: NextPageWithAuth = () => {
 
   return (
     <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-      {isLoading || status == "loading" ? (
+      {isLoadingUser || isLoadingCalls || status == "loading" ? (
         <MessageCard message={"Loading user calls"} />
       ) : (
         calls &&
@@ -46,12 +51,6 @@ const Status: NextPageWithAuth = () => {
 Status.auth = {
   requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.WORKER],
 };
-
-function sortByDate(a: Call, b: Call) {
-  return (
-    new Date(a.creationTime).getTime() - new Date(b.creationTime).getTime()
-  );
-}
 
 export default Status;
 

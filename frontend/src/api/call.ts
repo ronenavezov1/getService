@@ -8,6 +8,7 @@ enum CallStatus {
   DONE = "done",
 }
 
+//TOOD: updateSchema
 export interface Call {
   id: string;
   workerId: string;
@@ -21,13 +22,6 @@ export interface Call {
 }
 
 const BASE_CALL_API_URL = `/call`;
-
-const getUserCalls = async (idToken: string) => {
-  const { data } = await axiosWithAuth(idToken).get<Call[]>(
-    `${BASE_CALL_API_URL}`
-  );
-  return data;
-};
 
 interface CallQueryParams {
   id?: string;
@@ -72,13 +66,24 @@ const deleteCall = async (idToken: string, callId: string) => {
   return data;
 };
 
-// const updateCall = async (idToken: string, call: Call) => {
-//   const { data } = await axiosWithAuth(idToken).put(
-//     `${BASE_CALL_API_URL}/${call.id}`,
-//     call
-//   );
-//   return data as Call;
-// };
+const updateCall = async (
+  idToken: string,
+  callId: string,
+  call: callCreateFormSchema
+) => {
+  const { data } = await axiosWithAuth(idToken).put(
+    `${BASE_CALL_API_URL}/${callId}`,
+    call
+  );
+  return data as Call;
+};
+
+export const usePutCall = (idToken: string, callId: string) => {
+  return useMutation(
+    async (call: callCreateFormSchema) =>
+      await updateCall(idToken, callId, call)
+  );
+};
 
 //TODO? what response returns? call?
 const createCall = async (idToken: string, call: callCreateFormSchema) => {
@@ -100,25 +105,3 @@ export const useDeleteCall = (idToken: string) => {
     async (callId: string) => await deleteCall(idToken, callId)
   );
 };
-
-export const useUserCalls = (idToken: string) => {
-  return useQuery(
-    ["userCalls", idToken],
-    async () => await getUserCalls(idToken),
-    {
-      enabled: !!idToken,
-      staleTime: Infinity,
-      cacheTime: Infinity,
-    }
-  );
-};
-
-// export const useCallById = (CallId: string, idToken?: string) => {
-//   return useQuery(
-//     ["call", CallId],
-//     async () => await getCallbyId(idToken!, CallId!),
-//     {
-//       enabled: !!CallId && !!idToken,
-//     }
-//   );
-// };

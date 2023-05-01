@@ -2,6 +2,7 @@ import { Disclosure } from "@headlessui/react";
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
 
 import { type FC } from "react";
 import {
@@ -11,16 +12,41 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { z } from "zod";
+import { useGetCall } from "~/api/call";
+import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
+import CallCard from "~/components/CallCard";
 import CityInput from "~/components/Inputs/CityInput";
 import ProfessionInput from "~/components/Inputs/ProfessionInput";
+import { sortByDate } from "~/utils/sortUtils";
 
 const Pick: NextPageWithAuth = () => {
+  const { data: session, status } = useSession();
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
+  const { data: calls, isLoading: isLoadingSession } = useGetCall(
+    session?.idToken ?? "",
+    {
+      status: "new",
+      workerId: user.id,
+    }
+  );
+
+  if (isLoadingSession || isLoadingUser || status === "loading")
+    return <div>loading...</div>;
+
   return (
     <div className="flex flex-col items-center gap-4 p-2">
       <PickQuery />
 
-      <div>pick</div>
+      {calls && (
+        <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
+          {calls.sort(sortByDate).map((call) => (
+            <CallCard key={call.id} call={call} fullSize={false} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -32,7 +58,7 @@ Pick.auth = {
 const PickQuerySchema = z.object({
   profession: z.string().optional(),
   city: z.string().optional(),
-  dateLimit: z.coerce.number(), //sets 0 if empty
+  dateLimit: z.coerce.number(), //TODO: sets 0 if empty
 });
 
 type PickQuerySchemaType = z.infer<typeof PickQuerySchema>;
