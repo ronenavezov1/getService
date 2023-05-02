@@ -111,7 +111,7 @@ public class QueryHandler {
     }
     
     // USER
-    public static boolean insertUser(User user) {
+    public static boolean insertUser(User user) throws SQLException {
         try {
             return StorageManager.executeUpdate(Queries.INSERT_USER,
                     (statement) -> {
@@ -126,9 +126,8 @@ public class QueryHandler {
                         statement.setBoolean(9, user.isApproved());
                     }
             ) == 1;
-        }catch (SQLException e){
-            e.printStackTrace();
-            return false;
+        } catch (SQLException e){
+            throw e;
         }
     }
 
@@ -136,12 +135,12 @@ public class QueryHandler {
      * fail if email not exists or city not in list
      * @return return User on succeed, null otherwise
      */
-    public static User getUser(final String email) {
+    public static User getUser(final String email) throws SQLException {
         final User[] user = new User[1];
         try {
             StorageManager.executeQuery(Queries.SELECT_USER_BY_EMAIL, (statement)->{
                 statement.setString(1, email);
-            }, (resultSet)->{
+            }, (resultSet) -> {
                 UUID id = (UUID) resultSet.getObject("user_id");
                 String firstName = resultSet.getString("first_name");
                 String lastName = resultSet.getString("last_name");
@@ -151,11 +150,10 @@ public class QueryHandler {
                 boolean isApproved = resultSet.getBoolean("is_approved");
                 boolean isOnBoardingCompleted = resultSet.getBoolean("is_onboarding_completed");
                 String type = resultSet.getString("type");
-                user[0] = new User(id, email, firstName, lastName, address, city, phone, type, isOnBoardingCompleted, isApproved);
+                user[0] = new User(id, email, firstName, lastName, address, city, phone, type, isApproved, isOnBoardingCompleted);
             });
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            throw e;
         }
         return user[0];
     }
@@ -178,14 +176,14 @@ public class QueryHandler {
     }
 
     // WORKER
-    public static void addWorkerProfession(String id, String profession) {
+    public static void addWorkerProfession(String id, String profession) throws SQLException {
         try {
             StorageManager.executeUpdate(Queries.INSERT_WORKER, (statement) -> {
                 statement.setString(1, id);
                 statement.setString(2, profession);
             });
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 

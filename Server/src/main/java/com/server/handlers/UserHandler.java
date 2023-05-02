@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class UserHandler {
@@ -27,7 +28,7 @@ public class UserHandler {
         }
     }
 
-    public static void createUser(String idToken, String body) throws InvalidUserException {
+    public static void createUser(String idToken, String body) throws Exception {
         try {
             //create and check what missing
             JsonArray missing = new JsonArray();
@@ -42,9 +43,9 @@ public class UserHandler {
                 throw new InvalidUserException("not in json format");
             }
             String type = null;
-            try{
+            try {
                 type = jsonObject.getString("type");
-            }catch (JSONException e){
+            } catch (JSONException e){
                 missing.add("missing type");
                 ifMissing = true;
             }
@@ -95,6 +96,8 @@ public class UserHandler {
 
         } catch (GeneralSecurityException | IOException e) {
             throw new InvalidUserException(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
