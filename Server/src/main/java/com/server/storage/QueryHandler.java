@@ -137,6 +137,7 @@ public class QueryHandler {
      */
     public static User getUser(final String email) throws SQLException {
         final User[] user = new User[1];
+        user[0] = new User();
         try {
             StorageManager.executeQuery(Queries.SELECT_USER_BY_EMAIL, (statement)->{
                 statement.setString(1, email);

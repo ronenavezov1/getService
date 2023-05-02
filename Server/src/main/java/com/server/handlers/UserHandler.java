@@ -24,7 +24,7 @@ public class UserHandler {
             String email = GoogleApiHandler.getEmail(idToken);
             return gson.toJson(QueryHandler.getUser(email));
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
