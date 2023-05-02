@@ -23,10 +23,6 @@ public class CallHandler {
             ifMissing = true;
             missing.add("missing address");
         }
-        if(Authentication.isNullOrEmpty(call.getTitle())){
-            ifMissing = true;
-            missing.add("missing title");
-        }
         if(Authentication.isNullOrEmpty(call.getCity())){
             ifMissing = true;
             missing.add("missing city");
@@ -48,6 +44,22 @@ public class CallHandler {
         call.setCreationTime(System.currentTimeMillis());
         call.setStatus(Call.OPEN_CALL);
         call.setWorkerId(null);
-        QueryHandler.createCall(call);
+        if(!QueryHandler.createCall(call))
+            throw new InvalidCallException("oops something goes wrong");
+    }
+
+    public static boolean updateCall(String callId, String city, String service, String description, String address) {
+        Call updatedCall = QueryHandler.getCall(callId);
+        if(updatedCall == null)
+            return false;
+        if(!Authentication.isNullOrEmpty(city))
+            updatedCall.setCity(city);
+        if(!Authentication.isNullOrEmpty(service))
+            updatedCall.setService(service);
+        if(!Authentication.isNullOrEmpty(description))
+            updatedCall.setDescription(description);
+        if(!Authentication.isNullOrEmpty(address))
+            updatedCall.setAddress(address);
+        return QueryHandler.updateCall(updatedCall);
     }
 }

@@ -4,8 +4,10 @@ import com.server.exceptions.InvalidCallException;
 import com.server.handlers.Authentication;
 import com.server.handlers.AuthorizationHandler;
 import com.server.handlers.CallHandler;
+import com.server.models.Call;
 import com.server.storage.QueryHandler;
 import org.apache.http.entity.ContentType;
+import org.json.JSONObject;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,24 +34,41 @@ public class CallServlet extends HttpServlet {
         String workerId = request.getParameter("workerId");
         String status = request.getParameter("status");
         String city = request.getParameter("city");
+
         if(status == null)
             status = "";
-        if(!Authentication.isNullOrEmpty(callId)){
-            response.getWriter().print(QueryHandler.getCallById(callId));
-        } else if (!Authentication.isNullOrEmpty(customerId)) {
-            response.getWriter().print(QueryHandler.getCallByCustomerId(customerId, status));
-        } else if (!Authentication.isNullOrEmpty(workerId)) {
-            response.getWriter().print(QueryHandler.getCallByWorkerId(workerId, status));
-        } else if (!Authentication.isNullOrEmpty(city)) {
-            response.getWriter().print(QueryHandler.getCallByCity(city, status));
-        } else if (!Authentication.isNullOrEmpty(status)) {
-            response.getWriter().print(QueryHandler.getCallByStatus(status));
-        }
+        if(city == null)
+            city = "";
+        if(callId == null)
+            callId = "";
+        if(customerId == null)
+            customerId = "";
+        if(workerId == null)
+            workerId = "";
+
+        String responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city);
+        if(responseString != null)
+            response.getWriter().print(responseString);
+        else
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String idToken = AuthorizationHandler.authorize(request);
+        if (idToken == null){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        request.setCharacterEncoding("UTF-8");
+        String city = request.getParameter("city");
+        String callId = request.getParameter("id");
+        String service = request.getParameter("service");
+        String description = request.getParameter("description");
+        String address = request.getParameter("address");
 
+        if(!Authentication.isNullOrEmpty(callId) && !CallHandler.updateCall(callId, city, service, description, address))
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Override
@@ -78,7 +97,14 @@ public class CallServlet extends HttpServlet {
 
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+        String idToken = AuthorizationHandler.authorize(request);
+        if (idToken == null){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        String callId = request.getParameter("id");
+        if(!Authentication.isNullOrEmpty(callId) && !QueryHandler.deleteCall(callId))
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
 
 }

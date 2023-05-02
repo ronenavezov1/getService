@@ -1,6 +1,5 @@
 package com.server.storage;
 
-import com.google.api.client.util.DateTime;
 import com.server.models.Call;
 import com.server.models.User;
 import org.json.JSONArray;
@@ -8,198 +7,107 @@ import org.json.JSONObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.text.DateFormat;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class QueryHandler {
     // CALL
-    public static String getCallByCity(String city, String status) {
+    public static Call getCall(String callId){
+        AtomicReference<Call> call = new AtomicReference<>();
+        try {
+            StorageManager.executeQuery(Queries.GET_CALL, statement -> {
+                statement.setString(1, callId);
+            }, resultSet -> {
+                call.set(new Call(
+                        UUID.fromString(resultSet.getString(1)),
+                        UUID.fromString(resultSet.getString(2)),
+                        resultSet.getString(3),
+                        resultSet.getString(4),
+                        resultSet.getString(5),
+                        resultSet.getString(6)
+                ));
+            });
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return call.get();
+    }
+    public static boolean updateCall(Call call){
+        try {
+            return StorageManager.executeUpdate(Queries.UPDATE_CALL, statement -> {
+                statement.setString(1, call.getService());
+                statement.setString(2, call.getDescription());
+                statement.setString(3, call.getAddress());
+                statement.setString(4, call.getCity());
+                statement.setString(5, call.getCallId().toString());
+            }) == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public static boolean deleteCall(String callId){
+        try {
+            return StorageManager.executeUpdate(Queries.DELETE_CALL, statement -> statement.setString(1, callId)) == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public static String getCalls(String callId, String customerId, String workerId, String status, String city) {
         JSONArray jsonArray = new JSONArray();
-        String sql = "SELECT call_id, user_id, worker_id, service, title, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
-                "FROM public.call\n" +
-                "WHERE public.call.city = ? and starts_with( public.call.status, ?);";
         try{
-            StorageManager.executeQuery(sql, (statement)->{
-                statement.setString(1, city);
-                statement.setString(2, status);
+            StorageManager.executeQuery(Queries.GET_CALLS, (statement)->{
+                statement.setString(1, callId);
+                statement.setString(2, customerId);
+                statement.setString(3, workerId);
+                statement.setString(4, city);
+                statement.setString(5, status);
             }, (resultSet) -> {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", resultSet.getString(1));
                 jsonObject.put("customerId", resultSet.getString(2));
                 jsonObject.put("service", resultSet.getString(4));
-                jsonObject.put("title", resultSet.getString(5));
-                jsonObject.put("description", resultSet.getString(6));
-                jsonObject.put("comment", resultSet.getString(7));
-                jsonObject.put("status", resultSet.getString(8));
-                jsonObject.put("address", resultSet.getString(10));
-                jsonObject.put("city", resultSet.getString(11));
-                jsonObject.put("creationTime", new Date(resultSet.getLong(12)).toString());
-                if(resultSet.getString(8) != null && !resultSet.getString(8).equals(Call.OPEN_CALL)) {
+                jsonObject.put("description", resultSet.getString(5));
+                jsonObject.put("status", resultSet.getString(7));
+                jsonObject.put("address", resultSet.getString(9));
+                jsonObject.put("city", resultSet.getString(10));
+                jsonObject.put("creationTime", new Date(resultSet.getLong(11)).toString());
+                if(resultSet.getString(7) != null && !resultSet.getString(7).equals(Call.OPEN_CALL)) {
                     jsonObject.put("workerId", resultSet.getString(3));
-                    jsonObject.put("expectedArrival", new Date(resultSet.getLong(13)).toString());
+                    jsonObject.put("expectedArrival", new Date(resultSet.getLong(12)).toString());
                 }
-                if(resultSet.getString(8) != null && resultSet.getString(8).equals(Call.CLOSE_CALL))
-                    jsonObject.put("rate", resultSet.getFloat(9));
+                if(resultSet.getString(7) != null && resultSet.getString(7).equals(Call.CLOSE_CALL)) {
+                    jsonObject.put("rate", resultSet.getFloat(8));
+                    jsonObject.put("comment", resultSet.getString(6));
+                }
                 jsonArray.put(jsonObject);
             });
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return null;
         }
         return jsonArray.toString();
     }
-    public static String getCallByCustomerId(String customerId, String status) {
-        JSONArray jsonArray = new JSONArray();
-        String sql = "SELECT call_id, user_id, worker_id, service, title, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
-                "FROM public.call\n" +
-                "WHERE public.call.user_id = ?::uuid and starts_with( public.call.status, ?);";
-        try{
-            StorageManager.executeQuery(sql, (statement)->{
-                statement.setString(1, customerId);
-                statement.setString(2, status);
-            }, (resultSet) -> {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("id", resultSet.getString(1));
-                jsonObject.put("customerId", resultSet.getString(2));
-                jsonObject.put("service", resultSet.getString(4));
-                jsonObject.put("title", resultSet.getString(5));
-                jsonObject.put("description", resultSet.getString(6));
-                jsonObject.put("comment", resultSet.getString(7));
-                jsonObject.put("status", resultSet.getString(8));
-                jsonObject.put("address", resultSet.getString(10));
-                jsonObject.put("city", resultSet.getString(11));
-                jsonObject.put("creationTime", new Date(resultSet.getLong(12)).toString());
-                if(resultSet.getString(8) != null && !resultSet.getString(8).equals(Call.OPEN_CALL)) {
-                    jsonObject.put("workerId", resultSet.getString(3));
-                    jsonObject.put("expectedArrival", new Date(resultSet.getLong(13)).toString());
-                }
-                if(resultSet.getString(8) != null && resultSet.getString(8).equals(Call.CLOSE_CALL))
-                    jsonObject.put("rate", resultSet.getFloat(9));
-                jsonArray.put(jsonObject);
-            });
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return jsonArray.toString();
-    }
-
-    public static String getCallByWorkerId(String workerId, String status) {
-        JSONArray jsonArray = new JSONArray();
-        String sql = "SELECT call_id, user_id, worker_id, service, title, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
-                "FROM public.call\n" +
-                "WHERE public.call.worker_id = ?::uuid and starts_with( public.call.status, ?);";
-        try{
-            StorageManager.executeQuery(sql, (statement)->{
-                statement.setString(1, workerId);
-                statement.setString(2, status);
-            }, (resultSet) -> {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("id", resultSet.getString(1));
-                jsonObject.put("customerId", resultSet.getString(2));
-                jsonObject.put("service", resultSet.getString(4));
-                jsonObject.put("title", resultSet.getString(5));
-                jsonObject.put("description", resultSet.getString(6));
-                jsonObject.put("comment", resultSet.getString(7));
-                jsonObject.put("status", resultSet.getString(8));
-                jsonObject.put("address", resultSet.getString(10));
-                jsonObject.put("city", resultSet.getString(11));
-                jsonObject.put("creationTime", new Date(resultSet.getLong(12)).toString());
-                if(resultSet.getString(8) != null && !resultSet.getString(8).equals(Call.OPEN_CALL)) {
-                    jsonObject.put("workerId", resultSet.getString(3));
-                    jsonObject.put("expectedArrival", new Date(resultSet.getLong(13)).toString());
-                }
-                if(resultSet.getString(8) != null && resultSet.getString(8).equals(Call.CLOSE_CALL))
-                    jsonObject.put("rate", resultSet.getFloat(9));
-                jsonArray.put(jsonObject);
-            });
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return jsonArray.toString();
-    }
-
-    public static String getCallByStatus(String status) {
-        JSONArray jsonArray = new JSONArray();
-        String sql = "SELECT call_id, user_id, worker_id, service, title, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
-                "FROM public.call\n" +
-                "WHERE starts_with( public.call.status, ?);";
-        try{
-            StorageManager.executeQuery(sql, (statement)->{
-                statement.setString(1, status);
-            }, (resultSet) -> {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("id", resultSet.getString(1));
-                jsonObject.put("customerId", resultSet.getString(2));
-                jsonObject.put("service", resultSet.getString(4));
-                jsonObject.put("title", resultSet.getString(5));
-                jsonObject.put("description", resultSet.getString(6));
-                jsonObject.put("comment", resultSet.getString(7));
-                jsonObject.put("status", resultSet.getString(8));
-                jsonObject.put("address", resultSet.getString(10));
-                jsonObject.put("city", resultSet.getString(11));
-                jsonObject.put("creationTime", new Date(resultSet.getLong(12)).toString());
-                if(resultSet.getString(8) != null && !resultSet.getString(8).equals(Call.OPEN_CALL)) {
-                    jsonObject.put("workerId", resultSet.getString(3));
-                    jsonObject.put("expectedArrival", new Date(resultSet.getLong(13)).toString());
-                }
-                if(resultSet.getString(8) != null && resultSet.getString(8).equals(Call.CLOSE_CALL))
-                    jsonObject.put("rate", resultSet.getFloat(9));
-                jsonArray.put(jsonObject);
-            });
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return jsonArray.toString();
-    }
-    public static String getCallById(String id){
-        JSONArray jsonArray = new JSONArray();
-        String sql = "SELECT call_id, user_id, worker_id, service, title, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
-                "FROM public.call\n" +
-                "WHERE public.call.call_id =  ?::uuid;";//and starts_with( public.call.status, ?)
-        try{
-            StorageManager.executeQuery(sql, (statement)->{
-                statement.setString(1, id);
-            }, (resultSet) -> {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("id", resultSet.getString(1));
-                jsonObject.put("customerId", resultSet.getString(2));
-                jsonObject.put("service", resultSet.getString(4));
-                jsonObject.put("title", resultSet.getString(5));
-                jsonObject.put("description", resultSet.getString(6));
-                jsonObject.put("comment", resultSet.getString(7));
-                jsonObject.put("status", resultSet.getString(8));
-                jsonObject.put("address", resultSet.getString(10));
-                jsonObject.put("city", resultSet.getString(11));
-                jsonObject.put("creationTime", new Date(resultSet.getLong(12)).toString());
-                if(resultSet.getString(8) != null && !resultSet.getString(8).equals(Call.OPEN_CALL)) {
-                    jsonObject.put("workerId", resultSet.getString(3));
-                    jsonObject.put("expectedArrival", new Date(resultSet.getLong(13)).toString());
-                }
-                if(resultSet.getString(8) != null && resultSet.getString(8).equals(Call.CLOSE_CALL))
-                    jsonObject.put("rate", resultSet.getFloat(9));
-                jsonArray.put(jsonObject);
-            });
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return jsonArray.toString();
-    }
-    public static void createCall(Call call){
+    public static boolean createCall(Call call){
         try {
             StorageManager.executeUpdate(Queries.CREATE_CALL, (statement)->{
                 statement.setString(1, call.getCallId().toString());
                 statement.setString(2, call.getCustomerId().toString());
                 statement.setString(3, call.getService());
-                statement.setString(4, call.getTitle());
-                statement.setString(5, call.getDescription());
-                statement.setString(6, call.getComment());
-                statement.setString(7, call.getStatus());
-                statement.setString(8, call.getAddress());
-                statement.setString(9, call.getCity());
-                statement.setLong(10, call.getCreationTime());
+                statement.setString(4, call.getDescription());
+                statement.setString(5, call.getComment());
+                statement.setString(6, call.getStatus());
+                statement.setString(7, call.getAddress());
+                statement.setString(8, call.getCity());
+                statement.setLong(9, call.getCreationTime());
             });
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return false;
         }
+        return true;
     }
     
     // USER
@@ -349,5 +257,7 @@ public class QueryHandler {
             }
         }
     }
+
+
 }
 
