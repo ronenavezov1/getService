@@ -4,8 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.server.exceptions.InvalidCallException;
 import com.server.models.Call;
+import com.server.models.User;
 import com.server.storage.QueryHandler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CallHandler {
@@ -13,7 +16,7 @@ public class CallHandler {
         Call call;
         Gson gson = new Gson();
         call = gson.fromJson(body, Call.class);
-        JsonArray missing = new JsonArray();
+        List<String> missing = new ArrayList<>();
         boolean ifMissing = false;
         if(call.getCustomerId() == null){
             ifMissing = true;
@@ -38,8 +41,13 @@ public class CallHandler {
             ifMissing = true;
             missing.add("missing service");
         }
-        if(ifMissing)
-            throw new InvalidCallException(missing.toString());
+        if(ifMissing) {
+            StringBuilder msg = new StringBuilder();
+            for (int i = 0; i < missing.size(); i++) {
+                msg.append(missing.get(i)).append(i<missing.size()-1?"\n ":"");
+            }
+            throw new InvalidCallException(msg.toString());
+        }
         call.setCallId(UUID.randomUUID());
         call.setCreationTime(System.currentTimeMillis());
         call.setStatus(Call.OPEN_CALL);
@@ -48,10 +56,13 @@ public class CallHandler {
             throw new InvalidCallException("oops something goes wrong");
     }
 
-    public static boolean updateCall(String callId, String city, String service, String description, String address) {
+    public static void updateCall(String callId, String city, String service, String description, String address, String userId) throws InvalidCallException{
         Call updatedCall = QueryHandler.getCall(callId);
         if(updatedCall == null)
-            return false;
+            throw new InvalidCallException("call not exist");
+        else if (updatedCall.getCustomerId() == null || (!updatedCall.getCustomerId().toString().equals(userId) && !userId.equals(User.ADMIN))) {
+            throw new InvalidCallException("you not allow to edit this call");
+        }
         if(!Authentication.isNullOrEmpty(city))
             updatedCall.setCity(city);
         if(!Authentication.isNullOrEmpty(service))
@@ -60,6 +71,7 @@ public class CallHandler {
             updatedCall.setDescription(description);
         if(!Authentication.isNullOrEmpty(address))
             updatedCall.setAddress(address);
-        return QueryHandler.updateCall(updatedCall);
+        if(!QueryHandler.updateCall(updatedCall))
+            throw new InvalidCallException("oops something goes wrong");
     }
 }

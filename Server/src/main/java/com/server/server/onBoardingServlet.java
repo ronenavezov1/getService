@@ -30,9 +30,9 @@ public class onBoardingServlet extends HttpServlet {
         }
         try {
             UserHandler.createUser(idToken, sb.toString());
-        } catch (Exception e) {
+        } catch (InvalidUserException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().print("onBoarding error: " + e.getMessage());
+            response.getWriter().print("{message:" + e.getMessage() + ",\nstatusCode:"+HttpServletResponse.SC_INTERNAL_SERVER_ERROR+"}");
         }
     }
 }

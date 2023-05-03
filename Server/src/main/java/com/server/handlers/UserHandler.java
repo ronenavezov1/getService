@@ -3,6 +3,7 @@ package com.server.handlers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonSyntaxException;
 import com.server.exceptions.InvalidUserException;
 import com.server.models.User;
 import com.server.models.Worker;
@@ -28,7 +29,7 @@ public class UserHandler {
         }
     }
 
-    public static void createUser(String idToken, String body) throws Exception {
+    public static void createUser(String idToken, String body) throws InvalidUserException {
         try {
             //create and check what missing
             JsonArray missing = new JsonArray();
@@ -49,10 +50,18 @@ public class UserHandler {
                 missing.add("missing type");
                 ifMissing = true;
             }
-            if (type != null && type.equals("worker")) {
-                user = gson.fromJson(body, Worker.class);
-            } else {
-                user = gson.fromJson(body, User.class);
+            try {
+                if (type != null && type.equals(User.WORKER)) {
+                    user = gson.fromJson(body, Worker.class);
+                } else if(type != null && type.equals(User.CUSTOMER)){
+                    user = gson.fromJson(body, User.class);
+                } else if (type != null && type.equals(User.ADMIN)) {
+                    throw new InvalidUserException("cannot sign up as admin");
+                } else {
+                    throw new InvalidUserException("illegal type");
+                }
+            }catch (JsonSyntaxException e){
+                throw new InvalidUserException(e.getMessage());
             }
             if(Authentication.isNullOrEmpty(email)){
                 missing.add("unreachable email");

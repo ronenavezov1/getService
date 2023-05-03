@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class QueryHandler {
+
     // CALL
     public static Call getCall(String callId){
         AtomicReference<Call> call = new AtomicReference<>();
@@ -135,7 +136,7 @@ public class QueryHandler {
      * fail if email not exists or city not in list
      * @return return User on succeed, null otherwise
      */
-    public static User getUser(final String email) throws SQLException {
+    public static User getUser(final String email){
         final User[] user = new User[1];
         user[0] = new User();
         try {
@@ -154,7 +155,7 @@ public class QueryHandler {
                 user[0] = new User(id, email, firstName, lastName, address, city, phone, type, isApproved, isOnBoardingCompleted);
             });
         } catch (SQLException e) {
-            throw e;
+            return null;
         }
         return user[0];
     }

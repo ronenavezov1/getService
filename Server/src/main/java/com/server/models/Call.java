@@ -3,9 +3,9 @@ package com.server.models;
 import java.util.UUID;
 
 public class Call {
-    public static final String OPEN_CALL = "Open";
-    public static final String CLOSE_CALL = "Close";
-    public static final String RECEIVED_CALL = "Received";
+    public static final String OPEN_CALL = "new";
+    public static final String CLOSE_CALL = "done";
+    public static final String RECEIVED_CALL = "inProgress";
     private UUID callId;
     private UUID customerId;
     private UUID workerId;

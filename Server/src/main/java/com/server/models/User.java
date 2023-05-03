@@ -3,6 +3,9 @@ package com.server.models;
 import java.util.UUID;
 
 public class User {
+    public static final String CUSTOMER = "customer";
+    public static final String WORKER = "worker";
+    public static final String ADMIN = "admin";
     protected UUID id;
     protected String email;
     protected String firstName;
