@@ -1,10 +1,6 @@
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
-import { useQueryClient } from "@tanstack/react-query";
+import { Tab } from "@headlessui/react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import type { FC } from "react";
-import { toast } from "react-toastify";
-import { type Call, useDeleteCall, useGetCall } from "~/api/call";
+import { useGetCall } from "~/api/call";
 import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
@@ -16,34 +12,41 @@ const Status: NextPageWithAuth = () => {
   const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
     session?.idToken ?? ""
   );
-  const {
-    data: calls,
-    isLoading: isLoadingCalls,
-    isFetching,
-  } = useGetCall(session?.idToken ?? "", { customerId: user?.id });
-  const router = useRouter();
 
-  const onBodyClickHandler = async (id: string) =>
-    await router.push(`${router.asPath}/${id}`);
+  if (status == "loading" || isLoadingUser) {
+    return <MessageCard message={"Loading user"} />;
+  }
 
+  // Customer view
+  if (user?.type == UserRole.CUSTOMER) {
+    return (
+      <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
+        <CustomerCalls />
+      </div>
+    );
+  }
+
+  // Worker view
   return (
-    <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-      {isLoadingUser || isLoadingCalls || status == "loading" ? (
-        <MessageCard message={"Loading user calls"} />
-      ) : (
-        calls &&
-        calls
-          .sort(sortByDate)
-          .map((call) => (
-            <CallCard
-              key={call.id}
-              call={call}
-              onBodyClick={() => void onBodyClickHandler(call.id)}
-              fullSize={false}
-              actionRow={<ActionRow callId={call.id} isFetching={isFetching} />}
-            />
-          ))
-      )}
+    <div className="flex flex-col items-center p-2">
+      <Tab.Group>
+        <Tab.List className="flex w-full max-w-2xl  justify-between   overflow-hidden rounded-xl bg-indigo-600 p-1  font-semibold text-white shadow  ">
+          <Tab className=" grow rounded-xl hover:bg-indigo-700 ui-selected:bg-yellow-500 ui-selected:text-slate-900">
+            <span>Customer</span>
+          </Tab>
+          <Tab className=" grow rounded-xl hover:bg-indigo-700 ui-selected:bg-yellow-500 ui-selected:text-slate-900">
+            <span> worker</span>
+          </Tab>
+        </Tab.List>
+        <Tab.Panels className="">
+          <Tab.Panel className="flex  flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
+            <CustomerCalls />
+          </Tab.Panel>
+          <Tab.Panel className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
+            <WorkerCalls />
+          </Tab.Panel>
+        </Tab.Panels>
+      </Tab.Group>
     </div>
   );
 };
@@ -52,45 +55,84 @@ Status.auth = {
   requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.WORKER],
 };
 
-export default Status;
-
-interface ActionRowProps {
-  callId: string;
-  isFetching?: boolean;
-}
-
-const ActionRow: FC<ActionRowProps> = ({ callId, isFetching }) => {
-  const { asPath, push } = useRouter();
+const WorkerCalls = () => {
   const { data: session, status } = useSession();
-  const { mutate, isIdle } = useDeleteCall(session?.idToken ?? "");
-  const queryClient = useQueryClient();
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
 
-  const handleOnEditClick = () => {
-    void push(`${asPath}/${callId}/edit`);
-  };
+  const {
+    data: workerCalls,
+    isLoading: isLoadingworkerCalls,
+    isFetching: isFetchingWorkerCalls,
+  } = useGetCall(session?.idToken ?? "", { workerId: user?.id });
 
-  if (status == "loading") {
-    return null;
+  if (isLoadingUser || status == "loading" || isLoadingworkerCalls) {
+    return <MessageCard message={"Loading worker calls"} />;
+  }
+
+  if (workerCalls?.length === 0) {
+    return <MessageCard message={"No calls found"} />;
   }
 
   return (
     <>
-      <button disabled={isFetching || !isIdle} onClick={handleOnEditClick}>
-        <PencilSquareIcon className="w-5 fill-blue-600 " />
-      </button>
-      <button
-        disabled={!isIdle}
-        onClick={() => {
-          mutate(callId, {
-            onSuccess: () => {
-              void queryClient.invalidateQueries(["call"]);
-              toast.success("Call deleted successfully");
-            },
-          });
-        }}
-      >
-        <TrashIcon className="w-5 fill-red-600 " />
-      </button>
+      {workerCalls &&
+        user &&
+        workerCalls
+          .sort(sortByDate)
+          .map((call) => (
+            <CallCard
+              key={call.id}
+              call={call}
+              userId={user.id}
+              userRole={user.type}
+              isFetchingCalls={isFetchingWorkerCalls}
+              fullSize={false}
+            />
+          ))}
     </>
   );
 };
+
+const CustomerCalls = () => {
+  const { data: session, status } = useSession();
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
+
+  const {
+    data: customerCalls,
+    isLoading: isLoadingCustomerCalls,
+    isFetching: isFetchingCustomerCalls,
+  } = useGetCall(session?.idToken ?? "", { customerId: user?.id });
+
+  if (isLoadingUser || status == "loading" || isLoadingCustomerCalls) {
+    return <MessageCard message={"Loading customer calls"} />;
+  }
+
+  if (customerCalls?.length === 0) {
+    return <MessageCard message={"No calls found"} />;
+  }
+
+  return (
+    <>
+      {customerCalls &&
+        user &&
+        customerCalls
+          .sort(sortByDate)
+          .map((call) => (
+            <CallCard
+              key={call.id}
+              call={call}
+              userId={user.id}
+              userRole={user.type}
+              isFetchingCalls={isFetchingCustomerCalls}
+              fullSize={false}
+            />
+          ))}
+    </>
+  );
+};
+
+export default Status;

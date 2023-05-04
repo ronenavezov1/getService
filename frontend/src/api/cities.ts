@@ -5,20 +5,31 @@ interface City {
   name: string;
 }
 
+interface CityQueryParams {
+  startWith: string;
+}
+
 const BASE_CITY_API_URL = "/cities";
 
-const fetchCites = async (idToken: string) => {
-  const { data } = await axiosWithAuth(idToken).get<City[]>(BASE_CITY_API_URL);
+const getCities = async (idToken: string, cityQueryParams: CityQueryParams) => {
+  const { data } = await axiosWithAuth(idToken).get<City[]>(BASE_CITY_API_URL, {
+    params: { ...cityQueryParams },
+  });
   return data;
 };
 
 /**
- * Returns all cities from db and caches them
+ * Returns all cities that start with the given string with a minimum length of 3
  */
-export const useCities = (idToken: string) => {
-  return useQuery(["cities", idToken], () => fetchCites(idToken), {
-    enabled: !!idToken,
-    staleTime: Infinity,
-    cacheTime: Infinity,
-  });
+export const useGetCities = (
+  idToken: string,
+  cityQueryParams: CityQueryParams
+) => {
+  return useQuery(
+    ["cities", idToken],
+    () => getCities(idToken, cityQueryParams),
+    {
+      enabled: !!idToken && cityQueryParams.startWith?.length >= 3,
+    }
+  );
 };

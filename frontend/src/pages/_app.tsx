@@ -47,6 +47,25 @@ const queryClient = new QueryClient({
         }
       },
     },
+    mutations: {
+      onError: (err: unknown) => {
+        if (isAxiosError(err)) {
+          const axiosError = err as AxiosError<ErrorResponse>;
+
+          if (axiosError.response?.status === 401) {
+            const WAITING_TIME = 5000;
+
+            toast.error("Unauthorized, logging out...");
+            setTimeout(() => void signOut(), WAITING_TIME);
+            return;
+          }
+
+          toast.error(axiosError.response?.data.message ?? "An error occurred");
+        } else {
+          toast.error("Unknown error occurred");
+        }
+      },
+    },
   },
 });
 

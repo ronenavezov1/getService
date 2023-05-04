@@ -4,7 +4,11 @@ const config = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('@headlessui/tailwindcss')
+
+
+  ],
 };
 
 module.exports = config;

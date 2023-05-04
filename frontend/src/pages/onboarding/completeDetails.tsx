@@ -16,11 +16,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CityInput } from "~/components/Inputs/CityInput";
 import ProfessionInput from "~/components/Inputs/ProfessionInput";
 import { MessageCardCentered } from "~/components/MessageCards";
+import { toast } from "react-toastify";
 
 const UserSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
-  phone: z.number().min(1, { message: "Phone number is required" }),
+  phoneNumber: z.number().min(1, { message: "Phone number is required" }),
   city: z.string().min(1, { message: "City is required" }),
   address: z.string().min(1, { message: "Address is required" }),
 });
@@ -47,9 +48,9 @@ export type CompeleteDetailsFormSchemaType = z.infer<
 
 const CompleteDetails: FC = () => {
   const router = useRouter();
-  const { status } = useSession({ required: true });
+  const { data: session, status } = useSession({ required: true });
   const queryClient = useQueryClient();
-  const { mutate } = usePostUser();
+  const { mutate } = usePostUser(session?.idToken ?? "");
   const formHook = useForm<CompeleteDetailsFormSchemaType>({
     mode: "onChange",
     resolver: zodResolver(compeleteDetailsFormSchema),
@@ -64,15 +65,16 @@ const CompleteDetails: FC = () => {
   /**
    * Submits form data , invalidates user query and redirects to home page
    */
-  const onSubmitHandler: SubmitHandler<CompeleteDetailsFormSchemaType> = async (
+  const onSubmitHandler: SubmitHandler<CompeleteDetailsFormSchemaType> = (
     data
   ) => {
     mutate(data, {
       onSuccess: () => {
+        void router.push("/");
         void queryClient.invalidateQueries(["user"]);
+        toast.success("User created successfully");
       },
     });
-    await router.push("/");
   };
 
   if (status === "loading") {
@@ -94,7 +96,9 @@ const CompleteDetails: FC = () => {
           <PhoneInput />
           <div className="flex justify-between gap-2">
             <AddressInput />
-            <CityInput />
+            <div>
+              <CityInput />
+            </div>
           </div>
           <TypeInput />
           {userType === UserRole.WORKER && <ProfessionInput />}
@@ -183,7 +187,7 @@ const PhoneInput: FC = () => {
       </label>
       <input
         id="phone"
-        {...register("phone", { valueAsNumber: true })}
+        {...register("phoneNumber", { valueAsNumber: true })}
         className="input"
         type="number"
       />

@@ -1,4 +1,3 @@
-/* eslint-disable */
 //TODO:remove this
 
 import { useSession } from "next-auth/react";
@@ -57,8 +56,8 @@ const Auth = ({ children }: AuthProps) => {
     return <MessageCardCentered message="User not found" />;
   }
 
-  if (user.isCompletedOnBoarding === false) {
-    void pushToCompleteDetails();
+  if (user.isOnBoardingCompleted === false) {
+    pushToCompleteDetails();
     return null;
   }
 
@@ -66,7 +65,7 @@ const Auth = ({ children }: AuthProps) => {
   const { requiredRoles } = pageAuth;
 
   //no user will always be unauthorized
-  if (!requiredRoles.includes(user?.role)) {
+  if (!requiredRoles.includes(user.type)) {
     return <MessageCardCentered message="Unauthorized" />;
   }
 
@@ -75,7 +74,7 @@ const Auth = ({ children }: AuthProps) => {
       <Navbar
         firstName={user.firstName}
         lastName={user.lastName}
-        role={user.role}
+        role={user.type}
       />
       {children}
     </>

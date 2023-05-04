@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosWithAuth from "./axiosConfig";
 import type { callCreateFormSchema } from "~/components/CallForm";
 
-enum CallStatus {
+export enum CallStatus {
   NEW = "new",
   IN_PROGRESS = "inProgress",
   DONE = "done",
@@ -11,8 +11,8 @@ enum CallStatus {
 //TOOD: updateSchema
 export interface Call {
   id: string;
-  workerId: string;
   customerId: string;
+  workerId: string;
   service: string;
   description: string;
   city: string;
@@ -21,7 +21,7 @@ export interface Call {
   status: CallStatus;
 }
 
-const BASE_CALL_API_URL = `/call`;
+export const BASE_CALL_API_URL = `/call`;
 
 interface CallQueryParams {
   id?: string;
@@ -58,34 +58,27 @@ export const useGetCall = (
   );
 };
 
-//TODO:what delete call response returns?
-const deleteCall = async (idToken: string, callId: string) => {
-  const { data } = await axiosWithAuth(idToken).delete<Call>(
-    `${BASE_CALL_API_URL}/${callId}`
-  );
-  return data;
-};
-
-const updateCall = async (
+const putCall = async (
   idToken: string,
   callId: string,
   call: callCreateFormSchema
 ) => {
-  const { data } = await axiosWithAuth(idToken).put(
-    `${BASE_CALL_API_URL}/${callId}`,
-    call
+  const { data } = await axiosWithAuth(idToken).put<callCreateFormSchema>(
+    `${BASE_CALL_API_URL}`,
+    {},
+    {
+      params: { ...call, id: callId },
+    }
   );
-  return data as Call;
+  return data;
 };
 
 export const usePutCall = (idToken: string, callId: string) => {
   return useMutation(
-    async (call: callCreateFormSchema) =>
-      await updateCall(idToken, callId, call)
+    async (call: callCreateFormSchema) => await putCall(idToken, callId, call)
   );
 };
 
-//TODO? what response returns? call?
 const createCall = async (idToken: string, call: callCreateFormSchema) => {
   const { data } = await axiosWithAuth(idToken).post<Call>(
     `${BASE_CALL_API_URL}`,
@@ -98,6 +91,15 @@ export const useCreateCall = (idToken: string) => {
   return useMutation(
     async (call: callCreateFormSchema) => await createCall(idToken, call)
   );
+};
+
+//TODO:what delete call response returns?
+const deleteCall = async (idToken: string, callId: string) => {
+  const { data } = await axiosWithAuth(idToken).delete<Call>(
+    `${BASE_CALL_API_URL}`,
+    { params: { id: callId } }
+  );
+  return data;
 };
 
 export const useDeleteCall = (idToken: string) => {

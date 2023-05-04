@@ -17,6 +17,7 @@ const Home: NextPageWithAuth = () => {
       </div>
     );
   }
+  
   return (
     <>
       Not signed in <br />

@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import React from "react";
-import { useCities } from "~/api/cities";
+import { useGetCities } from "~/api/cities";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
 import { toast } from "react-toastify";
 import axiosWithAuth, { axios } from "~/api/axiosConfig";

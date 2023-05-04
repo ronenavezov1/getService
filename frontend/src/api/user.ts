@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { UserRole } from "~/components/Auth";
 import type { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
-import axiosWithAuth, { axios } from "./axiosConfig";
+import axiosWithAuth from "./axiosConfig";
 
 interface User {
   id: string;
@@ -10,31 +10,44 @@ interface User {
   email: string;
   adress: string;
   city: string;
-  isCompletedOnBoarding: boolean;
+  isOnBoardingCompleted: boolean;
 }
 
 interface Customer extends User {
-  role: UserRole.CUSTOMER;
+  type: UserRole.CUSTOMER;
 }
 
 interface Admin extends User {
-  role: UserRole.ADMIN;
+  type: UserRole.ADMIN;
 }
 
 interface Worker extends User {
-  role: UserRole.WORKER;
+  type: UserRole.WORKER;
   proffesion: string;
 }
 
 const BASE_USER_API_URL = `/user`;
 
 //TODO:what post respose returns?
-const postUser = async (user: CompeleteDetailsFormSchemaType) => {
-  const { data } = await axios.post<Customer | Worker | Admin>(
-    `${BASE_USER_API_URL}`,
+const postUser = async (
+  idToken: string,
+  user: CompeleteDetailsFormSchemaType
+) => {
+  const { data } = await axiosWithAuth(idToken).post<Customer | Worker | Admin>(
+    `/onBoarding`,
     user
   );
   return data;
+};
+
+/**
+ *Return useMutation to create user
+ */
+export const usePostUser = (idToken: string) => {
+  return useMutation(
+    async (user: CompeleteDetailsFormSchemaType) =>
+      await postUser(idToken, user)
+  );
 };
 
 const getUserByIdToken = async (idToken: string) => {
@@ -45,25 +58,20 @@ const getUserByIdToken = async (idToken: string) => {
 };
 
 export const useGetUserByIdToken = (idToken: string) => {
-  // return useQuery(["user", idToken], () => getUserByIdToken(idToken), {
-  //   enabled: !!idToken,
-  // });
+  return useQuery(["user", idToken], () => getUserByIdToken(idToken), {
+    enabled: !!idToken,
+    staleTime: Infinity,
+    cacheTime: Infinity,
+  });
 
   //TODO:remove this mock
   const user = {
     firstName: "John",
     lastName: "Doe",
-    id: "testUserUuid",
-    role: "admin" as UserRole,
-    isCompletedOnBoarding: true,
+    id: "uuid",
+    type: "worker" as UserRole,
+    isOnBoardingCompleted: true,
   };
 
   return { data: user, isLoading: false, isError: false };
-};
-
-/**
- *Return useMutation to create user
-\ */
-export const usePostUser = () => {
-  return useMutation(postUser);
 };

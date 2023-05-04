@@ -12,7 +12,7 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { z } from "zod";
-import { useGetCall } from "~/api/call";
+import { CallStatus, useGetCall } from "~/api/call";
 import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
@@ -25,13 +25,13 @@ const Pick: NextPageWithAuth = () => {
   const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
     session?.idToken ?? ""
   );
-  const { data: calls, isLoading: isLoadingSession } = useGetCall(
-    session?.idToken ?? "",
-    {
-      status: "new",
-      workerId: user.id,
-    }
-  );
+  const {
+    data: calls,
+    isLoading: isLoadingSession,
+    isFetching,
+  } = useGetCall(session?.idToken ?? "", {
+    status: CallStatus.NEW,
+  });
 
   if (isLoadingSession || isLoadingUser || status === "loading")
     return <div>loading...</div>;
@@ -39,11 +39,17 @@ const Pick: NextPageWithAuth = () => {
   return (
     <div className="flex flex-col items-center gap-4 p-2">
       <PickQuery />
-
-      {calls && (
+      {calls && user && (
         <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
           {calls.sort(sortByDate).map((call) => (
-            <CallCard key={call.id} call={call} fullSize={false} />
+            <CallCard
+              key={call.id}
+              isFetchingCalls={isFetching}
+              call={call}
+              fullSize={false}
+              userRole={user.type}
+              userId={user.id}
+            />
           ))}
         </div>
       )}
@@ -58,7 +64,7 @@ Pick.auth = {
 const PickQuerySchema = z.object({
   profession: z.string().optional(),
   city: z.string().optional(),
-  dateLimit: z.coerce.number(), //TODO: sets 0 if empty
+  dateLimit: z.number(), //TODO: sets 0 if empty
 });
 
 type PickQuerySchemaType = z.infer<typeof PickQuerySchema>;

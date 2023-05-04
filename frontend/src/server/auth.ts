@@ -46,6 +46,10 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
+    redirect({ baseUrl }) {
+      return baseUrl + "/call";
+    },
+
     // Send properties to the client, like an access_token and user id from a provider.
     session({ session, token }) {
       session.idToken = token.idToken as string;

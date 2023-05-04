@@ -1,6 +1,7 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { useSession } from "next-auth/react";
 import { useGetCall } from "~/api/call";
+import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import { MessageCard } from "~/components/MessageCards";
@@ -11,18 +12,35 @@ interface CallIndexProps {
 
 const CallIndex: NextPageWithAuth<CallIndexProps> = ({ id }) => {
   const { data: session, status } = useSession();
-  const { data: calls, isLoading } = useGetCall(session?.idToken ?? "", {
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
+
+  const {
+    data: calls,
+    isLoading,
+    isFetching,
+  } = useGetCall(session?.idToken ?? "", {
     id: id,
   });
+
+  if (isLoadingUser || status == "loading" || isLoading) {
+    return <MessageCard message={"Loading call"} />;
+  }
 
   const call = calls?.[0];
 
   return (
     <div className="bodyDiv">
-      {isLoading || status == "loading" ? (
-        <MessageCard message={"Loading user calls"} />
-      ) : (
-        call && <CallCard call={call} key={call.id} fullSize={true} />
+      {call && user && (
+        <CallCard
+          call={call}
+          userRole={user?.type}
+          userId={user.id}
+          isFetchingCalls={isFetching}
+          key={call.id}
+          fullSize={true}
+        />
       )}
     </div>
   );

@@ -1,12 +1,10 @@
 import { Controller, useFormContext } from "react-hook-form";
-
 import { type FC, Fragment, useState } from "react";
 import { ErrorMessage } from "@hookform/error-message";
-
 import { Combobox, Transition } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { useSession } from "next-auth/react";
-import { useCities } from "~/api/cities";
+import { useGetCities } from "~/api/cities";
 
 export const CityInput: FC = () => {
   const { data: session } = useSession();
@@ -16,14 +14,9 @@ export const CityInput: FC = () => {
     getValues,
   } = useFormContext();
   const [query, setQuery] = useState("");
-  const { data: cities } = useCities(session?.idToken ?? "");
-
-  const filteredCities =
-    (query && cities?.length !== 0) === ""
-      ? cities
-      : cities?.filter((city: City) =>
-          city.name.toLowerCase().includes(query.toLowerCase())
-        );
+  const { data: cities } = useGetCities(session?.idToken ?? "", {
+    startWith: query,
+  });
 
   return (
     <>
@@ -60,12 +53,25 @@ export const CityInput: FC = () => {
                 afterLeave={() => setQuery("")}
               >
                 <Combobox.Options className="comboboxOptions">
-                  {filteredCities?.length === 0 && query !== "" ? (
+                  {/* custom city option */}
+                  {/* {query.length > 0 && (
+                    <Combobox.Option
+                      className={({ active }) =>
+                        `  cursor-default select-none py-2 pl-10 pr-4 ${
+                          active ? "bg-blue-500 text-white" : "text-gray-900"
+                        }`
+                      }
+                      value={query}
+                    >
+                      {query}
+                    </Combobox.Option>
+                  )} */}
+                  {cities?.length === 0 && query.length >= 3 ? (
                     <div className=" cursor-default select-none py-2 px-4 text-gray-700">
                       Nothing found.
                     </div>
                   ) : (
-                    filteredCities?.map((city: City) => (
+                    cities?.map((city: City) => (
                       <Combobox.Option
                         className={({ active }) =>
                           `  cursor-default select-none py-2 pl-10 pr-4 ${
