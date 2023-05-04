@@ -1,5 +1,8 @@
 package com.server.models;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.UUID;
 
 public class User {
@@ -36,6 +39,12 @@ public class User {
         this.type = type;
         this.isApproved = isApproved;
         this.isOnBoardingCompleted = isOnBoardingCompleted;
+    }
+
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder().serializeNulls().create();
+        return gson.toJson(this);
     }
 
     public UUID getId() {

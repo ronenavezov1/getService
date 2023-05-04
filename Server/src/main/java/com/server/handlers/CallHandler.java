@@ -1,13 +1,15 @@
 package com.server.handlers;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.server.exceptions.InvalidCallException;
 import com.server.models.Call;
 import com.server.models.User;
 import com.server.storage.QueryHandler;
+import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,5 +75,26 @@ public class CallHandler {
             updatedCall.setAddress(address);
         if(!QueryHandler.updateCall(updatedCall))
             throw new InvalidCallException("oops something goes wrong");
+    }
+
+    public static void pickCall(String callId, String body) throws Exception {
+        String workerId;
+        String status;
+        long expectedArrivalTime;
+        try {
+            JSONObject jsonObject = new JSONObject(body);
+            workerId = jsonObject.getString("workerId");
+            status = jsonObject.getString("status");
+            String expectedArrivalString = jsonObject.getString("expectedArrivalTime");
+
+            SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy:hh:mm");
+            Date d = f.parse(expectedArrivalString);
+            expectedArrivalTime = d.getTime();
+
+            QueryHandler.updatePickCall(callId, workerId, status, expectedArrivalTime);
+
+        } catch (Exception e) {
+            throw new Exception("Failed picking call on: " + e.getMessage());
+        }
     }
 }

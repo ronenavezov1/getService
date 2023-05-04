@@ -1,13 +1,13 @@
 package com.server.server;
 
 import com.server.exceptions.InvalidCallException;
+import com.server.exceptions.InvalidUserException;
 import com.server.handlers.Authentication;
 import com.server.handlers.AuthorizationHandler;
 import com.server.handlers.CallHandler;
-import com.server.handlers.GoogleApiHandler;
 import com.server.models.User;
 import com.server.storage.QueryHandler;
-import org.apache.http.entity.ContentType;
+import com.server.utils.ErrorResponse;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,43 +15,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 
 @WebServlet(name = "CallServlet", value = "/call")
 public class CallServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
-        String idToken = AuthorizationHandler.authorize(request);
-        if (idToken == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        String email;
+        User user;
         try {
-            email = GoogleApiHandler.getEmail(idToken);
-        } catch (GeneralSecurityException e) {
+            user = AuthorizationHandler.authorizeUser(request);
+        } catch (InvalidUserException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"not found email from token\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
-            return;
-        }
-        User user = QueryHandler.getUser(email);
-        if(user == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user not exist\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
-            return;
-        }
-        if(!user.isApproved()){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user not approved\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
+            response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_UNAUTHORIZED));
             return;
         }
         if(user.getType() == null){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user's type not defined\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
+            response.getWriter().print(new ErrorResponse("user's type not defined", HttpServletResponse.SC_UNAUTHORIZED));
             return;
         }
-        response.setContentType(ContentType.TEXT_PLAIN.toString());
+        response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         request.setCharacterEncoding("UTF-8");
         String callId = request.getParameter("id");
@@ -87,34 +70,19 @@ public class CallServlet extends HttpServlet {
             response.getWriter().print(responseString);
         else {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().print("{\"message\":\"oops something goes wrong\",\n\"statusCode\":\""+HttpServletResponse.SC_BAD_REQUEST+"\"}");
+            response.getWriter().print(new ErrorResponse("oops something goes wrong", HttpServletResponse.SC_BAD_REQUEST));
         }
     }
 
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String idToken = AuthorizationHandler.authorize(request);
-        if (idToken == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        String email;
+        response.setContentType("application/json");
+        User user;
         try {
-            email = GoogleApiHandler.getEmail(idToken);
-        } catch (GeneralSecurityException e) {
+            user = AuthorizationHandler.authorizeUser(request);
+        } catch (InvalidUserException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"not found email from token\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
-            return;
-        }
-        User user = QueryHandler.getUser(email);
-        if(user == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user not exist\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
-            return;
-        }
-        if(!user.isApproved()){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user not approved\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
+            response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_UNAUTHORIZED));
             return;
         }
         request.setCharacterEncoding("UTF-8");
@@ -127,7 +95,7 @@ public class CallServlet extends HttpServlet {
 
         if(Authentication.isNullOrEmpty(callId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().print("{\"message\":\"call id not found\",\n\"statusCode\":\""+HttpServletResponse.SC_BAD_REQUEST+"\"}");
+            response.getWriter().print(new ErrorResponse("call id not found", HttpServletResponse.SC_BAD_REQUEST));
             return;
         }
         try {
@@ -140,37 +108,20 @@ public class CallServlet extends HttpServlet {
             }
         } catch (InvalidCallException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().print("{\"message\":\"" + e.getMessage() + "\",\n\"statusCode\":\""+HttpServletResponse.SC_INTERNAL_SERVER_ERROR+"\"}");
+            response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String idToken = AuthorizationHandler.authorize(request);
-        if (idToken == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        String email;
+        response.setContentType("application/json");
         try {
-            email = GoogleApiHandler.getEmail(idToken);
-        } catch (GeneralSecurityException e) {
+            AuthorizationHandler.authorizeUser(request);
+        } catch (InvalidUserException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"not found email from token\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
+            response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_UNAUTHORIZED));
             return;
         }
-        User user = QueryHandler.getUser(email);
-        if(user == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user not exist\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
-            return;
-        }
-        if(!user.isApproved()){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user not approved\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
-            return;
-        }
-        response.setContentType(ContentType.TEXT_PLAIN.toString());
         response.setCharacterEncoding("UTF-8");
         request.setCharacterEncoding("UTF-8");
         BufferedReader reader = request.getReader();
@@ -183,40 +134,26 @@ public class CallServlet extends HttpServlet {
             CallHandler.creatCall(sb.toString());
         }   catch (InvalidCallException e){
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().print("{\"message\":\"" + e.getMessage() + "\",\n\"statusCode\":\""+HttpServletResponse.SC_INTERNAL_SERVER_ERROR+"\"}");
+            response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String idToken = AuthorizationHandler.authorize(request);
-        if (idToken == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        String email;
+        response.setContentType("application/json");
+
         try {
-            email = GoogleApiHandler.getEmail(idToken);
-        } catch (GeneralSecurityException e) {
+            AuthorizationHandler.authorizeUser(request);
+        } catch (InvalidUserException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"not found email from token\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
+            response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_UNAUTHORIZED));
             return;
         }
-        User user = QueryHandler.getUser(email);
-        if(user == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user not exist\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
-            return;
-        }
-        if(!user.isApproved()){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"message\":\"user not approved\",\n\"statusCode\":\""+HttpServletResponse.SC_UNAUTHORIZED+"\"}");
-            return;
-        }
+
         String callId = request.getParameter("id");
         if(Authentication.isNullOrEmpty(callId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().print("{\"message\":\"call id not found\",\n\"statusCode\":\""+HttpServletResponse.SC_BAD_REQUEST+"\"}");
+            response.getWriter().print(new ErrorResponse("call id not found", HttpServletResponse.SC_BAD_REQUEST));
             return;
         }
 /*        if((user.getType().equals(User.CUSTOMER))) {todo:
@@ -228,7 +165,7 @@ public class CallServlet extends HttpServlet {
         }*/
         if(!QueryHandler.deleteCall(callId)){
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().print("{\"message\":\"call not exist\",\n\"statusCode\":\""+HttpServletResponse.SC_INTERNAL_SERVER_ERROR+"\"}");
+            response.getWriter().print(new ErrorResponse("call not exist", HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 

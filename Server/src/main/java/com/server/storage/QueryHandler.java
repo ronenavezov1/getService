@@ -48,6 +48,20 @@ public class QueryHandler {
             return false;
         }
     }
+
+    public static boolean updatePickCall(String callId, String workerId, String status, long expectedArrival) throws Exception {
+        try {
+            return StorageManager.executeUpdate(Queries.UPDATE_PICK_CALL, statement -> {
+                statement.setString(1, workerId);
+                statement.setString(2, status);
+                statement.setLong(3, expectedArrival);
+                statement.setString(4, callId);
+            }) == 1;
+        } catch (SQLException e) {
+            throw new Exception("Error updating call: " + callId + " error: " + e.getMessage());
+        }
+    }
+
     public static boolean deleteCall(String callId){
         try {
             return StorageManager.executeUpdate(Queries.DELETE_CALL, statement -> statement.setString(1, callId)) == 1;

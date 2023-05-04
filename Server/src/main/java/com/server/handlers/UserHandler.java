@@ -18,12 +18,10 @@ import java.util.UUID;
 
 public class UserHandler {
 
-    private static final Gson gson = new GsonBuilder().serializeNulls().create();
-
-    public static String getUser(String idToken) {
+    public static User getUser(String idToken) {
         try {
             String email = GoogleApiHandler.getEmail(idToken);
-            return gson.toJson(QueryHandler.getUser(email));
+            return QueryHandler.getUser(email);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
