@@ -8,17 +8,21 @@ export enum CallStatus {
   DONE = "done",
 }
 
+interface UserCallDetails {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
 //TOOD: updateSchema
 export interface Call {
   id: string;
-  customerId: string;
-  workerId: string;
+  customer: UserCallDetails;
+  worker: UserCallDetails;
   service: string;
   description: string;
-  comment: string;
   city: string;
   address: string;
-  rate: number;
   expectedArrival: string;
   creationTime: string;
   status: CallStatus;
