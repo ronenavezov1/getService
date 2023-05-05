@@ -15,8 +15,11 @@ export interface Call {
   workerId: string;
   service: string;
   description: string;
+  comment: string;
   city: string;
   address: string;
+  rate: number;
+  expectedArrival: string;
   creationTime: string;
   status: CallStatus;
 }

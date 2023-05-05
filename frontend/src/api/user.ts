@@ -65,13 +65,13 @@ export const useGetUserByIdToken = (idToken: string) => {
   });
 
   //TODO:remove this mock
-  const user = {
-    firstName: "John",
-    lastName: "Doe",
-    id: "uuid",
-    type: "worker" as UserRole,
-    isOnBoardingCompleted: true,
-  };
+  // const user = {
+  //   firstName: "John",
+  //   lastName: "Doe",
+  //   id: "uuid",
+  //   type: "worker" as UserRole,
+  //   isOnBoardingCompleted: true,
+  // };
 
-  return { data: user, isLoading: false, isError: false };
+  // return { data: user, isLoading: false, isError: false };
 };

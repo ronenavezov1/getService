@@ -57,7 +57,7 @@ const Auth = ({ children }: AuthProps) => {
   }
 
   if (user.isOnBoardingCompleted === false) {
-    pushToCompleteDetails();
+    void pushToCompleteDetails();
     return null;
   }
 

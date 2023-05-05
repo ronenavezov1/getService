@@ -12,7 +12,7 @@ import { CityInput } from "./Inputs/CityInput";
 import { useSession } from "next-auth/react";
 import { useGetUserByIdToken } from "~/api/user";
 import { useRouter } from "next/router";
-import { type Call, useCreateCall, useGetCall, usePutCall } from "~/api/call";
+import { type Call, useCreateCall, usePutCall } from "~/api/call";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { MessageCard } from "./MessageCards";
@@ -26,10 +26,6 @@ const callSchema = z.object({
 });
 
 export type callCreateFormSchema = z.infer<typeof callSchema>;
-
-interface EditCallFormProps {
-  callId: string;
-}
 
 export const CreateCallForm: FC = () => {
   const router = useRouter();
@@ -91,23 +87,20 @@ export const CreateCallForm: FC = () => {
   );
 };
 
-export const EditCallForm: FC<EditCallFormProps> = ({ callId }) => {
+interface EditCallFormProps {
+  defaultValues: Call;
+}
+
+export const EditCallForm: FC<EditCallFormProps> = ({ defaultValues }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
-  const { data: calls, isLoading: isLoadingCall } = useGetCall(
-    session?.idToken ?? "",
-    {
-      id: callId,
-    }
-  );
-
-  const { mutate } = usePutCall(session?.idToken ?? "", callId);
+  const { mutate } = usePutCall(session?.idToken ?? "", defaultValues.id);
 
   const formHook = useForm<callCreateFormSchema>({
     mode: "onChange",
     resolver: zodResolver(callSchema),
-    defaultValues: calls?.[0],
+    defaultValues: defaultValues,
   });
 
   const {
@@ -115,12 +108,11 @@ export const EditCallForm: FC<EditCallFormProps> = ({ callId }) => {
     formState: { isSubmitting },
   } = formHook;
 
-  if (isLoadingCall || status === "loading") {
+  if (status === "loading") {
     return <MessageCard message="Loading Call" />;
   }
 
   const onSubmit = (data: callCreateFormSchema) => {
-    console.log(formHook.formState.dirtyFields);
     mutate(data, {
       onSuccess: () => {
         void router.push("/call");
