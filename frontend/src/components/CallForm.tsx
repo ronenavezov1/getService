@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import { MessageCard } from "./MessageCards";
 
 const callSchema = z.object({
-  customerId: z.string(),
+  customerId: z.string().optional(),
   service: z.string().min(1, { message: "Service is required" }),
   description: z.string().min(1, { message: "Description is required" }),
   city: z.string().min(1, { message: "City is required" }),
@@ -88,19 +88,29 @@ export const CreateCallForm: FC = () => {
 };
 
 interface EditCallFormProps {
-  defaultValues: Call;
+  call: Call;
+  isFetchingCalls: boolean;
+  closeModal: () => void;
 }
 
-export const EditCallForm: FC<EditCallFormProps> = ({ defaultValues }) => {
-  const router = useRouter();
+export const EditCallForm: FC<EditCallFormProps> = ({
+  call,
+  closeModal,
+  isFetchingCalls,
+}) => {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
-  const { mutate } = usePutCall(session?.idToken ?? "", defaultValues.id);
+  const { mutate } = usePutCall(session?.idToken ?? "", call.id);
 
   const formHook = useForm<callCreateFormSchema>({
     mode: "onChange",
     resolver: zodResolver(callSchema),
-    defaultValues: defaultValues,
+    defaultValues: {
+      address: call.address,
+      city: call.city,
+      description: call.description,
+      service: call.service,
+    },
   });
 
   const {
@@ -112,22 +122,24 @@ export const EditCallForm: FC<EditCallFormProps> = ({ defaultValues }) => {
     return <MessageCard message="Loading Call" />;
   }
 
-  const onSubmit = (data: callCreateFormSchema) => {
+  const onSubmit: SubmitHandler<callCreateFormSchema> = (data) => {
     mutate(data, {
       onSuccess: () => {
-        void router.push("/call");
         void queryClient.invalidateQueries(["call"]);
+        closeModal();
         toast.success("Call updated successfully");
       },
     });
   };
+
+  const isDisabled = isSubmitting || isFetchingCalls;
 
   return (
     <>
       <FormProvider {...formHook}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className=" card grid max-w-lg  gap-2  "
+          className="  grid max-w-lg  gap-2  "
         >
           <ServiceInput />
           <DescriptionInput />
@@ -142,7 +154,7 @@ export const EditCallForm: FC<EditCallFormProps> = ({ defaultValues }) => {
 
           <input
             className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
-            disabled={isSubmitting}
+            disabled={isDisabled}
             type="submit"
           />
         </form>

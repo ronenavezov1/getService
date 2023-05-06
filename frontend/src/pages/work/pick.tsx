@@ -18,6 +18,7 @@ import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import CityInput from "~/components/Inputs/CityInput";
 import ProfessionInput from "~/components/Inputs/ProfessionInput";
+import { MessageCard } from "~/components/MessageCards";
 import { sortByDate } from "~/utils/sortUtils";
 
 const Pick: NextPageWithAuth = () => {
@@ -27,14 +28,18 @@ const Pick: NextPageWithAuth = () => {
   );
   const {
     data: calls,
-    isLoading: isLoadingSession,
+    isLoading: isLoadingCalls,
     isFetching,
   } = useGetCall(session?.idToken ?? "", {
     status: CallStatus.NEW,
   });
 
-  if (isLoadingSession || isLoadingUser || status === "loading")
-    return <div>loading...</div>;
+  if (isLoadingCalls || isLoadingUser || status === "loading")
+    return (
+      <div className="bodyDiv">
+        <MessageCard message="loading calls" />
+      </div>
+    );
 
   return (
     <div className="flex flex-col items-center gap-4 p-2">

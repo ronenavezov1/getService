@@ -3,6 +3,7 @@ import {
   BriefcaseIcon,
   PencilSquareIcon,
   TrashIcon,
+  XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -18,6 +19,7 @@ import { UserRole } from "./Auth";
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { usePostPick } from "~/api/pick";
+import { EditCallForm } from "./CallForm";
 
 enum StatusColorButton {
   "new" = "bg-zinc-500 hover:bg-zinc-600",
@@ -82,29 +84,28 @@ const CallCard = ({
   return (
     <div
       className={`${
-        fullSize ? "max-w-2xl" : "max-w-xs"
+        fullSize ? "max-w-3xl" : "max-w-xs"
       }   flex w-full flex-col rounded-xl border bg-gray-100 shadow-md`}
     >
       {/* Header */}
       <div
         className={` ${
           status ? StatusColorButton[status] : `bg-red-500 hover:bg-red-600`
-        } flex w-full flex-wrap justify-between gap-2 rounded-xl p-2 text-sm font-bold text-white `}
+        } flex w-full flex-wrap justify-between gap-x-4 rounded-xl p-2 text-sm font-bold text-white `}
       >
-        <h1>{customer.firstName + customer.lastName}</h1>
-        <h1>{service}</h1>
-        <h1>{city}</h1>
-        <h1>{address}</h1>
+        <p>{`${customer.firstName} ${customer.lastName}`}</p>
+        <p>{service}</p>
+        <p>{`${city} ${address}`}</p>
+        <p>Status: {status}</p>
       </div>
 
       {/* Body */}
       <div className=" flex h-full flex-col p-2">
         {/* PanelHeader */}
         <div className="">
-          <div className="flex justify-between text-xs font-semibold  ">
+          <div className="flex flex-wrap justify-between text-xs font-semibold  ">
             <p>Call ID: {id}</p>
-            <p>{status}</p>
-            {worker && <p>{worker.firstName + worker.lastName}</p>}
+            <p>{worker.firstName + worker.lastName}</p>
           </div>
         </div>
 
@@ -126,6 +127,7 @@ const CallCard = ({
               <WorkerActions
                 userRole={userRole}
                 userId={userId}
+                workerId={worker.id}
                 callId={call.id}
                 callStatus={call.status}
                 isFetchingCalls={isFetchingCalls}
@@ -134,8 +136,7 @@ const CallCard = ({
               {/* user Actions */}
               <UserActionRow
                 userId={userId}
-                customerId={call.customer.id}
-                callId={call.id}
+                call={call}
                 isFetchingCalls={isFetchingCalls}
               />
             </div>
@@ -148,49 +149,139 @@ const CallCard = ({
 
 interface UserActionRowProps {
   userId: string;
-  customerId: string;
-  callId: string;
+  call: Call;
   isFetchingCalls: boolean;
 }
 
 const UserActionRow = ({
-  callId,
-  isFetchingCalls,
-  customerId,
+  call,
   userId,
+  isFetchingCalls,
 }: UserActionRowProps) => {
-  const { push, basePath } = useRouter();
-  const { data: session, status } = useSession();
-  const { mutate, isIdle: deleteBtnIsIdle } = useDeleteCall(
-    session?.idToken ?? ""
-  );
-  const queryClient = useQueryClient();
+  // const { push, basePath } = useRouter();
 
-  const handleOnEditClick = () => {
-    void push(`${basePath}${BASE_CALL_API_URL}/${callId}/edit`);
-  };
+  // const handleOnEditClick = () => {
+  //   void push(`${basePath}${BASE_CALL_API_URL}/${callId}/edit`);
+  // };
 
-  const isDisabled = isFetchingCalls || !deleteBtnIsIdle;
+  const { id: callId, customer } = call;
 
-  if (customerId !== userId || status === "loading") {
+  if (customer.id !== userId) {
     return null;
   }
 
   return (
     <>
       {/* Edit Btn */}
-      <button disabled={isDisabled} onClick={handleOnEditClick}>
+      {/* <button disabled={isFetchingCalls} onClick={handleOnEditClick}>
+        <PencilSquareIcon className="w-5 fill-blue-600 " />
+      </button> */}
+      <EditBtn call={call} isFetchingCalls={isFetchingCalls} />
+
+      {/* Delete Btn */}
+      <DeleteBtn callId={callId} isFetchingCalls={isFetchingCalls} />
+    </>
+  );
+};
+
+interface EditBtnProps {
+  call: Call;
+  isFetchingCalls: boolean;
+}
+
+const EditBtn = ({ call, isFetchingCalls }: EditBtnProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const closeModal = () => setIsOpen(false);
+  const openModal = () => setIsOpen(true);
+
+  return (
+    <>
+      <button type="button" onClick={openModal} className="">
         <PencilSquareIcon className="w-5 fill-blue-600 " />
       </button>
 
-      {/* Delete Btn */}
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform  rounded-2xl bg-stone-100 p-6   shadow-xl transition-all">
+                  <button
+                    type="button"
+                    className="absolute right-2 top-2 h-6 w-6 "
+                    onClick={closeModal}
+                  >
+                    <XMarkIcon className="h-full w-full" />
+                  </button>
+
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-bold leading-6 text-indigo-500"
+                  >
+                    Edit Call
+                  </Dialog.Title>
+
+                  <div className="mt-4">
+                    <EditCallForm
+                      call={call}
+                      isFetchingCalls={isFetchingCalls}
+                      closeModal={closeModal}
+                    />
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
+  );
+};
+
+interface DeleteBtnProps {
+  callId: string;
+  isFetchingCalls: boolean;
+}
+
+const DeleteBtn = ({ callId, isFetchingCalls }: DeleteBtnProps) => {
+  const { push, basePath } = useRouter();
+  const { data: session } = useSession();
+  const { mutate, isIdle: deleteBtnIsIdle } = useDeleteCall(
+    session?.idToken ?? ""
+  );
+  const queryClient = useQueryClient();
+
+  const isDisabled = isFetchingCalls || !deleteBtnIsIdle;
+
+  return (
+    <>
       <button
         disabled={isDisabled}
         onClick={() => {
           mutate(callId, {
             onSuccess: () => {
               void queryClient.invalidateQueries(["call"]);
-              toast.success("Call deleted successfully");
+              toast.success("Deleted call successfully");
               void push(`${basePath}${BASE_CALL_API_URL}`);
             },
           });
@@ -206,6 +297,7 @@ interface WorkerActionProps {
   userRole: string;
   callId: string;
   userId: string;
+  workerId: string;
   callStatus: CallStatus;
   isFetchingCalls: boolean;
 }
@@ -216,29 +308,72 @@ const WorkerActions = ({
   userRole,
   callStatus,
   userId,
+  workerId,
 }: WorkerActionProps) => {
-  if (userRole !== UserRole.WORKER || callStatus !== CallStatus.NEW) {
+  if (userRole !== UserRole.WORKER) {
     return null;
   }
 
   return (
     <>
-      <Pick
-        callId={callId}
-        isFetchingCalls={isFetchingCalls}
-        workerId={userId}
-      />
+      {callStatus === CallStatus.NEW && (
+        <Pick
+          callId={callId}
+          isFetchingCalls={isFetchingCalls}
+          userId={userId}
+        />
+      )}
+      {callStatus === CallStatus.IN_PROGRESS && workerId === userId && (
+        <UnPick callId={callId} isFetchingCalls={isFetchingCalls} />
+      )}
+    </>
+  );
+};
+
+interface UnPickProps {
+  callId: string;
+  isFetchingCalls: boolean;
+}
+
+const UnPick = ({ callId, isFetchingCalls }: UnPickProps) => {
+  const { data: session } = useSession();
+  const { mutate, isIdle: isIdlePostUnPick } = usePostPick(
+    session?.idToken ?? "",
+    callId
+  );
+  const queryClient = useQueryClient();
+
+  const onSubmit = () => {
+    const removePick = {
+      workerId: "",
+    };
+
+    mutate(removePick, {
+      onSuccess: () => {
+        void queryClient.invalidateQueries(["call"]);
+        toast.success("Unpicked call successfully");
+      },
+    });
+  };
+
+  const isDisabled = isFetchingCalls || !isIdlePostUnPick;
+
+  return (
+    <>
+      <button disabled={isDisabled} onClick={onSubmit}>
+        <BriefcaseIcon className="w-5 fill-red-600 " />
+      </button>
     </>
   );
 };
 
 interface PickProps {
   callId: string;
-  workerId: string;
+  userId: string;
   isFetchingCalls: boolean;
 }
 
-const Pick = ({ callId, isFetchingCalls, workerId }: PickProps) => {
+const Pick = ({ callId, isFetchingCalls, userId }: PickProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [expectedArrivalTime, setExpectedArrivalTime] = useState(new Date());
   const { data: session } = useSession();
@@ -246,19 +381,25 @@ const Pick = ({ callId, isFetchingCalls, workerId }: PickProps) => {
     session?.idToken ?? "",
     callId
   );
+  const queryClient = useQueryClient();
 
   const closeModal = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
 
   const onSubmit = () => {
     const pick = {
-      workerId: workerId,
+      workerId: userId,
       status: CallStatus.IN_PROGRESS,
       expectedArrivalTime: expectedArrivalTime,
     };
 
-    mutate(pick);
-    closeModal();
+    mutate(pick, {
+      onSuccess: () => {
+        void queryClient.invalidateQueries(["call"]);
+        toast.success("Picked call successfully");
+        closeModal();
+      },
+    });
   };
 
   return (
@@ -291,10 +432,18 @@ const Pick = ({ callId, isFetchingCalls, workerId }: PickProps) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform  rounded-2xl bg-stone-100 p-6   shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform rounded-2xl bg-stone-100 p-6 shadow-xl transition-all">
+                  <button
+                    type="button"
+                    className="absolute right-2 top-2 h-6 w-6 "
+                    onClick={closeModal}
+                  >
+                    <XMarkIcon className="h-full w-full" />
+                  </button>
+
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-bold leading-6 text-gray-900"
+                    className="text-lg font-bold leading-6 text-indigo-500"
                   >
                     Pick call
                   </Dialog.Title>
@@ -304,9 +453,9 @@ const Pick = ({ callId, isFetchingCalls, workerId }: PickProps) => {
                       selected={expectedArrivalTime}
                       onChange={(date: Date) => setExpectedArrivalTime(date)}
                       showTimeSelect
-                      timeFormat="p"
                       timeIntervals={30}
-                      dateFormat="Pp"
+                      minDate={new Date()}
+                      dateFormat="dd/MM/yyyy HH:mm aa"
                       preventOpenOnFocus={true}
                       className="rounded-md text-center shadow-md"
                     />
@@ -315,19 +464,11 @@ const Pick = ({ callId, isFetchingCalls, workerId }: PickProps) => {
                   <div className="mt-4 flex justify-center gap-2 text-white">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium  hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium  hover:bg-green-600 focus:outline-none"
                       onClick={onSubmit}
                       disabled={isFetchingCalls || !isIdlePostPick}
                     >
-                      {/* //TODO implemnet pick call */}
-                      Pick test
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium  hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={closeModal}
-                    >
-                      Close
+                      Pick
                     </button>
                   </div>
                 </Dialog.Panel>
