@@ -3,6 +3,13 @@ import type { UserRole } from "~/components/Auth";
 import type { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
 import axiosWithAuth from "./axiosConfig";
 
+interface UserQueryParams {
+  isApproved?: boolean;
+  isCompletedOnBoarding?: boolean;
+  firstName?: string;
+  lastName?: string;
+}
+
 interface User {
   id: string;
   firstName: string;
@@ -63,15 +70,4 @@ export const useGetUserByIdToken = (idToken: string) => {
     staleTime: Infinity,
     cacheTime: Infinity,
   });
-
-  //TODO:remove this
-  // const user = {
-  //   firstName: "John",
-  //   lastName: "Doe",
-  //   id: "uuid",
-  //   type: "worker" as UserRole,
-  //   isOnBoardingCompleted: true,
-  // };
-
-  // return { data: user, isLoading: false, isError: false };
 };

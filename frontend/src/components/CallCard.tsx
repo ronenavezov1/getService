@@ -36,7 +36,7 @@ enum StatusColorButton {
 interface CallCardProps {
   call: Call;
   userId: string;
-  userRole: string;
+  userRole: UserRole;
   isFetchingCalls: boolean;
   fullSize?: boolean;
 }
@@ -136,6 +136,7 @@ const CallCard = ({
               {/* user Actions */}
               <UserActionRow
                 userId={userId}
+                userRole={userRole}
                 call={call}
                 isFetchingCalls={isFetchingCalls}
               />
@@ -149,6 +150,7 @@ const CallCard = ({
 
 interface UserActionRowProps {
   userId: string;
+  userRole: UserRole;
   call: Call;
   isFetchingCalls: boolean;
 }
@@ -157,20 +159,17 @@ const UserActionRow = ({
   call,
   userId,
   isFetchingCalls,
+  userRole,
 }: UserActionRowProps) => {
   const { id: callId, customer } = call;
 
-  if (customer.id !== userId) {
+  if (userRole !== UserRole.ADMIN && customer.id !== userId) {
     return null;
   }
 
   return (
     <>
-      {/* Edit Btn */}
-
       <EditBtn call={call} isFetchingCalls={isFetchingCalls} />
-
-      {/* Delete Btn */}
       <DeleteBtn callId={callId} isFetchingCalls={isFetchingCalls} />
     </>
   );
@@ -286,7 +285,7 @@ const DeleteBtn = ({ callId, isFetchingCalls }: DeleteBtnProps) => {
 };
 
 interface WorkerActionProps {
-  userRole: string;
+  userRole: UserRole;
   callId: string;
   userId: string;
   workerId: string;
@@ -302,9 +301,13 @@ const WorkerActions = ({
   userId,
   workerId,
 }: WorkerActionProps) => {
-  if (userRole !== UserRole.WORKER) {
+  if (userRole === UserRole.CUSTOMER) {
     return null;
   }
+
+  const adminOrWorker =
+    callStatus === CallStatus.IN_PROGRESS &&
+    (workerId === userId || userRole === UserRole.ADMIN);
 
   return (
     <>
@@ -315,7 +318,7 @@ const WorkerActions = ({
           userId={userId}
         />
       )}
-      {callStatus === CallStatus.IN_PROGRESS && workerId === userId && (
+      {adminOrWorker && (
         <UnPick callId={callId} isFetchingCalls={isFetchingCalls} />
       )}
     </>
