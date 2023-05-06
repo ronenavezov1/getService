@@ -3,15 +3,23 @@
 @tailwind utilities;
 
 .card {
-  @apply m-2 rounded-lg bg-stone-100 p-2 shadow-md;
+  @apply rounded-xl bg-stone-100 p-2 shadow-md;
 }
 
 .input {
-  @apply w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none;
+  @apply w-full rounded  py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none;
 }
 
 .label {
   @apply mb-1 block text-sm font-bold text-indigo-500;
+}
+
+.navLink {
+  @apply text-white transition-colors  hover:text-yellow-400;
+}
+
+.bodyDiv {
+  @apply flex justify-center gap-2 p-4;
 }
 
 /* providers buttons */
@@ -19,4 +27,8 @@
   @apply w-full rounded-lg bg-red-500 p-2 
    text-sm font-semibold text-white  shadow-sm transition duration-200
 hover:bg-red-600 hover:shadow-md focus:bg-red-700 focus:shadow-sm focus:ring-4 focus:ring-red-500 focus:ring-opacity-50;
+}
+
+.comboboxOptions {
+  @apply absolute z-10 mt-1 max-h-36 w-full overflow-auto rounded-md bg-white py-1 text-center text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;
 }

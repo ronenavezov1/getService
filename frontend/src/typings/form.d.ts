@@ -1,0 +1,3 @@
+interface City {
+  name: string;
+}

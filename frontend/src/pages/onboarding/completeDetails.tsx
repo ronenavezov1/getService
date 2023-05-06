@@ -1,62 +1,57 @@
 import { ErrorMessage } from "@hookform/error-message";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { FC } from "react";
+import { useSession } from "next-auth/react";
+import { type FC } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import {
+  FormProvider,
+  useForm,
+  useFormContext,
+  type SubmitHandler,
+} from "react-hook-form";
 import { z } from "zod";
-import { SubmitHandler } from "react-hook-form/dist/types";
+import { UserRole } from "~/components/Auth";
+import { usePostUser } from "~/api/user";
+import { useQueryClient } from "@tanstack/react-query";
+import { CityInput } from "~/components/Inputs/CityInput";
+import ProfessionInput from "~/components/Inputs/ProfessionInput";
+import { MessageCardCentered } from "~/components/MessageCards";
+import { toast } from "react-toastify";
 
 const UserSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
-  phone: z.number().min(1, { message: "Phone number is required" }),
-  city: z.number().min(1, { message: "City is required" }),
+  phoneNumber: z.number().min(1, { message: "Phone number is required" }),
+  city: z.string().min(1, { message: "City is required" }),
   address: z.string().min(1, { message: "Address is required" }),
 });
 
-const ServiceProviderSchema = UserSchema.extend({
-  type: z.literal("serviceProvider"),
+const WorkerProviderSchema = UserSchema.extend({
+  type: z.literal(UserRole.WORKER),
   profession: z.string().min(1, { message: "Profession is required" }),
 });
 
 const CustomerSchema = UserSchema.extend({
-  type: z.literal("customer"),
+  type: z.literal(UserRole.CUSTOMER),
 });
 
 const compeleteDetailsFormSchema = z.discriminatedUnion("type", [
-  ServiceProviderSchema,
+  WorkerProviderSchema,
   CustomerSchema,
 ]);
 
-//TODO: implement this
-const onSubmit: SubmitHandler<compeleteDetailsFormSchemaType> = async (
-  data
-) => {
-  const test = await fetch(`https://pokeapi.co/api/v2/pokemon/${data.phone}`);
-  const res = await test.json();
-  console.log("res", res);
-
-  // const res = await fetch("/api/user", {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     "Authorization": `Bearer ${session?.accessToken}
-  //   },
-  //   body: JSON.stringify(data),
-  // });
-
-  // await router.push("/");
-};
-
-type compeleteDetailsFormSchemaType = z.infer<
+export type CompeleteDetailsFormSchemaType = z.infer<
   typeof compeleteDetailsFormSchema
 >;
 
-const completeDetails = () => {
+//////////////////////////////////////////////////////////////
+
+const CompleteDetails: FC = () => {
   const router = useRouter();
-  const { data: session } = useSession({ required: true });
-  const formHook = useForm<compeleteDetailsFormSchemaType>({
+  const { data: session, status } = useSession({ required: true });
+  const queryClient = useQueryClient();
+  const { mutate } = usePostUser(session?.idToken ?? "");
+  const formHook = useForm<CompeleteDetailsFormSchemaType>({
     mode: "onChange",
     resolver: zodResolver(compeleteDetailsFormSchema),
   });
@@ -67,12 +62,31 @@ const completeDetails = () => {
   } = formHook;
   const userType = watch("type");
 
+  /**
+   * Submits form data , invalidates user query and redirects to home page
+   */
+  const onSubmitHandler: SubmitHandler<CompeleteDetailsFormSchemaType> = (
+    data
+  ) => {
+    mutate(data, {
+      onSuccess: () => {
+        void router.push("/");
+        void queryClient.invalidateQueries(["user"]);
+        toast.success("User created successfully");
+      },
+    });
+  };
+
+  if (status === "loading") {
+    return <MessageCardCentered message="Loading Session" />;
+  }
+
   return (
     <div className="grid justify-center gap-2 pt-2">
       <FormProvider {...formHook}>
         <Header />
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmitHandler)}
           className=" card grid max-w-lg  gap-2  "
         >
           <div className="flex justify-between gap-2">
@@ -80,10 +94,14 @@ const completeDetails = () => {
             <LastNameInput />
           </div>
           <PhoneInput />
-          <AddressInput />
-          <CityInput />
+          <div className="flex justify-between gap-2">
+            <AddressInput />
+            <div>
+              <CityInput />
+            </div>
+          </div>
           <TypeInput />
-          {userType === "serviceProvider" && <ProfessionInput />}
+          {userType === UserRole.WORKER && <ProfessionInput />}
 
           <input
             className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
@@ -101,7 +119,7 @@ const Header: FC = () => {
   return (
     <div className="text-center">
       <h1 className="text-5xl text-yellow-400">GetService</h1>
-      <h1 className="text-xl  text-white"> Fill in the information </h1>
+      <h1 className="text-xl  text-white">Fill in the information</h1>
     </div>
   );
 };
@@ -169,35 +187,13 @@ const PhoneInput: FC = () => {
       </label>
       <input
         id="phone"
-        {...register("phone", { valueAsNumber: true })}
+        {...register("phoneNumber", { valueAsNumber: true })}
         className="input"
+        type="number"
       />
       <ErrorMessage
         errors={errors}
         name="phone"
-        render={({ message }) => (
-          <p className=" pt-1 text-xs text-red-600">{message}</p>
-        )}
-      />
-    </div>
-  );
-};
-
-const IdInput: FC = () => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
-
-  return (
-    <div>
-      <label htmlFor="id" className="label">
-        ID number
-      </label>
-      <input id="id" {...register("id")} className="input" />
-      <ErrorMessage
-        errors={errors}
-        name="id"
         render={({ message }) => (
           <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
@@ -229,96 +225,39 @@ const AddressInput: FC = () => {
   );
 };
 
-const CityInput: FC = () => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
-
-  return (
-    <div>
-      <label htmlFor="city" className="label">
-        City
-      </label>
-      <input
-        id="city"
-        {...register("city", { valueAsNumber: true })}
-        className="input"
-      />
-      <ErrorMessage
-        errors={errors}
-        name="city"
-        render={({ message }) => (
-          <p className=" pt-1 text-xs text-red-600">{message}</p>
-        )}
-      />
-    </div>
-  );
-};
-
 const TypeInput: FC = () => {
   const {
     register,
     formState: { errors },
   } = useFormContext();
 
-  //Consist all option, could be implemented with fetching from db in future
-  const options = [
-    { value: "customer", label: "Customer" },
-    { value: "serviceProvider", label: "Service Provider" },
-  ];
+  //Consist all options from Auth enum without ADMIN
+  const options = Object.values(UserRole)
+    .filter((value) => value !== UserRole.ADMIN)
+    .map((value) => (
+      <option key={value} value={value}>
+        {value}
+      </option>
+    ));
 
   return (
     <div>
       <label htmlFor="type" className="label">
         Type
       </label>
-      <select id="type" {...register("type")} className="input">
-        <option value="" selected hidden>
+      <select id="type" defaultValue="" {...register("type")} className="input">
+        <option value="" disabled hidden={true}>
           Select type
         </option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {options}
       </select>
       <ErrorMessage
         errors={errors}
         name="type"
-        render={({ message }) => (
-          <p className=" p-1 text-xs text-red-600">Invalid type</p>
-        )}
+        render={() => <p className=" p-1 text-xs text-red-600">Invalid type</p>}
       />
     </div>
   );
 };
 
-const ProfessionInput: FC = () => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
-
-  return (
-    <div>
-      <label htmlFor="profession" className="label">
-        Profession
-      </label>
-      <input
-        id="profession"
-        {...register("profession", { shouldUnregister: true })}
-        className="input"
-      />
-      <ErrorMessage
-        errors={errors}
-        name="profession"
-        render={({ message }) => (
-          <p className=" pt-1 text-xs text-red-600">{message}</p>
-        )}
-      />
-    </div>
-  );
-};
-
-export default completeDetails;
+export default CompleteDetails;

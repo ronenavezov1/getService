@@ -1,24 +1,22 @@
+/* eslint-disable */
 import { useQuery } from "@tanstack/react-query";
-import { NextPageWithAuth } from "./_app";
+import { useSession } from "next-auth/react";
 import React from "react";
-
-import { fetchAuthed } from "~/utils/fetchAuthed";
+import { useGetCities } from "~/api/cities";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
+import { toast } from "react-toastify";
+import axiosWithAuth, { axios } from "~/api/axiosConfig";
 
 const TestPage = () => {
-  const id = "117175447261374290443";
-  const { data: user, isLoading } = useQuery(["test"], () =>
-    fetchAuthed("http://localhost:4000/api/test/1").then((res) => res.json())
-  );
+  const { data: session } = useSession({ required: true });
+  const { data } = useQuery(["test", session?.idToken], async () => {
+    const { data } = await axiosWithAuth(session?.idToken!).get(
+      "http://localhost:4000/api/test"
+    );
+    return data;
+  });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  return <div>{`user: ${JSON.stringify(user)}`}</div>;
-};
-
-TestPage.auth = {
-  requiredRoles: ["admin", "customer", "provider"],
+  return <button onClick={() => toast.error("error")}>click</button>;
 };
 
 export default TestPage;

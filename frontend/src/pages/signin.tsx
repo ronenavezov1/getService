@@ -3,21 +3,21 @@ import type {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { ClientSafeProvider, getProviders, signIn } from "next-auth/react";
-import { FC } from "react";
+import { type ClientSafeProvider, getProviders, signIn } from "next-auth/react";
+import type { FC } from "react";
 import { getServerAuthSession } from "~/server/auth";
 
 const SignIn: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ providers }) => {
   return (
-    <div className="flex h-full w-full flex-col items-center gap-2 p-2">
+    <div className="flex h-full w-full flex-col items-center gap-4 p-2">
       <div>
         <h1 className="text-5xl text-yellow-400 ">Sign in</h1>
       </div>
-      <div className=" card w-full max-w-lg ">
+      <div className=" w-full max-w-lg ">
         {Object.values(providers).map((provider) => (
-          <ProviderBtn provider={provider} />
+          <ProviderBtn key={provider.name} provider={provider} />
         ))}
       </div>
     </div>
@@ -33,14 +33,12 @@ interface ProviderBtnProps {
 /*Button to sign in with a provider*/
 const ProviderBtn: FC<ProviderBtnProps> = ({ provider }) => {
   return (
-    <div key={provider.name}>
-      <button
-        className={`${provider.id}Btn`}
-        onClick={() => signIn(provider.id)}
-      >
-        <span className="inline-block">Continue with {provider.name}</span>
-      </button>
-    </div>
+    <button
+      className={`${provider.id}Btn`}
+      onClick={() => void signIn(provider.id)}
+    >
+      <span className="inline-block">Continue with {provider.name}</span>
+    </button>
   );
 };
 
