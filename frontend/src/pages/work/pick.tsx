@@ -3,7 +3,7 @@ import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-import { useState, type FC } from "react";
+import { useState, type FC, Dispatch, SetStateAction } from "react";
 import {
   FormProvider,
   type SubmitHandler,
@@ -12,7 +12,7 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { CallStatus, useGetCall } from "~/api/call";
-import { useGetUserByIdToken } from "~/api/user";
+import { useGetUsers } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import CityInput from "~/components/Inputs/CityInput";
@@ -53,7 +53,7 @@ Pick.auth = {
 };
 
 interface PickQueryProps {
-  setQueryParams: (queryParams: PickQuerySchemaType) => void;
+  setQueryParams: Dispatch<SetStateAction<PickQuerySchemaType>>;
 }
 
 const PickQuery = ({ setQueryParams }: PickQueryProps) => {
@@ -84,12 +84,12 @@ const PickQuery = ({ setQueryParams }: PickQueryProps) => {
             }
             flex  w-full max-w-2xl gap-2  rounded-xl  p-2  text-sm font-bold  hover:bg-indigo-700`}
             >
-              <div className="grow">sort</div>
+              <div className="grow">Search</div>
               <ChevronLeftIcon
                 className={`${open ? "-rotate-90 transform" : ""}   h-5 `}
               />
             </Disclosure.Button>
-            <Disclosure.Panel className="text-gray-500">
+            <Disclosure.Panel className="w-full max-w-2xl text-gray-500">
               <form
                 onSubmit={handleSubmit(() => {
                   onSubmit(formHook.getValues());
@@ -113,7 +113,6 @@ const PickQuery = ({ setQueryParams }: PickQueryProps) => {
                   className="mt-2 w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500"
                   disabled={isSubmitting}
                   type="submit"
-                  value="Search"
                 />
               </form>
             </Disclosure.Panel>
@@ -130,7 +129,7 @@ interface QueryCallsResultProps {
 
 const QueryCallsResult = ({ queryParams }: QueryCallsResultProps) => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+  const { data: users, isLoading: isLoadingUser } = useGetUsers(
     session?.idToken ?? ""
   );
 
@@ -144,8 +143,10 @@ const QueryCallsResult = ({ queryParams }: QueryCallsResultProps) => {
   });
 
   if (isLoadingUser || isLoadingCalls || status === "loading") {
-    return <MessageCard message="loading calls..." />;
+    return <MessageCard message="Loading calls..." />;
   }
+
+  const user = users && users[0] ? users[0] : null;
 
   return (
     <>

@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { useSession } from "next-auth/react";
 import { useGetCall } from "~/api/call";
-import { useGetUserByIdToken } from "~/api/user";
+import { useGetUsers } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import { MessageCard } from "~/components/MessageCards";
@@ -12,7 +12,7 @@ interface CallIndexProps {
 
 const CallIndex: NextPageWithAuth<CallIndexProps> = ({ id }) => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+  const { data: user, isLoading: isLoadingUser } = useGetUsers(
     session?.idToken ?? ""
   );
 

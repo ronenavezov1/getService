@@ -1,7 +1,7 @@
 import { Tab } from "@headlessui/react";
 import { useSession } from "next-auth/react";
 import { useGetCall } from "~/api/call";
-import { useGetUserByIdToken } from "~/api/user";
+import { useGetUsers } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import { MessageCard } from "~/components/MessageCards";
@@ -9,7 +9,7 @@ import { sortByDate } from "~/utils/sortUtils";
 
 const Status: NextPageWithAuth = () => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+  const { data: user, isLoading: isLoadingUser } = useGetUsers(
     session?.idToken ?? ""
   );
 
@@ -57,7 +57,7 @@ Status.auth = {
 
 const WorkerCalls = () => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+  const { data: user, isLoading: isLoadingUser } = useGetUsers(
     session?.idToken ?? ""
   );
 
@@ -97,7 +97,7 @@ const WorkerCalls = () => {
 
 const CustomerCalls = () => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+  const { data: user, isLoading: isLoadingUser } = useGetUsers(
     session?.idToken ?? ""
   );
 
