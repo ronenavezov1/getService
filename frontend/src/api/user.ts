@@ -64,7 +64,7 @@ export const useGetUserByIdToken = (idToken: string) => {
     cacheTime: Infinity,
   });
 
-  //TODO:remove this mock
+  //TODO:remove this
   // const user = {
   //   firstName: "John",
   //   lastName: "Doe",
