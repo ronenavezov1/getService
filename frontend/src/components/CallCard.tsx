@@ -158,12 +158,6 @@ const UserActionRow = ({
   userId,
   isFetchingCalls,
 }: UserActionRowProps) => {
-  // const { push, basePath } = useRouter();
-
-  // const handleOnEditClick = () => {
-  //   void push(`${basePath}${BASE_CALL_API_URL}/${callId}/edit`);
-  // };
-
   const { id: callId, customer } = call;
 
   if (customer.id !== userId) {
@@ -173,9 +167,7 @@ const UserActionRow = ({
   return (
     <>
       {/* Edit Btn */}
-      {/* <button disabled={isFetchingCalls} onClick={handleOnEditClick}>
-        <PencilSquareIcon className="w-5 fill-blue-600 " />
-      </button> */}
+
       <EditBtn call={call} isFetchingCalls={isFetchingCalls} />
 
       {/* Delete Btn */}

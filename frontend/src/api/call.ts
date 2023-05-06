@@ -29,19 +29,21 @@ export interface Call {
 
 export const BASE_CALL_API_URL = `/call`;
 
-interface CallQueryParams {
+export interface CallQueryParams {
   id?: string;
   status?: string;
   customerId?: string;
   workerId?: string;
+  profession?: string;
+  city?: string;
+  dateLimit?: number; //TODO days??
 }
 
 const getCall = async (idToken: string, queryParams: CallQueryParams) => {
-  const { id, status, customerId, workerId } = queryParams;
   const { data } = await axiosWithAuth(idToken).get<Call[]>(
     `${BASE_CALL_API_URL}`,
     {
-      params: { id, status, customerId, workerId },
+      params: queryParams,
     }
   );
   return data;
@@ -51,11 +53,9 @@ export const useGetCall = (
   idToken: string,
   queryParams: CallQueryParams = {}
 ) => {
-  const { id, status, customerId, workerId } = queryParams;
-
   return useQuery(
-    ["call", { id, status, customerId, workerId }],
-    async () => await getCall(idToken, { id, status, customerId, workerId }),
+    ["call", { ...queryParams }],
+    async () => await getCall(idToken, queryParams),
     {
       enabled: !!idToken,
       staleTime: Infinity,
