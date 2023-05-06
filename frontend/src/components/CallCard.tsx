@@ -1,4 +1,9 @@
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
+import DatePicker from "react-datepicker";
+import {
+  BriefcaseIcon,
+  PencilSquareIcon,
+  TrashIcon,
+} from "@heroicons/react/20/solid";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -10,6 +15,9 @@ import {
   useDeleteCall,
 } from "~/api/call";
 import { UserRole } from "./Auth";
+import { Fragment, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { usePostPick } from "~/api/pick";
 
 enum StatusColorButton {
   "new" = "bg-zinc-500 hover:bg-zinc-600",
@@ -57,11 +65,11 @@ const CallCard = ({
     address,
     city,
     creationTime,
-    customerId,
+    customer,
     description,
     service,
     status,
-    workerId,
+    worker,
   } = call;
 
   /**
@@ -83,7 +91,7 @@ const CallCard = ({
           status ? StatusColorButton[status] : `bg-red-500 hover:bg-red-600`
         } flex w-full flex-wrap justify-between gap-2 rounded-xl p-2 text-sm font-bold text-white `}
       >
-        <h1>{customerId}</h1>
+        <h1>{customer.firstName + customer.lastName}</h1>
         <h1>{service}</h1>
         <h1>{city}</h1>
         <h1>{address}</h1>
@@ -96,7 +104,7 @@ const CallCard = ({
           <div className="flex justify-between text-xs font-semibold  ">
             <p>Call ID: {id}</p>
             <p>{status}</p>
-            {workerId && <p>{workerId}</p>}
+            {worker && <p>{worker.firstName + worker.lastName}</p>}
           </div>
         </div>
 
@@ -117,15 +125,16 @@ const CallCard = ({
               {/* worker Actions */}
               <WorkerActions
                 userRole={userRole}
-                callStatus={call.status}
+                userId={userId}
                 callId={call.id}
+                callStatus={call.status}
                 isFetchingCalls={isFetchingCalls}
               />
 
               {/* user Actions */}
               <UserActionRow
                 userId={userId}
-                customerId={call.customerId}
+                customerId={call.customer.id}
                 callId={call.id}
                 isFetchingCalls={isFetchingCalls}
               />
@@ -193,24 +202,142 @@ const UserActionRow = ({
   );
 };
 
-interface WorkerActionRowProps {
+interface WorkerActionProps {
   userRole: string;
-  callStatus: string;
   callId: string;
+  userId: string;
+  callStatus: CallStatus;
   isFetchingCalls: boolean;
 }
 
 const WorkerActions = ({
   callId,
   isFetchingCalls,
-  callStatus,
   userRole,
-}: WorkerActionRowProps) => {
+  callStatus,
+  userId,
+}: WorkerActionProps) => {
   if (userRole !== UserRole.WORKER || callStatus !== CallStatus.NEW) {
     return null;
   }
 
-  return <>WorkerActions</>;
+  return (
+    <>
+      <Pick
+        callId={callId}
+        isFetchingCalls={isFetchingCalls}
+        workerId={userId}
+      />
+    </>
+  );
+};
+
+interface PickProps {
+  callId: string;
+  workerId: string;
+  isFetchingCalls: boolean;
+}
+
+const Pick = ({ callId, isFetchingCalls, workerId }: PickProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [expectedArrivalTime, setExpectedArrivalTime] = useState(new Date());
+  const { data: session } = useSession();
+  const { mutate, isIdle: isIdlePostPick } = usePostPick(
+    session?.idToken ?? "",
+    callId
+  );
+
+  const closeModal = () => setIsOpen(false);
+  const openModal = () => setIsOpen(true);
+
+  const onSubmit = () => {
+    const pick = {
+      workerId: workerId,
+      status: CallStatus.IN_PROGRESS,
+      expectedArrivalTime: expectedArrivalTime,
+    };
+
+    mutate(pick);
+    closeModal();
+  };
+
+  return (
+    <>
+      <button type="button" onClick={openModal} className="">
+        <BriefcaseIcon className="h-5 w-5 fill-green-500" />
+      </button>
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform  rounded-2xl bg-stone-100 p-6   shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-bold leading-6 text-gray-900"
+                  >
+                    Pick call
+                  </Dialog.Title>
+
+                  <div className="mt-4">
+                    <DatePicker
+                      selected={expectedArrivalTime}
+                      onChange={(date: Date) => setExpectedArrivalTime(date)}
+                      showTimeSelect
+                      timeFormat="p"
+                      timeIntervals={30}
+                      dateFormat="Pp"
+                      preventOpenOnFocus={true}
+                      className="rounded-md text-center shadow-md"
+                    />
+                  </div>
+
+                  <div className="mt-4 flex justify-center gap-2 text-white">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium  hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={onSubmit}
+                      disabled={isFetchingCalls || !isIdlePostPick}
+                    >
+                      {/* //TODO implemnet pick call */}
+                      Pick test
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium  hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={closeModal}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
+  );
 };
 
 export default CallCard;

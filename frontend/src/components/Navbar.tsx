@@ -163,7 +163,7 @@ const WorkMenu: FC<PopMenuProps> = ({ closeBurger }) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className=" grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
+        <Menu.Items className="z-20 grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
           <div>
             <Menu.Item>
               {({ active }) => (
@@ -203,7 +203,7 @@ const CallsMenu = ({ closeBurger: closePop }: PopMenuProps) => {
         )}
       </Menu.Button>
 
-      <Menu.Items className=" grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
+      <Menu.Items className=" z-20 grid w-full overflow-hidden rounded-b-md bg-indigo-700 focus:outline-none md:absolute ">
         <div>
           <Menu.Item>
             {({ active }) => (

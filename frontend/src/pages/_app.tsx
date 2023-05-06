@@ -1,4 +1,6 @@
 import "react-toastify/dist/ReactToastify.css";
+import "react-datepicker/dist/react-datepicker.css";
+
 // minified version is also included
 // import 'react-toastify/dist/ReactToastify.min.css';
 import { type AppProps } from "next/app";

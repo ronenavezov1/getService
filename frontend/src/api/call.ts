@@ -14,7 +14,6 @@ interface UserCallDetails {
   lastName: string;
 }
 
-//TOOD: updateSchema
 export interface Call {
   id: string;
   customer: UserCallDetails;
@@ -86,7 +85,7 @@ export const usePutCall = (idToken: string, callId: string) => {
   );
 };
 
-const createCall = async (idToken: string, call: callCreateFormSchema) => {
+const postCall = async (idToken: string, call: callCreateFormSchema) => {
   const { data } = await axiosWithAuth(idToken).post<Call>(
     `${BASE_CALL_API_URL}`,
     call
@@ -96,7 +95,7 @@ const createCall = async (idToken: string, call: callCreateFormSchema) => {
 
 export const useCreateCall = (idToken: string) => {
   return useMutation(
-    async (call: callCreateFormSchema) => await createCall(idToken, call)
+    async (call: callCreateFormSchema) => await postCall(idToken, call)
   );
 };
 
