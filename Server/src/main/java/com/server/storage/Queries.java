@@ -14,7 +14,7 @@ public class Queries {
             "SET worker_id=?::uuid, status=?, expected_arrival=? " +
             "WHERE call_id=?::uuid;";
     public static final String DELETE_CALL = "DELETE FROM public.call\n" +
-            "\tWHERE call_id = ?::uuid;";
+            "\tWHERE call_id = ?::uuid and (user_id = ?::uuid or ?) ;";
     public static final String GET_CALLS = "SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
             "FROM public.call\n" +
             "WHERE starts_with(call_id::varchar, ?) and starts_with(user_id::varchar,?) and (worker_id is NULL or starts_with(worker_id::varchar, ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);";
@@ -24,6 +24,7 @@ public class Queries {
 
     // USER QUERIES
     public static final String SELECT_USER_BY_EMAIL = "SELECT * FROM public.user WHERE \"user\".email = ?";
+    public static final String SELECT_USER_BY_UUID = "SELECT * FROM public.user WHERE \"user\".user_id = ?:uuid";
     public static final String INSERT_USER          = "INSERT INTO public.user (user_id, email, first_name, last_name, address, city, phone, type, is_approved, is_onboarding_completed) " +
             "VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, true)";
     public static final String UPDATE_USER          = "UPDATE public.user SET email = ?, first_name = ?, last_name = ?, address = ?, city = ?, phone = ?, type = ?, is_onboarding_completed = true " +

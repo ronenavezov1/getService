@@ -14,10 +14,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class CallHandler {
-    public static void creatCall(String body) throws InvalidCallException {
-        Call call;
-        Gson gson = new Gson();
-        call = gson.fromJson(body, Call.class);
+    public static void creatCall(Call call) throws InvalidCallException {
+
         List<String> missing = new ArrayList<>();
         boolean ifMissing = false;
         if(call.getCustomerId() == null){

@@ -62,9 +62,13 @@ public class QueryHandler {
         }
     }
 
-    public static boolean deleteCall(String callId){
+    public static boolean deleteCall(String callId, String userId, boolean isAdmin){
         try {
-            return StorageManager.executeUpdate(Queries.DELETE_CALL, statement -> statement.setString(1, callId)) == 1;
+            return StorageManager.executeUpdate(Queries.DELETE_CALL, statement -> {
+                statement.setString(1, callId);
+                statement.setString(2, userId);
+                statement.setBoolean(3, isAdmin);
+            }) == 1;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -82,7 +86,15 @@ public class QueryHandler {
             }, (resultSet) -> {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", resultSet.getString(1));
-                jsonObject.put("customerId", resultSet.getString(2));
+
+                User customer = getUser((UUID)resultSet.getObject(2));
+                JSONObject userObject = new JSONObject();
+                if(customer == null) return;
+                userObject.put("id", customer.getId().toString());
+                userObject.put("firstName", customer.getFirstName());
+                userObject.put("lastName", customer.getLastName());
+                jsonObject.append("customer", userObject.toString());
+
                 jsonObject.put("service", resultSet.getString(4));
                 jsonObject.put("description", resultSet.getString(5));
                 jsonObject.put("status", resultSet.getString(7));
@@ -90,7 +102,14 @@ public class QueryHandler {
                 jsonObject.put("city", resultSet.getString(10));
                 jsonObject.put("creationTime", new Date(resultSet.getLong(11)).toString());
                 if(resultSet.getString(7) != null && !resultSet.getString(7).equals(Call.OPEN_CALL)) {
-                    jsonObject.put("workerId", resultSet.getString(3));
+
+                    User worker = getUser((UUID)resultSet.getObject(3));
+                    JSONObject workerObject = new JSONObject();
+                    if(worker == null) return;
+                    workerObject.put("id", worker.getId().toString());
+                    workerObject.put("firstName", worker.getFirstName());
+                    workerObject.put("lastName", worker.getLastName());
+                    jsonObject.append("worker", workerObject.toString());
                     jsonObject.put("expectedArrival", new Date(resultSet.getLong(12)).toString());
                 }
                 if(resultSet.getString(7) != null && resultSet.getString(7).equals(Call.CLOSE_CALL)) {
@@ -159,6 +178,35 @@ public class QueryHandler {
             }, (resultSet) -> {
                 UUID id = (UUID) resultSet.getObject("user_id");
                 String firstName = resultSet.getString("first_name");
+                String lastName = resultSet.getString("last_name");
+                String address = resultSet.getString("address");
+                String city = resultSet.getString("city");
+                long phone = resultSet.getLong("phone");
+                boolean isApproved = resultSet.getBoolean("is_approved");
+                boolean isOnBoardingCompleted = resultSet.getBoolean("is_onboarding_completed");
+                String type = resultSet.getString("type");
+                user[0] = new User(id, email, firstName, lastName, address, city, phone, type, isApproved, isOnBoardingCompleted);
+            });
+        } catch (SQLException e) {
+            return null;
+        }
+        return user[0];
+    }
+
+    /**
+     * fail if email not exists or city not in list
+     * @return return User on succeed, null otherwise
+     */
+    public static User getUser(final UUID userId){
+        final User[] user = new User[1];
+        user[0] = new User();
+        try {
+            StorageManager.executeQuery(Queries.SELECT_USER_BY_UUID, (statement)->{
+                statement.setString(1, userId.toString());
+            }, (resultSet) -> {
+                UUID id = (UUID) resultSet.getObject("user_id");
+                String firstName = resultSet.getString("first_name");
+                String email = resultSet.getString("email");
                 String lastName = resultSet.getString("last_name");
                 String address = resultSet.getString("address");
                 String city = resultSet.getString("city");
