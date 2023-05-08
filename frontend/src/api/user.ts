@@ -3,12 +3,12 @@ import type { UserRole } from "~/components/Auth";
 import type { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
 import axiosWithAuth from "./axiosConfig";
 
-interface UsersQueryParams {
-  isApproved?: boolean;
-  isCompletedOnBoarding?: boolean;
-  firstName?: string;
-  lastName?: string;
-}
+// interface UsersQueryParams {
+//   isApproved?: boolean;
+//   isCompletedOnBoarding?: boolean;
+//   firstName?: string;
+//   lastName?: string;
+// }
 
 interface User {
   id: string;
@@ -38,7 +38,6 @@ export type FullUser = Customer | Worker | Admin;
 
 const BASE_USER_API_URL = `/user`;
 
-//TODO:what post respose returns?
 const postUser = async (
   idToken: string,
   user: CompeleteDetailsFormSchemaType
@@ -60,25 +59,40 @@ export const usePostUser = (idToken: string) => {
   );
 };
 
-const getUsers = async (idToken: string, userQueryParams: UsersQueryParams) => {
-  const { data } = await axiosWithAuth(idToken).get<FullUser[]>(
-    `${BASE_USER_API_URL}`,
-    { params: userQueryParams }
+const getUserByIdToken = async (idToken: string) => {
+  const { data } = await axiosWithAuth(idToken).get<Customer | Worker | Admin>(
+    `${BASE_USER_API_URL}`
   );
   return data;
 };
 
-export const useGetUsers = (
-  idToken: string,
-  queryParams: UsersQueryParams = {}
-) => {
-  return useQuery(
-    ["users", idToken, { queryParams }],
-    () => getUsers(idToken, queryParams),
-    {
-      enabled: !!idToken,
-      staleTime: Infinity,
-      cacheTime: Infinity,
-    }
-  );
+export const useGetUserByIdToken = (idToken: string) => {
+  return useQuery(["user", idToken], () => getUserByIdToken(idToken), {
+    enabled: !!idToken,
+    staleTime: Infinity,
+    cacheTime: Infinity,
+  });
 };
+
+// const getUsers = async (idToken: string, userQueryParams: UsersQueryParams) => {
+//   const { data } = await axiosWithAuth(idToken).get<FullUser[]>(
+//     `${BASE_USER_API_URL}`,
+//     { params: userQueryParams }
+//   );
+//   return data;
+// };
+
+// export const useGetUsers = (
+//   idToken: string,
+//   queryParams: UsersQueryParams = {}
+// ) => {
+//   return useQuery(
+//     ["users", idToken, { queryParams }],
+//     () => getUsers(idToken, queryParams),
+//     {
+//       enabled: !!idToken,
+//       staleTime: Infinity,
+//       cacheTime: Infinity,
+//     }
+//   );
+// };

@@ -10,7 +10,7 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { z } from "zod";
-import { useGetUsers } from "~/api/user";
+// import { useGetUsers } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import { MessageCard } from "~/components/MessageCards";
 import UserCard from "~/components/UserCard";
@@ -119,22 +119,22 @@ interface QueryUsersResultProps {
 const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
   const { data: session, status } = useSession();
 
-  const { data: users, isLoading: isLoadingUsers } = useGetUsers(
-    session?.idToken ?? "",
-    {
-      ...queryParams,
-    }
-  );
+  // const { data: users, isLoading: isLoadingUsers } = useGetUsers(
+  //   session?.idToken ?? "",
+  //   {
+  //     ...queryParams,
+  //   }
+  // );
 
-  if (isLoadingUsers || status === "loading") {
-    return <MessageCard message="Loading users..." />;
-  }
+  // if (isLoadingUsers || status === "loading") {
+  //   return <MessageCard message="Loading users..." />;
+  // }
 
   return (
     <>
-      <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 py-4">
+      {/* <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 py-4">
         {users && users.map((user) => <UserCard key={user.id} user={user} />)}
-      </div>
+      </div> */}
     </>
   );
 };

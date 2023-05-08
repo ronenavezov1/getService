@@ -5,8 +5,8 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import type { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { useGetUsers } from "~/api/user";
 import { MessageCardCentered } from "./MessageCards";
+import { useGetUserByIdToken } from "~/api/user";
 
 //////////////////////////////////////////////// types
 export enum UserRole {
@@ -34,11 +34,9 @@ interface AuthProps {
 const Auth = ({ children }: AuthProps) => {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
-  const { data: users, isLoading: isLoadingUser } = useGetUsers(
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
     session?.idToken ?? ""
   );
-
-  const user = users && users[0] ? users[0] : null;
 
   const pushToCompleteDetails = async () => {
     await router.push("/onboarding/completeDetails");

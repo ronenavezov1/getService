@@ -10,7 +10,7 @@ import { type FC } from "react";
 import { ErrorMessage } from "@hookform/error-message";
 import { CityInput } from "./Inputs/CityInput";
 import { useSession } from "next-auth/react";
-import { useGetUsers } from "~/api/user";
+import { useGetUserByIdToken } from "~/api/user";
 import { useRouter } from "next/router";
 import { type Call, useCreateCall, usePutCall } from "~/api/call";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,11 +30,9 @@ export type callCreateFormSchema = z.infer<typeof callSchema>;
 export const CreateCallForm: FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { data: users, isLoading } = useGetUsers(session?.idToken ?? "");
+  const { data: user, isLoading } = useGetUserByIdToken(session?.idToken ?? "");
   const queryClient = useQueryClient();
   const { mutate: mutateCreateCall } = useCreateCall(session?.idToken ?? "");
-
-  const user = users && users[0] ? users[0] : null;
 
   const formHook = useForm<callCreateFormSchema>({
     mode: "onChange",

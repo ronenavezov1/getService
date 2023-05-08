@@ -12,7 +12,7 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { CallStatus, useGetCall } from "~/api/call";
-import { useGetUsers } from "~/api/user";
+import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import CityInput from "~/components/Inputs/CityInput";
@@ -129,7 +129,7 @@ interface QueryCallsResultProps {
 
 const QueryCallsResult = ({ queryParams }: QueryCallsResultProps) => {
   const { data: session, status } = useSession();
-  const { data: users, isLoading: isLoadingUser } = useGetUsers(
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
     session?.idToken ?? ""
   );
 
@@ -145,8 +145,6 @@ const QueryCallsResult = ({ queryParams }: QueryCallsResultProps) => {
   if (isLoadingUser || isLoadingCalls || status === "loading") {
     return <MessageCard message="Loading calls..." />;
   }
-
-  const user = users && users[0] ? users[0] : null;
 
   return (
     <>
