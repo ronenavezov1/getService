@@ -92,30 +92,30 @@ public class QueryHandler {
                 JSONObject userObject = new JSONObject();
                 if(customer == null)
                 {
-                    userObject.put("customer", "undefine");
+                    userObject.put("id", "undefine");
                 }else {
                     userObject.put("id", customer.getId().toString());
                     userObject.put("firstName", customer.getFirstName());
                     userObject.put("lastName", customer.getLastName());
                 }
-                jsonObject.append("customer", userObject.toString());
+                jsonObject.put("customer", userObject);
                 jsonObject.put("service", resultSet.getString(4));
                 jsonObject.put("description", resultSet.getString(5));
                 jsonObject.put("status", resultSet.getString(7));
                 jsonObject.put("address", resultSet.getString(9));
                 jsonObject.put("city", resultSet.getString(10));
-                jsonObject.put("creationTime", Call.SIMPLE_DATE_FORMAT.format(new Date(resultSet.getLong(12))));
+                jsonObject.put("creationTime", Call.SIMPLE_DATE_FORMAT.format(new Date(resultSet.getLong(11))));
                 if(resultSet.getString(7) != null && !resultSet.getString(7).equals(Call.OPEN_CALL)) {
                     User worker = getUser((UUID)resultSet.getObject(3));
                     JSONObject workerObject = new JSONObject();
                     if(worker == null) {
-                        jsonObject.append("worker", "undefine");
+                        jsonObject.put("id", "undefine");
                     }else {
                         workerObject.put("id", worker.getId().toString());
                         workerObject.put("firstName", worker.getFirstName());
                         workerObject.put("lastName", worker.getLastName());
                     }
-                    jsonObject.append("worker", workerObject.toString());
+                    jsonObject.put("worker", workerObject);
                     jsonObject.put("expectedArrival", Call.SIMPLE_DATE_FORMAT.format(new Date(resultSet.getLong(12))));
                 }
                 if(resultSet.getString(7) != null && resultSet.getString(7).equals(Call.CLOSE_CALL)) {
