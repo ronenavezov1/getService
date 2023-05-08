@@ -1,4 +1,4 @@
-import { FullUser } from "~/api/user";
+import type { FullUser } from "~/api/user";
 
 interface UserCardProps {
   user: FullUser;
@@ -6,7 +6,6 @@ interface UserCardProps {
 
 export const UserCard = ({ user }: UserCardProps) => {
   const {
-    id,
     firstName,
     lastName,
     email,

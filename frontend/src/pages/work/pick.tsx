@@ -3,7 +3,7 @@ import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-import { useState, type FC, Dispatch, SetStateAction } from "react";
+import { useState, type FC, type Dispatch, type SetStateAction } from "react";
 import {
   FormProvider,
   type SubmitHandler,

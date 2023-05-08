@@ -12,7 +12,7 @@ interface CallIndexProps {
 
 const CallIndex: NextPageWithAuth<CallIndexProps> = ({ id }) => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUsers(
+  const { data: users, isLoading: isLoadingUsers } = useGetUsers(
     session?.idToken ?? ""
   );
 
@@ -24,10 +24,11 @@ const CallIndex: NextPageWithAuth<CallIndexProps> = ({ id }) => {
     id: id,
   });
 
-  if (isLoadingUser || status == "loading" || isLoading) {
+  if (isLoadingUsers || status == "loading" || isLoading) {
     return <MessageCard message={"Loading call"} />;
   }
 
+  const user = users && users[0] ? users[0] : null;
   const call = calls?.[0];
 
   return (

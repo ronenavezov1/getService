@@ -9,13 +9,15 @@ import { sortByDate } from "~/utils/sortUtils";
 
 const Status: NextPageWithAuth = () => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUsers(
+  const { data: users, isLoading: isLoadingUsers } = useGetUsers(
     session?.idToken ?? ""
   );
 
-  if (status == "loading" || isLoadingUser) {
+  if (status == "loading" || isLoadingUsers) {
     return <MessageCard message={"Loading user"} />;
   }
+
+  const user = users && users[0] ? users[0] : null;
 
   // Customer view
   if (user?.type == UserRole.CUSTOMER) {
@@ -57,9 +59,11 @@ Status.auth = {
 
 const WorkerCalls = () => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUsers(
+  const { data: users, isLoading: isLoadingUsers } = useGetUsers(
     session?.idToken ?? ""
   );
+
+  const user = users && users[0] ? users[0] : null;
 
   const {
     data: workerCalls,
@@ -67,7 +71,7 @@ const WorkerCalls = () => {
     isFetching: isFetchingWorkerCalls,
   } = useGetCall(session?.idToken ?? "", { workerId: user?.id });
 
-  if (isLoadingUser || status == "loading" || isLoadingworkerCalls) {
+  if (isLoadingUsers || status == "loading" || isLoadingworkerCalls) {
     return <MessageCard message={"Loading worker calls"} />;
   }
 
@@ -97,9 +101,11 @@ const WorkerCalls = () => {
 
 const CustomerCalls = () => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUsers(
+  const { data: users, isLoading: isLoadingUsers } = useGetUsers(
     session?.idToken ?? ""
   );
+
+  const user = users && users[0] ? users[0] : null;
 
   const {
     data: customerCalls,
@@ -107,7 +113,7 @@ const CustomerCalls = () => {
     isFetching: isFetchingCustomerCalls,
   } = useGetCall(session?.idToken ?? "", { customerId: user?.id });
 
-  if (isLoadingUser || status == "loading" || isLoadingCustomerCalls) {
+  if (isLoadingUsers || status == "loading" || isLoadingCustomerCalls) {
     return <MessageCard message={"Loading customer calls"} />;
   }
 

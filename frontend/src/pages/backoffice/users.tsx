@@ -1,6 +1,5 @@
 import { Disclosure } from "@headlessui/react";
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
-import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
 import { useState, type FC, type Dispatch, type SetStateAction } from "react";
@@ -11,15 +10,10 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { z } from "zod";
-import { CallStatus, useGetCall } from "~/api/call";
 import { useGetUsers } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
-import CallCard from "~/components/CallCard";
-import CityInput from "~/components/Inputs/CityInput";
-import ProfessionInput from "~/components/Inputs/ProfessionInput";
 import { MessageCard } from "~/components/MessageCards";
 import UserCard from "~/components/UserCard";
-import { sortByDate } from "~/utils/sortUtils";
 
 const UsersQuerySchema = z.object({
   firstName: z.string().optional(),
@@ -125,13 +119,12 @@ interface QueryUsersResultProps {
 const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
   const { data: session, status } = useSession();
 
-  const {
-    data: users,
-    isLoading: isLoadingUsers,
-    isFetching: isFetchingUsers,
-  } = useGetUsers(session?.idToken ?? "", {
-    ...queryParams,
-  });
+  const { data: users, isLoading: isLoadingUsers } = useGetUsers(
+    session?.idToken ?? "",
+    {
+      ...queryParams,
+    }
+  );
 
   if (isLoadingUsers || status === "loading") {
     return <MessageCard message="Loading users..." />;
