@@ -6,8 +6,10 @@ import { z } from "zod";
  */
 
 console.log("hereeee", process.env.NODE_ENV)
+console.log("hereeee", z)
+
 const server = z.object({
-  NODE_ENV: z.enum(["development", "test", "Production"]),
+  NODE_ENV: z.enum(["development", "test", "production"]),
   NEXTAUTH_SECRET:
     process.env.NODE_ENV === "production"
       ? z.string().min(1)
