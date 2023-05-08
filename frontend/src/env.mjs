@@ -5,11 +5,6 @@ import { z } from "zod";
  * built with invalid env vars.
  */
 
-console.log("hereeee", process.env.NODE_ENV)
-console.log("process.env.NEXTAUTH_SECRET", process.env.NEXTAUTH_SECRET)
-console.log("process.env.GOOGLE_CLIENT_ID", process.env.GOOGLE_CLIENT_ID)
-console.log("process.env.GOOGLE_CLIENT_SECRET", process.env.GOOGLE_CLIENT_SECRET)
-
 const server = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   NEXTAUTH_SECRET:
