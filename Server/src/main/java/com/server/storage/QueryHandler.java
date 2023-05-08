@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -89,28 +90,33 @@ public class QueryHandler {
 
                 User customer = getUser((UUID)resultSet.getObject(2));
                 JSONObject userObject = new JSONObject();
-                if(customer == null) return;
-                userObject.put("id", customer.getId().toString());
-                userObject.put("firstName", customer.getFirstName());
-                userObject.put("lastName", customer.getLastName());
+                if(customer == null)
+                {
+                    userObject.put("customer", "undefine");
+                }else {
+                    userObject.put("id", customer.getId().toString());
+                    userObject.put("firstName", customer.getFirstName());
+                    userObject.put("lastName", customer.getLastName());
+                }
                 jsonObject.append("customer", userObject.toString());
-
                 jsonObject.put("service", resultSet.getString(4));
                 jsonObject.put("description", resultSet.getString(5));
                 jsonObject.put("status", resultSet.getString(7));
                 jsonObject.put("address", resultSet.getString(9));
                 jsonObject.put("city", resultSet.getString(10));
-                jsonObject.put("creationTime", new Date(resultSet.getLong(11)).toString());
+                jsonObject.put("creationTime", Call.SIMPLE_DATE_FORMAT.format(new Date(resultSet.getLong(12))));
                 if(resultSet.getString(7) != null && !resultSet.getString(7).equals(Call.OPEN_CALL)) {
-
                     User worker = getUser((UUID)resultSet.getObject(3));
                     JSONObject workerObject = new JSONObject();
-                    if(worker == null) return;
-                    workerObject.put("id", worker.getId().toString());
-                    workerObject.put("firstName", worker.getFirstName());
-                    workerObject.put("lastName", worker.getLastName());
+                    if(worker == null) {
+                        jsonObject.append("worker", "undefine");
+                    }else {
+                        workerObject.put("id", worker.getId().toString());
+                        workerObject.put("firstName", worker.getFirstName());
+                        workerObject.put("lastName", worker.getLastName());
+                    }
                     jsonObject.append("worker", workerObject.toString());
-                    jsonObject.put("expectedArrival", new Date(resultSet.getLong(12)).toString());
+                    jsonObject.put("expectedArrival", Call.SIMPLE_DATE_FORMAT.format(new Date(resultSet.getLong(12))));
                 }
                 if(resultSet.getString(7) != null && resultSet.getString(7).equals(Call.CLOSE_CALL)) {
                     jsonObject.put("rate", resultSet.getFloat(8));

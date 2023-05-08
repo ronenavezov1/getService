@@ -24,7 +24,7 @@ public class Queries {
 
     // USER QUERIES
     public static final String SELECT_USER_BY_EMAIL = "SELECT * FROM public.user WHERE \"user\".email = ?";
-    public static final String SELECT_USER_BY_UUID = "SELECT * FROM public.user WHERE \"user\".user_id = ?:uuid";
+    public static final String SELECT_USER_BY_UUID = "SELECT * FROM public.user WHERE \"user\".user_id = ?::uuid";
     public static final String INSERT_USER          = "INSERT INTO public.user (user_id, email, first_name, last_name, address, city, phone, type, is_approved, is_onboarding_completed) " +
             "VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, true)";
     public static final String UPDATE_USER          = "UPDATE public.user SET email = ?, first_name = ?, last_name = ?, address = ?, city = ?, phone = ?, type = ?, is_onboarding_completed = true " +

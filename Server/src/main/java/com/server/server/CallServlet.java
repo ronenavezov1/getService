@@ -24,6 +24,10 @@ public class CallServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8");
+
         User user;
         try {
             user = AuthorizationHandler.authorizeUser(request);
@@ -39,9 +43,7 @@ public class CallServlet extends HttpServlet {
             response.getWriter().print(new ErrorResponse("user's type undefined", HttpServletResponse.SC_BAD_REQUEST));
             return;
         }
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        request.setCharacterEncoding("UTF-8");
+
         String callId = request.getParameter("id");
         String customerId = request.getParameter("customerId");
         String workerId = request.getParameter("workerId");
@@ -58,7 +60,6 @@ public class CallServlet extends HttpServlet {
             customerId = "";
         if(workerId == null)
             workerId = "";
-
         String responseString = null;
         switch (user.getType()) {
             case User.WORKER:
