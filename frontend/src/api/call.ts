@@ -17,12 +17,12 @@ interface UserCallDetails {
 export interface Call {
   id: string;
   customer: UserCallDetails;
-  worker: UserCallDetails;
+  worker?: UserCallDetails;
   service: string;
   description: string;
   city: string;
   address: string;
-  expectedArrival: string;
+  expectedArrival: Date;
   creationTime: string;
   status: CallStatus;
 }

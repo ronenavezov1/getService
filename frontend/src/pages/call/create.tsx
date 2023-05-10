@@ -10,7 +10,7 @@ const Create: NextPageWithAuth = () => {
 };
 
 Create.auth = {
-  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.WORKER],
+  requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER],
 };
 
 export default Create;

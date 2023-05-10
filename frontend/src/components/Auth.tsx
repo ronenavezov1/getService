@@ -1,5 +1,3 @@
-//TODO:remove this
-
 import { useSession } from "next-auth/react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
@@ -51,7 +49,7 @@ const Auth = ({ children }: AuthProps) => {
   }
 
   if (!user) {
-    return <MessageCardCentered message="User not found" />;
+    return <MessageCardCentered message="No User" />;
   }
 
   if (user.isOnBoardingCompleted === false) {

@@ -105,7 +105,7 @@ const CallCard = ({
         <div className="">
           <div className="flex flex-wrap justify-between text-xs font-semibold  ">
             <p>Call ID: {id}</p>
-            <p>{worker.firstName + worker.lastName}</p>
+            {worker && <p>{worker.firstName + worker.lastName}</p>}
           </div>
         </div>
 
@@ -124,22 +124,26 @@ const CallCard = ({
             {/* Actions */}
             <div className="flex gap-2">
               {/* worker Actions */}
-              <WorkerActions
-                userRole={userRole}
-                userId={userId}
-                workerId={worker.id}
-                callId={call.id}
-                callStatus={call.status}
-                isFetchingCalls={isFetchingCalls}
-              />
+              {userRole === UserRole.WORKER && (
+                <WorkerActions
+                  userRole={userRole}
+                  userId={userId}
+                  workerId={worker?.id}
+                  callId={call.id}
+                  callStatus={call.status}
+                  isFetchingCalls={isFetchingCalls}
+                />
+              )}
 
               {/* user Actions */}
-              <UserActionRow
-                userId={userId}
-                userRole={userRole}
-                call={call}
-                isFetchingCalls={isFetchingCalls}
-              />
+              {userRole === UserRole.CUSTOMER && (
+                <UserActionRow
+                  userId={userId}
+                  userRole={userRole}
+                  call={call}
+                  isFetchingCalls={isFetchingCalls}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -288,7 +292,7 @@ interface WorkerActionProps {
   userRole: UserRole;
   callId: string;
   userId: string;
-  workerId: string;
+  workerId?: string;
   callStatus: CallStatus;
   isFetchingCalls: boolean;
 }
@@ -305,7 +309,7 @@ const WorkerActions = ({
     return null;
   }
 
-  const adminOrWorker =
+  const adminOrPickWorker =
     callStatus === CallStatus.IN_PROGRESS &&
     (workerId === userId || userRole === UserRole.ADMIN);
 
@@ -318,7 +322,7 @@ const WorkerActions = ({
           userId={userId}
         />
       )}
-      {adminOrWorker && (
+      {adminOrPickWorker && (
         <UnPick callId={callId} isFetchingCalls={isFetchingCalls} />
       )}
     </>
@@ -341,6 +345,8 @@ const UnPick = ({ callId, isFetchingCalls }: UnPickProps) => {
   const onSubmit = () => {
     const removePick = {
       workerId: "",
+      status: CallStatus.NEW,
+      expectedArrivalTime: "",
     };
 
     mutate(removePick, {

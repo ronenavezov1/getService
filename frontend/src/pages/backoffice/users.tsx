@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { Disclosure } from "@headlessui/react";
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +12,7 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { z } from "zod";
+import { useGetUsers } from "~/api/users";
 // import { useGetUsers } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import { MessageCard } from "~/components/MessageCards";
@@ -119,22 +122,22 @@ interface QueryUsersResultProps {
 const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
   const { data: session, status } = useSession();
 
-  // const { data: users, isLoading: isLoadingUsers } = useGetUsers(
-  //   session?.idToken ?? "",
-  //   {
-  //     ...queryParams,
-  //   }
-  // );
+  const { data: users, isLoading: isLoadingUsers } = useGetUsers(
+    session?.idToken ?? "",
+    {
+      ...queryParams,
+    }
+  );
 
-  // if (isLoadingUsers || status === "loading") {
-  //   return <MessageCard message="Loading users..." />;
-  // }
+  if (isLoadingUsers || status === "loading") {
+    return <MessageCard message="Loading users..." />;
+  }
 
   return (
     <>
-      {/* <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 py-4">
+      <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 py-4">
         {users && users.map((user) => <UserCard key={user.id} user={user} />)}
-      </div> */}
+      </div>
     </>
   );
 };

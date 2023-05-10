@@ -4,8 +4,8 @@ import { type CallStatus } from "./call";
 
 export interface PickCall {
   workerId: string;
-  status?: CallStatus;
-  expectedArrivalTime?: Date; //DD/MM/YYYY:H:M // TODO:FIX type
+  status: CallStatus;
+  expectedArrivalTime: Date | string;
 }
 
 const BASE_PICK_API_URL = `/pick`;

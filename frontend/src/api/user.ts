@@ -1,14 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { UserRole } from "~/components/Auth";
+import { type UserRole } from "~/components/Auth";
 import type { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
 import axiosWithAuth from "./axiosConfig";
-
-// interface UsersQueryParams {
-//   isApproved?: boolean;
-//   isCompletedOnBoarding?: boolean;
-//   firstName?: string;
-//   lastName?: string;
-// }
 
 interface User {
   id: string;
@@ -31,7 +24,7 @@ interface Admin extends User {
 
 interface Worker extends User {
   type: UserRole.WORKER;
-  proffesion: string;
+  profession: string;
 }
 
 export type FullUser = Customer | Worker | Admin;
@@ -69,30 +62,7 @@ const getUserByIdToken = async (idToken: string) => {
 export const useGetUserByIdToken = (idToken: string) => {
   return useQuery(["user", idToken], () => getUserByIdToken(idToken), {
     enabled: !!idToken,
-    staleTime: Infinity,
-    cacheTime: Infinity,
+    staleTime: 60 * (60 * 1000), // 60 mins ,
+    cacheTime: 60 * (60 * 1000), // 60 mins ,
   });
 };
-
-// const getUsers = async (idToken: string, userQueryParams: UsersQueryParams) => {
-//   const { data } = await axiosWithAuth(idToken).get<FullUser[]>(
-//     `${BASE_USER_API_URL}`,
-//     { params: userQueryParams }
-//   );
-//   return data;
-// };
-
-// export const useGetUsers = (
-//   idToken: string,
-//   queryParams: UsersQueryParams = {}
-// ) => {
-//   return useQuery(
-//     ["users", idToken, { queryParams }],
-//     () => getUsers(idToken, queryParams),
-//     {
-//       enabled: !!idToken,
-//       staleTime: Infinity,
-//       cacheTime: Infinity,
-//     }
-//   );
-// };
