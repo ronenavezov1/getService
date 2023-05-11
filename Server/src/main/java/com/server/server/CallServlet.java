@@ -61,16 +61,20 @@ public class CallServlet extends HttpServlet {
         if(workerId == null)
             workerId = "";
         String responseString = null;
-        switch (user.getType()) {
-            case User.WORKER:
-                responseString = QueryHandler.getCalls(callId, customerId, user.getId().toString(), status, city);
-                break;
-            case User.CUSTOMER:
-                responseString = QueryHandler.getCalls(callId, user.getId().toString(), workerId, status, city);
-                break;
-            case User.ADMIN:
-                responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city);
-                break;
+        if(status.equals(Call.OPEN_CALL)){//public calls
+            responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city);
+        } else {//private calls
+            switch (user.getType()) {
+                case User.WORKER:
+                    responseString = QueryHandler.getCalls(callId, customerId, user.getId().toString(), status, city);
+                    break;
+                case User.CUSTOMER:
+                    responseString = QueryHandler.getCalls(callId, user.getId().toString(), workerId, status, city);
+                    break;
+                case User.ADMIN:
+                    responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city);
+                    break;
+            }
         }
         if(responseString != null)
             response.getWriter().print(responseString);

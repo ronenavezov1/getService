@@ -78,12 +78,15 @@ public class QueryHandler {
     public static String getCalls(String callId, String customerId, String workerId, String status, String city) {
         JSONArray jsonArray = new JSONArray();
         try{
-            StorageManager.executeQuery(Queries.GET_CALLS, (statement)->{
+            StorageManager.executeQuery("SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
+                    "FROM public.call\n" +
+                    "WHERE starts_with(call_id::varchar, ?) and starts_with(user_id::varchar,?) and ((worker_id is NULL and ''=?)or starts_with(worker_id::varchar, ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);", (statement)->{
                 statement.setString(1, callId);
                 statement.setString(2, customerId);
                 statement.setString(3, workerId);
-                statement.setString(4, city);
-                statement.setString(5, status);
+                statement.setString(4, workerId);
+                statement.setString(5, city);
+                statement.setString(6, status);
             }, (resultSet) -> {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", resultSet.getString(1));

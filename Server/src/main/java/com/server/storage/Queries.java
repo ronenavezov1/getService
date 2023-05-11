@@ -17,7 +17,7 @@ public class Queries {
             "\tWHERE call_id = ?::uuid and (user_id = ?::uuid or ?) ;";
     public static final String GET_CALLS = "SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
             "FROM public.call\n" +
-            "WHERE starts_with(call_id::varchar, ?) and starts_with(user_id::varchar,?) and (worker_id is NULL or starts_with(worker_id::varchar, ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);";
+            "WHERE starts_with(call_id::varchar, ?) and starts_with(user_id::varchar,?) and ((worker_id is NULL and ''=?)or starts_with(worker_id::varchar, ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);";
     public static final String CREATE_CALL = "INSERT INTO public.call(\n" +
             "\tcall_id, user_id, service, description, comment, status, address, city, creation_time)\n" +
             "\tVALUES (?::uuid,?::uuid,?,?,?,?,?,?,?);";
