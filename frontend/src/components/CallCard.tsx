@@ -117,7 +117,7 @@ const CallCard = ({
             <p className=" text-sm font-bold underline  ">Picked</p>
             <div className="flex flex-wrap justify-between text-xs font-semibold   ">
               <p>{`By: ${worker.firstName} ${worker.lastName}`}</p>
-              <p>{`At: ${expectedArrival.toDateString()}`}</p>
+              {/* <p>{`At: ${expectedArrival.toDateString()}`}</p>  TODO:remove*/}
             </div>
           </div>
         )}
