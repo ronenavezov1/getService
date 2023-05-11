@@ -13,11 +13,7 @@ export const ProfessionInput: FC = () => {
       <label htmlFor="profession" className="label">
         Profession
       </label>
-      <input
-        id="profession"
-        {...register("profession", { shouldUnregister: true })}
-        className="input"
-      />
+      <input id="profession" {...register("profession")} className="input" />
       <ErrorMessage
         errors={errors}
         name="profession"

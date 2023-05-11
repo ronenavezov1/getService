@@ -71,7 +71,7 @@ const CompleteDetails: FC = () => {
     mutate(data, {
       onSuccess: () => {
         void router.push("/");
-        void queryClient.invalidateQueries(["user"]);
+        void queryClient.invalidateQueries(["users"]);
         toast.success("User created successfully");
       },
     });

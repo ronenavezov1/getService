@@ -101,9 +101,8 @@ const MyApp = ({
           ) : (
             <Component {...pageProps} />
           )}
-          {/* testing dev tool TODO:remove */}
+          {/* ReactQueryDevtools */}
           <ReactQueryDevtools initialIsOpen={false} />
-          {/* testing dev tool TODO:remove */}
         </div>
       </QueryClientProvider>
     </SessionProvider>

@@ -1,12 +1,10 @@
-//TODO:remove this
-
 import { useSession } from "next-auth/react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import type { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { useGetUserByIdToken } from "~/api/user";
 import { MessageCardCentered } from "./MessageCards";
+import { useGetUserByIdToken } from "~/api/user";
 
 //////////////////////////////////////////////// types
 export enum UserRole {
@@ -34,8 +32,6 @@ interface AuthProps {
 const Auth = ({ children }: AuthProps) => {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
-
-  // comment this for user debugging
   const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
     session?.idToken ?? ""
   );
@@ -53,7 +49,7 @@ const Auth = ({ children }: AuthProps) => {
   }
 
   if (!user) {
-    return <MessageCardCentered message="User not found" />;
+    return <MessageCardCentered message="No User" />;
   }
 
   if (user.isOnBoardingCompleted === false) {

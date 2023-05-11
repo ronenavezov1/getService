@@ -1,4 +1,3 @@
-import { Tab } from "@headlessui/react";
 import { useSession } from "next-auth/react";
 import { useGetCall } from "~/api/call";
 import { useGetUserByIdToken } from "~/api/user";
@@ -17,38 +16,35 @@ const Status: NextPageWithAuth = () => {
     return <MessageCard message={"Loading user"} />;
   }
 
-  // Customer view
-  if (user?.type == UserRole.CUSTOMER) {
-    return (
-      <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-        <CustomerCalls />
-      </div>
-    );
-  }
-
-  // Worker view
   return (
-    <div className="flex flex-col items-center p-2">
-      <Tab.Group>
-        <Tab.List className="flex w-full max-w-2xl  justify-between   overflow-hidden rounded-xl bg-indigo-600 p-1  font-semibold text-white shadow  ">
-          <Tab className=" grow rounded-xl hover:bg-indigo-700 ui-selected:bg-yellow-500 ui-selected:text-slate-900">
-            <span>Customer</span>
-          </Tab>
-          <Tab className=" grow rounded-xl hover:bg-indigo-700 ui-selected:bg-yellow-500 ui-selected:text-slate-900">
-            <span> worker</span>
-          </Tab>
-        </Tab.List>
-        <Tab.Panels className="">
-          <Tab.Panel className="flex  flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-            <CustomerCalls />
-          </Tab.Panel>
-          <Tab.Panel className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-            <WorkerCalls />
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
+    <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
+      {user?.type == UserRole.CUSTOMER && <CustomerCalls />}
+      {user?.type == UserRole.WORKER && <WorkerCalls />}
     </div>
   );
+
+  // return (
+  //   <div className="flex flex-col items-center p-2">
+  //     <Tab.Group>
+  //       <Tab.List className="flex w-full max-w-2xl  justify-between   overflow-hidden rounded-xl bg-indigo-600 p-1  font-semibold text-white shadow  ">
+  //         <Tab className=" grow rounded-xl hover:bg-indigo-700 ui-selected:bg-yellow-500 ui-selected:text-slate-900">
+  //           <span>Customer</span>
+  //         </Tab>
+  //         <Tab className=" grow rounded-xl hover:bg-indigo-700 ui-selected:bg-yellow-500 ui-selected:text-slate-900">
+  //           <span> worker</span>
+  //         </Tab>
+  //       </Tab.List>
+  //       <Tab.Panels className="">
+  //         <Tab.Panel className="flex  flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
+  //           <CustomerCalls />
+  //         </Tab.Panel>
+  //         <Tab.Panel className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
+  //           <WorkerCalls />
+  //         </Tab.Panel>
+  //       </Tab.Panels>
+  //     </Tab.Group>
+  //   </div>
+  // );
 };
 
 Status.auth = {

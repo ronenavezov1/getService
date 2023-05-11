@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { UserRole } from "~/components/Auth";
+import { type UserRole } from "~/components/Auth";
 import type { CompeleteDetailsFormSchemaType } from "~/pages/onboarding/completeDetails";
 import axiosWithAuth from "./axiosConfig";
 
@@ -8,9 +8,10 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
-  adress: string;
+  address: string;
   city: string;
   isOnBoardingCompleted: boolean;
+  isApproved: boolean;
 }
 
 interface Customer extends User {
@@ -23,17 +24,18 @@ interface Admin extends User {
 
 interface Worker extends User {
   type: UserRole.WORKER;
-  proffesion: string;
+  profession: string;
 }
+
+export type FullUser = Customer | Worker | Admin;
 
 const BASE_USER_API_URL = `/user`;
 
-//TODO:what post respose returns?
 const postUser = async (
   idToken: string,
   user: CompeleteDetailsFormSchemaType
 ) => {
-  const { data } = await axiosWithAuth(idToken).post<Customer | Worker | Admin>(
+  const { data } = await axiosWithAuth(idToken).post<FullUser>(
     `/onBoarding`,
     user
   );
@@ -60,18 +62,7 @@ const getUserByIdToken = async (idToken: string) => {
 export const useGetUserByIdToken = (idToken: string) => {
   return useQuery(["user", idToken], () => getUserByIdToken(idToken), {
     enabled: !!idToken,
-    staleTime: Infinity,
-    cacheTime: Infinity,
+    staleTime: 60 * (60 * 1000), // 60 mins ,
+    cacheTime: 60 * (60 * 1000), // 60 mins ,
   });
-
-  //TODO:remove this
-  // const user = {
-  //   firstName: "John",
-  //   lastName: "Doe",
-  //   id: "uuid",
-  //   type: "worker" as UserRole,
-  //   isOnBoardingCompleted: true,
-  // };
-
-  // return { data: user, isLoading: false, isError: false };
 };
