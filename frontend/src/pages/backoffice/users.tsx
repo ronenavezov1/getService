@@ -122,12 +122,13 @@ interface QueryUsersResultProps {
 const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
   const { data: session, status } = useSession();
 
-  const { data: users, isLoading: isLoadingUsers } = useGetUsers(
-    session?.idToken ?? "",
-    {
-      ...queryParams,
-    }
-  );
+  const {
+    data: users,
+    isLoading: isLoadingUsers,
+    isFetching,
+  } = useGetUsers(session?.idToken ?? "", {
+    ...queryParams,
+  });
 
   if (isLoadingUsers || status === "loading") {
     return <MessageCard message="Loading users..." />;
@@ -136,7 +137,10 @@ const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
   return (
     <>
       <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 py-4">
-        {users && users.map((user) => <UserCard key={user.id} user={user} />)}
+        {users &&
+          users.map((user) => (
+            <UserCard key={user.id} user={user} isFetchingCalls={isFetching} />
+          ))}
       </div>
     </>
   );

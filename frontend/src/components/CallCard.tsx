@@ -72,6 +72,7 @@ const CallCard = ({
     service,
     status,
     worker,
+    expectedArrival,
   } = call;
 
   /**
@@ -85,44 +86,58 @@ const CallCard = ({
     <div
       className={`${
         fullSize ? "max-w-3xl" : "max-w-xs"
-      }   flex w-full flex-col rounded-xl border bg-gray-100 shadow-md`}
+      }   flex w-full flex-col overflow-hidden rounded-xl border bg-gray-100 shadow-md`}
     >
       {/* Header */}
       <div
         className={` ${
           status ? StatusColorButton[status] : `bg-red-500 hover:bg-red-600`
-        } flex w-full flex-wrap justify-between gap-x-4 rounded-xl p-2 text-sm font-bold text-white `}
+        } px-2 pb-1  text-sm  text-white `}
       >
-        <p>{`${customer.firstName} ${customer.lastName}`}</p>
-        <p>{service}</p>
-        <p>{`${city} ${address}`}</p>
-        <p>Status: {status}</p>
+        <div className="">
+          <div className="flex justify-between">
+            <p className="font-bold underline">Call</p>
+            <p className="self-end text-xs font-thin capitalize">
+              {status === "inProgress" ? "in progress" : status}
+            </p>
+          </div>
+          <div className="flex w-full flex-wrap justify-between gap-x-4 text-xs font-semibold ">
+            <p>By: {`${customer.firstName} ${customer.lastName}`}</p>
+            <p>For: {service}</p>
+            <p>At: {`${city} ${address}`}</p>
+          </div>
+        </div>
       </div>
 
       {/* Body */}
-      <div className=" flex h-full flex-col p-2">
-        {/* PanelHeader */}
-        <div className="">
-          <div className="flex flex-wrap justify-between text-xs font-semibold  ">
-            <p>Call ID: {id}</p>
-            {worker && <p>{worker.firstName + worker.lastName}</p>}
+      <div className=" flex grow flex-col ">
+        {/* Worker Info */}
+        {worker && (
+          <div className="bg-sky-500 px-2 pb-1 text-white  hover:bg-sky-600">
+            <p className=" text-sm font-bold underline  ">Picked</p>
+            <div className="flex flex-wrap justify-between text-xs font-semibold   ">
+              <p>{`By: ${worker.firstName} ${worker.lastName}`}</p>
+              <p>{`At: ${expectedArrival.toDateString()}`}</p>
+            </div>
           </div>
-        </div>
-
-        {/* PanelBody */}
-        <button className="my-6 " onClick={onBodyClick} disabled={!!fullSize}>
+        )}
+        {/* PanelBody - Description */}
+        <button
+          className="my-6 p-2"
+          onClick={onBodyClick}
+          disabled={!!fullSize}
+        >
           <p className="text-center text-lg font-medium   text-black">
             {!fullSize ? sliceDescription(description, 64) : <>{description}</>}
           </p>
         </button>
-
         {/* PanelFooter */}
-        <div className="flex flex-grow ">
+        <div className="flex flex-grow  p-2">
           <div className="flex h-fit w-full items-center justify-between self-end text-xs">
             <p>{creationTime}</p>
 
             {/* Actions */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 ">
               {/* worker Actions */}
               {userRole === UserRole.WORKER && (
                 <WorkerActions
