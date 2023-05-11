@@ -1,8 +1,10 @@
 package com.server.models;
 
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 
 public class Call {
+    public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy:hh:mm");
     public static final String OPEN_CALL = "new";
     public static final String CLOSE_CALL = "done";
     public static final String RECEIVED_CALL = "inProgress";

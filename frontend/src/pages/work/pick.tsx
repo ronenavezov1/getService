@@ -3,8 +3,7 @@ import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-
-import { type FC } from "react";
+import { useState, type FC, type Dispatch, type SetStateAction } from "react";
 import {
   FormProvider,
   type SubmitHandler,
@@ -18,41 +17,33 @@ import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import CityInput from "~/components/Inputs/CityInput";
 import ProfessionInput from "~/components/Inputs/ProfessionInput";
+import { MessageCard } from "~/components/MessageCards";
 import { sortByDate } from "~/utils/sortUtils";
 
-const Pick: NextPageWithAuth = () => {
-  const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
-    session?.idToken ?? ""
-  );
-  const {
-    data: calls,
-    isLoading: isLoadingSession,
-    isFetching,
-  } = useGetCall(session?.idToken ?? "", {
-    status: CallStatus.NEW,
-  });
+const defualtPickQueryParams = {
+  status: CallStatus.NEW,
+};
 
-  if (isLoadingSession || isLoadingUser || status === "loading")
-    return <div>loading...</div>;
+const PickQuerySchema = z.object({
+  profession: z.string().optional(),
+  city: z.string().optional(),
+  dateLimit: z.number().optional(), //TODO: sets 0 if empty
+  status: z
+    .enum([CallStatus.NEW, CallStatus.IN_PROGRESS, CallStatus.DONE])
+    .optional(),
+});
+
+type PickQuerySchemaType = z.infer<typeof PickQuerySchema>;
+
+const Pick: NextPageWithAuth = () => {
+  const [queryParams, setQueryParams] = useState<PickQuerySchemaType>(
+    defualtPickQueryParams
+  );
 
   return (
     <div className="flex flex-col items-center gap-4 p-2">
-      <PickQuery />
-      {calls && user && (
-        <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-          {calls.sort(sortByDate).map((call) => (
-            <CallCard
-              key={call.id}
-              isFetchingCalls={isFetching}
-              call={call}
-              fullSize={false}
-              userRole={user.type}
-              userId={user.id}
-            />
-          ))}
-        </div>
-      )}
+      <PickQuery setQueryParams={setQueryParams} />
+      <QueryCallsResult queryParams={queryParams} />
     </div>
   );
 };
@@ -61,17 +52,12 @@ Pick.auth = {
   requiredRoles: [UserRole.ADMIN, UserRole.WORKER],
 };
 
-const PickQuerySchema = z.object({
-  profession: z.string().optional(),
-  city: z.string().optional(),
-  dateLimit: z.number(), //TODO: sets 0 if empty
-});
+interface PickQueryProps {
+  setQueryParams: Dispatch<SetStateAction<PickQuerySchemaType>>;
+}
 
-type PickQuerySchemaType = z.infer<typeof PickQuerySchema>;
-
-const PickQuery: FC = () => {
+const PickQuery = ({ setQueryParams }: PickQueryProps) => {
   const formHook = useForm<PickQuerySchemaType>({
-    mode: "onChange",
     resolver: zodResolver(PickQuerySchema),
   });
 
@@ -80,9 +66,8 @@ const PickQuery: FC = () => {
     formState: { isSubmitting },
   } = formHook;
 
-  //TODO COMPLETE WITH CALL TO API
   const onSubmit: SubmitHandler<PickQuerySchemaType> = (data) => {
-    console.log(data);
+    setQueryParams(data);
   };
 
   return (
@@ -99,12 +84,12 @@ const PickQuery: FC = () => {
             }
             flex  w-full max-w-2xl gap-2  rounded-xl  p-2  text-sm font-bold  hover:bg-indigo-700`}
             >
-              <div className="grow">sort</div>
+              <div className="grow">Search</div>
               <ChevronLeftIcon
                 className={`${open ? "-rotate-90 transform" : ""}   h-5 `}
               />
             </Disclosure.Button>
-            <Disclosure.Panel className="text-gray-500">
+            <Disclosure.Panel className="w-full max-w-2xl text-gray-500">
               <form
                 onSubmit={handleSubmit(() => {
                   onSubmit(formHook.getValues());
@@ -128,7 +113,6 @@ const PickQuery: FC = () => {
                   className="mt-2 w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500"
                   disabled={isSubmitting}
                   type="submit"
-                  value="Search"
                 />
               </form>
             </Disclosure.Panel>
@@ -136,6 +120,51 @@ const PickQuery: FC = () => {
         )}
       </Disclosure>
     </FormProvider>
+  );
+};
+
+interface QueryCallsResultProps {
+  queryParams: PickQuerySchemaType;
+}
+
+const QueryCallsResult = ({ queryParams }: QueryCallsResultProps) => {
+  const { data: session, status } = useSession();
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
+
+  const {
+    data: calls,
+    isLoading: isLoadingCalls,
+    isFetching: isFetchingCalls,
+  } = useGetCall(session?.idToken ?? "", {
+    ...queryParams,
+    status: CallStatus.NEW,
+  });
+
+  if (isLoadingUser || isLoadingCalls || status === "loading") {
+    return <MessageCard message="Loading calls..." />;
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 py-4">
+        {calls &&
+          user &&
+          calls
+            .sort(sortByDate)
+            .map((call) => (
+              <CallCard
+                key={call.id}
+                isFetchingCalls={isFetchingCalls}
+                call={call}
+                fullSize={false}
+                userRole={user.type}
+                userId={user.id}
+              />
+            ))}
+      </div>
+    </>
   );
 };
 

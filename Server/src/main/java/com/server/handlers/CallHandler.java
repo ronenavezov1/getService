@@ -14,10 +14,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class CallHandler {
-    public static void creatCall(String body) throws InvalidCallException {
-        Call call;
-        Gson gson = new Gson();
-        call = gson.fromJson(body, Call.class);
+    public static void creatCall(Call call) throws InvalidCallException {
+
         List<String> missing = new ArrayList<>();
         boolean ifMissing = false;
         if(call.getCustomerId() == null){
@@ -87,8 +85,7 @@ public class CallHandler {
             status = jsonObject.getString("status");
             String expectedArrivalString = jsonObject.getString("expectedArrivalTime");
 
-            SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy:hh:mm");
-            Date d = f.parse(expectedArrivalString);
+            Date d = Call.SIMPLE_DATE_FORMAT.parse(expectedArrivalString);
             expectedArrivalTime = d.getTime();
 
             QueryHandler.updatePickCall(callId, workerId, status, expectedArrivalTime);
