@@ -1,13 +1,12 @@
 package com.server.handlers;
 
-import com.google.gson.Gson;
+import com.google.common.base.Strings;
 import com.server.exceptions.InvalidCallException;
 import com.server.models.Call;
 import com.server.models.User;
 import com.server.storage.QueryHandler;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -78,20 +77,22 @@ public class CallHandler {
     public static void pickCall(String callId, String body) throws Exception {
         String workerId;
         String status;
-        long expectedArrivalTime;
+        Date expectedArrival = null;
         try {
             JSONObject jsonObject = new JSONObject(body);
             workerId = jsonObject.getString("workerId");
             status = jsonObject.getString("status");
             String expectedArrivalString = jsonObject.getString("expectedArrivalTime");
+            if (!Strings.isNullOrEmpty(expectedArrivalString)) {
+                expectedArrival = Call.SIMPLE_DATE_FORMAT.parse(expectedArrivalString);
+            }
+            boolean success = QueryHandler.updatePickCall(callId, workerId, status, expectedArrival);
 
-            Date d = Call.SIMPLE_DATE_FORMAT.parse(expectedArrivalString);
-            expectedArrivalTime = d.getTime();
-
-            QueryHandler.updatePickCall(callId, workerId, status, expectedArrivalTime);
-
+            if (!success) {
+                throw new Exception("call id '" + callId + "' does not exist");
+            }
         } catch (Exception e) {
-            throw new Exception("Failed picking call on: " + e.getMessage());
+            throw new Exception("Failed to pick call: " + e.getMessage());
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.server.storage;
 
+import com.google.common.base.Strings;
 import com.server.models.Call;
 import com.server.models.User;
 import org.json.JSONArray;
@@ -50,12 +51,20 @@ public class QueryHandler {
         }
     }
 
-    public static boolean updatePickCall(String callId, String workerId, String status, long expectedArrival) throws Exception {
+    public static boolean updatePickCall(String callId, String workerId, String status, java.util.Date expectedArrival) throws Exception {
         try {
             return StorageManager.executeUpdate(Queries.UPDATE_PICK_CALL, statement -> {
-                statement.setString(1, workerId);
+                if (Strings.isNullOrEmpty(workerId)) {
+                    statement.setNull(1, Types.OTHER);
+                } else {
+                    statement.setString(1, workerId);
+                }
                 statement.setString(2, status);
-                statement.setLong(3, expectedArrival);
+                if (expectedArrival == null) {
+                    statement.setNull(3, Types.BIGINT);
+                } else {
+                    statement.setLong(3, expectedArrival.getTime());
+                }
                 statement.setString(4, callId);
             }) == 1;
         } catch (SQLException e) {
