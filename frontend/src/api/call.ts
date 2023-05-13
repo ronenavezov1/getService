@@ -23,7 +23,7 @@ export interface Call {
   city: string;
   address: string;
   expectedArrival: Date;
-  creationTime: string;
+  creationTime: Date;
   status: CallStatus;
 }
 

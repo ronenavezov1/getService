@@ -14,8 +14,8 @@ interface NavbarProps {
 
 const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
   return (
-    <div className="flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
-      <div className="flex justify-between">
+    <div className=" sticky top-0 flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
+      <div className="flex  justify-between">
         <LeftNavBar />
         <RightNavBar role={role} firstName={firstName} lastName={lastName} />
       </div>

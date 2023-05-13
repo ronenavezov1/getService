@@ -117,7 +117,7 @@ const CallCard = ({
             <p className=" text-sm font-bold underline  ">Picked</p>
             <div className="flex flex-wrap justify-between text-xs font-semibold   ">
               <p>{`By: ${worker.firstName} ${worker.lastName}`}</p>
-              {/* <p>{`At: ${expectedArrival.toDateString()}`}</p>  TODO:remove*/}
+              <p>{`At: ${expectedArrival.toLocaleString()}`}</p>
             </div>
           </div>
         )}
@@ -134,7 +134,7 @@ const CallCard = ({
         {/* PanelFooter */}
         <div className="flex flex-grow  p-2">
           <div className="flex h-fit w-full items-center justify-between self-end text-xs">
-            <p>{creationTime}</p>
+            <p>{creationTime.toLocaleString()}</p>
 
             {/* Actions */}
             <div className="flex gap-2 ">

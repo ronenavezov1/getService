@@ -17,7 +17,7 @@ const Status: NextPageWithAuth = () => {
   }
 
   return (
-    <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
+    <div className="flex flex-wrap items-stretch justify-center gap-4  px-2 py-4">
       {user?.type == UserRole.CUSTOMER && <CustomerCalls />}
       {user?.type == UserRole.WORKER && <WorkerCalls />}
     </div>

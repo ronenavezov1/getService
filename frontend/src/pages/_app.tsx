@@ -80,7 +80,7 @@ const MyApp = ({
       <QueryClientProvider client={queryClient}>
         {/* toast container */}
         <ToastContainer
-          position="top-center"
+          position="bottom-center"
           autoClose={5000}
           toastClassName={"m-2"}
           hideProgressBar={false}
