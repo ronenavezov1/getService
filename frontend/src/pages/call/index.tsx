@@ -17,9 +17,14 @@ const Status: NextPageWithAuth = () => {
   }
 
   return (
-    <div className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-      {user?.type == UserRole.CUSTOMER && <CustomerCalls />}
-      {user?.type == UserRole.WORKER && <WorkerCalls />}
+    <div className="flex flex-wrap items-stretch justify-center gap-4  px-2 py-4">
+      {user?.type == UserRole.CUSTOMER ? (
+        <CustomerCalls />
+      ) : user?.type === UserRole.WORKER ? (
+        <WorkerCalls />
+      ) : user?.type === UserRole.ADMIN ? (
+        <AdminCalls />
+      ) : null}
     </div>
   );
 
@@ -49,6 +54,15 @@ const Status: NextPageWithAuth = () => {
 
 Status.auth = {
   requiredRoles: [UserRole.ADMIN, UserRole.CUSTOMER, UserRole.WORKER],
+};
+
+//TODO:implement admin calls
+const AdminCalls = () => {
+  return (
+    <>
+      <span>AdminCalls</span>
+    </>
+  );
 };
 
 const WorkerCalls = () => {

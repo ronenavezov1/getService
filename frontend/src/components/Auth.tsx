@@ -1,10 +1,11 @@
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import type { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
 import { MessageCardCentered } from "./MessageCards";
 import { useGetUserByIdToken } from "~/api/user";
+import { toast } from "react-toastify";
 
 //////////////////////////////////////////////// types
 export enum UserRole {
@@ -50,6 +51,12 @@ const Auth = ({ children }: AuthProps) => {
 
   if (!user) {
     return <MessageCardCentered message="No User" />;
+  }
+
+  if (!user.isApproved) {
+    void signOut();
+    toast.error("Your account is not approved yet");
+    return null;
   }
 
   if (user.isOnBoardingCompleted === false) {

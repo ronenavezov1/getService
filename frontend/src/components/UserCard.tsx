@@ -170,7 +170,7 @@ const FalseIcon = ({ isTrue }: IconProps) => {
         ? `fill-red-500 stroke-red-700`
         : `fill-gray-300 stroke-gray-400 hover:fill-red-500 hover:stroke-red-700  `
     }
-   stroke stroke-3 h-5 w-5  `}
+   stroke stroke-3 h-5 w-5`}
     />
   );
 };

@@ -14,8 +14,8 @@ interface NavbarProps {
 
 const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
   return (
-    <div className="flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
-      <div className="flex justify-between">
+    <div className=" sticky top-0 flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
+      <div className="flex  justify-between">
         <LeftNavBar />
         <RightNavBar role={role} firstName={firstName} lastName={lastName} />
       </div>
@@ -121,11 +121,13 @@ interface LinksProps extends RoleProps {
 const Links = ({ role, closeBurger }: LinksProps) => {
   return (
     <div className="text-center">
-      {role === UserRole.CUSTOMER && (
+      {role === UserRole.CUSTOMER ? (
         <CustomerLinks closeBurger={closeBurger} />
-      )}
-      {role === UserRole.WORKER && <WorkerLinks closeBurger={closeBurger} />}
-      {role === UserRole.ADMIN && <AdminLinks closeBurger={closeBurger} />}
+      ) : role === UserRole.WORKER ? (
+        <WorkerLinks closeBurger={closeBurger} />
+      ) : role === UserRole.ADMIN ? (
+        <AdminLinks closeBurger={closeBurger} />
+      ) : null}
       <LogoutBtn />
     </div>
   );
