@@ -121,11 +121,13 @@ interface LinksProps extends RoleProps {
 const Links = ({ role, closeBurger }: LinksProps) => {
   return (
     <div className="text-center">
-      {role === UserRole.CUSTOMER && (
+      {role === UserRole.CUSTOMER ? (
         <CustomerLinks closeBurger={closeBurger} />
-      )}
-      {role === UserRole.WORKER && <WorkerLinks closeBurger={closeBurger} />}
-      {role === UserRole.ADMIN && <AdminLinks closeBurger={closeBurger} />}
+      ) : role === UserRole.WORKER ? (
+        <WorkerLinks closeBurger={closeBurger} />
+      ) : role === UserRole.ADMIN ? (
+        <AdminLinks closeBurger={closeBurger} />
+      ) : null}
       <LogoutBtn />
     </div>
   );

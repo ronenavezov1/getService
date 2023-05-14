@@ -131,15 +131,37 @@ const CallCard = ({
             {!fullSize ? sliceDescription(description, 64) : <>{description}</>}
           </p>
         </button>
+
+        {/* full size button actions */}
+        {fullSize && (
+          <div className="flex flex-col   ">
+            <WorkerActions
+              userRole={userRole}
+              userId={userId}
+              workerId={worker?.id}
+              callId={call.id}
+              callStatus={call.status}
+              isFetchingCalls={isFetchingCalls}
+              style={ActionRowStyle.BUTTONS}
+            />
+            <UserActionRow
+              userId={userId}
+              userRole={userRole}
+              call={call}
+              isFetchingCalls={isFetchingCalls}
+              style={ActionRowStyle.BUTTONS}
+            />
+          </div>
+        )}
+
         {/* PanelFooter */}
         <div className="flex flex-grow  p-2">
           <div className="flex h-fit w-full items-center justify-between self-end text-xs">
             <p>{creationTime.toLocaleString()}</p>
 
-            {/* Actions */}
-            <div className="flex gap-2 ">
-              {/* worker Actions */}
-              {userRole === UserRole.WORKER && (
+            {/*Icons Actions - only on !fullSize */}
+            {!fullSize && (
+              <div className="flex gap-2   ">
                 <WorkerActions
                   userRole={userRole}
                   userId={userId}
@@ -147,19 +169,18 @@ const CallCard = ({
                   callId={call.id}
                   callStatus={call.status}
                   isFetchingCalls={isFetchingCalls}
+                  style={ActionRowStyle.ICONS}
                 />
-              )}
 
-              {/* user Actions */}
-              {userRole === UserRole.CUSTOMER && (
                 <UserActionRow
                   userId={userId}
                   userRole={userRole}
                   call={call}
                   isFetchingCalls={isFetchingCalls}
+                  style={ActionRowStyle.ICONS}
                 />
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -172,6 +193,12 @@ interface UserActionRowProps {
   userRole: UserRole;
   call: Call;
   isFetchingCalls: boolean;
+  style: ActionRowStyle;
+}
+
+enum ActionRowStyle {
+  ICONS = "ICONS",
+  BUTTONS = "BUTTONS",
 }
 
 const UserActionRow = ({
@@ -179,6 +206,7 @@ const UserActionRow = ({
   userId,
   isFetchingCalls,
   userRole,
+  style,
 }: UserActionRowProps) => {
   const { id: callId, customer } = call;
 
@@ -188,18 +216,36 @@ const UserActionRow = ({
 
   return (
     <>
-      <EditBtn call={call} isFetchingCalls={isFetchingCalls} />
-      <DeleteBtn callId={callId} isFetchingCalls={isFetchingCalls} />
+      <EditAction call={call} isFetchingCalls={isFetchingCalls}>
+        {style === ActionRowStyle.ICONS ? (
+          <PencilSquareIcon className="w-5 fill-blue-600 " />
+        ) : style === ActionRowStyle.BUTTONS ? (
+          <button className="w-full  bg-blue-600 py-2 px-4 font-bold text-white hover:bg-blue-700">
+            Edit
+          </button>
+        ) : null}
+      </EditAction>
+
+      <DeleteActionBtn callId={callId} isFetchingCalls={isFetchingCalls}>
+        {style === ActionRowStyle.ICONS ? (
+          <TrashIcon className="w-5 fill-red-600 " />
+        ) : style === ActionRowStyle.BUTTONS ? (
+          <button className="w-full  bg-red-600 py-2 px-4 font-bold text-white hover:bg-red-700">
+            Delete{" "}
+          </button>
+        ) : null}
+      </DeleteActionBtn>
     </>
   );
 };
 
-interface EditBtnProps {
+interface EditActionProps {
   call: Call;
   isFetchingCalls: boolean;
+  children: React.ReactNode;
 }
 
-const EditBtn = ({ call, isFetchingCalls }: EditBtnProps) => {
+const EditAction = ({ call, isFetchingCalls, children }: EditActionProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const closeModal = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
@@ -207,7 +253,7 @@ const EditBtn = ({ call, isFetchingCalls }: EditBtnProps) => {
   return (
     <>
       <button type="button" onClick={openModal} className="">
-        <PencilSquareIcon className="w-5 fill-blue-600 " />
+        {children}
       </button>
 
       <Transition appear show={isOpen} as={Fragment}>
@@ -268,12 +314,17 @@ const EditBtn = ({ call, isFetchingCalls }: EditBtnProps) => {
   );
 };
 
-interface DeleteBtnProps {
+interface DeleteActionProps {
   callId: string;
   isFetchingCalls: boolean;
+  children: React.ReactNode;
 }
 
-const DeleteBtn = ({ callId, isFetchingCalls }: DeleteBtnProps) => {
+const DeleteActionBtn = ({
+  callId,
+  isFetchingCalls,
+  children,
+}: DeleteActionProps) => {
   const { push, basePath } = useRouter();
   const { data: session } = useSession();
   const { mutate, isIdle: deleteBtnIsIdle } = useDeleteCall(
@@ -297,7 +348,7 @@ const DeleteBtn = ({ callId, isFetchingCalls }: DeleteBtnProps) => {
           });
         }}
       >
-        <TrashIcon className="w-5 fill-red-600 " />
+        {children}
       </button>
     </>
   );
@@ -310,6 +361,7 @@ interface WorkerActionProps {
   workerId?: string;
   callStatus: CallStatus;
   isFetchingCalls: boolean;
+  style: ActionRowStyle;
 }
 
 const WorkerActions = ({
@@ -319,6 +371,7 @@ const WorkerActions = ({
   callStatus,
   userId,
   workerId,
+  style,
 }: WorkerActionProps) => {
   if (userRole === UserRole.CUSTOMER) {
     return null;
@@ -331,25 +384,46 @@ const WorkerActions = ({
   return (
     <>
       {callStatus === CallStatus.NEW && (
-        <Pick
+        <PickAction
           callId={callId}
           isFetchingCalls={isFetchingCalls}
           userId={userId}
-        />
+        >
+          {style === ActionRowStyle.ICONS ? (
+            <BriefcaseIcon className="h-5 w-5 fill-green-500" />
+          ) : style === ActionRowStyle.BUTTONS ? (
+            <button className="w-full  bg-green-500 py-2 px-4 font-bold text-white hover:bg-green-600">
+              Pick
+            </button>
+          ) : null}
+        </PickAction>
       )}
       {adminOrPickWorker && (
-        <UnPick callId={callId} isFetchingCalls={isFetchingCalls} />
+        <UnPickAction callId={callId} isFetchingCalls={isFetchingCalls}>
+          {style === ActionRowStyle.ICONS ? (
+            <BriefcaseIcon className="w-5 fill-red-600 " />
+          ) : style === ActionRowStyle.BUTTONS ? (
+            <button className="w-full  bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-600">
+              unPick
+            </button>
+          ) : null}
+        </UnPickAction>
       )}
     </>
   );
 };
 
-interface UnPickProps {
+interface UnPickActionProps {
   callId: string;
   isFetchingCalls: boolean;
+  children: React.ReactNode;
 }
 
-const UnPick = ({ callId, isFetchingCalls }: UnPickProps) => {
+const UnPickAction = ({
+  callId,
+  isFetchingCalls,
+  children,
+}: UnPickActionProps) => {
   const { data: session } = useSession();
   const { mutate, isIdle: isIdlePostUnPick } = usePostPick(
     session?.idToken ?? "",
@@ -377,19 +451,25 @@ const UnPick = ({ callId, isFetchingCalls }: UnPickProps) => {
   return (
     <>
       <button disabled={isDisabled} onClick={onSubmit}>
-        <BriefcaseIcon className="w-5 fill-red-600 " />
+        {children}
       </button>
     </>
   );
 };
 
-interface PickProps {
+interface PickActionProps {
   callId: string;
   userId: string;
   isFetchingCalls: boolean;
+  children: React.ReactNode;
 }
 
-const Pick = ({ callId, isFetchingCalls, userId }: PickProps) => {
+const PickAction = ({
+  callId,
+  isFetchingCalls,
+  userId,
+  children,
+}: PickActionProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [expectedArrivalTime, setExpectedArrivalTime] = useState(new Date());
   const { data: session } = useSession();
@@ -421,7 +501,7 @@ const Pick = ({ callId, isFetchingCalls, userId }: PickProps) => {
   return (
     <>
       <button type="button" onClick={openModal} className="">
-        <BriefcaseIcon className="h-5 w-5 fill-green-500" />
+        {children}
       </button>
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
