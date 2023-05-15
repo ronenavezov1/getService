@@ -53,21 +53,30 @@ const Auth = ({ children }: AuthProps) => {
     return <MessageCardCentered message="No User" />;
   }
 
-  if (!user.isApproved) {
-    void signOut();
-    toast.error("Your account is not approved yet");
+  // not completed onboarding
+  if (user.isOnBoardingCompleted === false) {
+    void pushToCompleteDetails();
     return null;
   }
 
-  if (user.isOnBoardingCompleted === false) {
-    void pushToCompleteDetails();
+  // not approved
+  if (!user.isApproved) {
+    toast.onChange((payload) => {
+      switch (payload.status) {
+        case "removed":
+          // toast has been removed
+          void signOut();
+          break;
+      }
+    });
+    toast.error("Your account is not approved yet");
     return null;
   }
 
   const pageAuth = children.type.auth;
   const { requiredRoles } = pageAuth;
 
-  //no user will always be unauthorized
+  // Type/Role check
   if (!requiredRoles.includes(user.type)) {
     return <MessageCardCentered message="Unauthorized" />;
   }
