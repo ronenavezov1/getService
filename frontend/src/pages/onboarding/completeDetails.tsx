@@ -82,35 +82,37 @@ const CompleteDetails: FC = () => {
   }
 
   return (
-    <div className="grid justify-center gap-2 pt-2">
-      <FormProvider {...formHook}>
-        <Header />
-        <form
-          onSubmit={handleSubmit(onSubmitHandler)}
-          className=" card grid max-w-lg  gap-2  "
-        >
-          <div className="flex justify-between gap-2">
-            <FirstNameInput />
-            <LastNameInput />
-          </div>
-          <PhoneInput />
-          <div className="flex justify-between gap-2">
-            <AddressInput />
-            <div>
-              <CityInput />
+    <div className="bodyDiv">
+      <div className="grid justify-center gap-2 ">
+        <FormProvider {...formHook}>
+          <Header />
+          <form
+            onSubmit={handleSubmit(onSubmitHandler)}
+            className=" card grid max-w-lg  gap-2  "
+          >
+            <div className="flex justify-between gap-2">
+              <FirstNameInput />
+              <LastNameInput />
             </div>
-          </div>
-          <TypeInput />
-          {userType === UserRole.WORKER && <ProfessionInput />}
+            <PhoneInput />
+            <div className="flex justify-between gap-2">
+              <AddressInput />
+              <div>
+                <CityInput />
+              </div>
+            </div>
+            <TypeInput />
+            {userType === UserRole.WORKER && <ProfessionInput />}
 
-          <input
-            className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
-            disabled={isSubmitting}
-            type="submit"
-            value="Update profile"
-          />
-        </form>
-      </FormProvider>
+            <input
+              className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
+              disabled={isSubmitting}
+              type="submit"
+              value="Update profile"
+            />
+          </form>
+        </FormProvider>
+      </div>
     </div>
   );
 };
