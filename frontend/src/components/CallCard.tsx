@@ -341,9 +341,17 @@ const DeleteActionBtn = ({
         onClick={() => {
           mutate(callId, {
             onSuccess: () => {
-              void queryClient.invalidateQueries(["call"]);
+              toast.onChange((payload) => {
+                switch (payload.status) {
+                  case "removed":
+                    // toast has been removed
+                    void queryClient.invalidateQueries(["call"]);
+                    void push(`${basePath}${BASE_CALL_API_URL}`);
+                    break;
+                }
+              });
+
               toast.success("Deleted call successfully");
-              void push(`${basePath}${BASE_CALL_API_URL}`);
             },
           });
         }}
