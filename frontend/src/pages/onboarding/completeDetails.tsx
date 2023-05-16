@@ -70,8 +70,15 @@ const CompleteDetails: FC = () => {
   ) => {
     mutate(data, {
       onSuccess: () => {
-        void router.push("/");
-        void queryClient.invalidateQueries(["users"]);
+        toast.onChange((payload) => {
+          switch (payload.status) {
+            case "removed":
+              // toast has been removed
+              void queryClient.invalidateQueries(["user"]);
+              void router.push("/");
+              break;
+          }
+        });
         toast.success("User created successfully");
       },
     });
