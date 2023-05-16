@@ -1,5 +1,8 @@
 package com.server.models;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.text.SimpleDateFormat;
 import java.util.UUID;
 
@@ -21,15 +24,16 @@ public class Call {
     private long creationTime;
     private long expectedArrival;
 
-    public Call(UUID callId, UUID customerId, String service, String description, String address, String city) {
+    public Call(UUID callId, UUID customerId, UUID workerId, String service, String description, String address, String city, String status) {
         this.callId = callId;
         this.customerId = customerId;
+        this.workerId = workerId;
         this.service = service;
         this.description = description;
         this.address = address;
         this.city = city;
         this.creationTime = System.currentTimeMillis();
-        this.status = OPEN_CALL;
+        this.status = status;
     }
 
     public UUID getCallId() {
@@ -126,5 +130,11 @@ public class Call {
 
     public void setExpectedArrival(long expectedArrival) {
         this.expectedArrival = expectedArrival;
+    }
+
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder().serializeNulls().create();
+        return gson.toJson(this);
     }
 }

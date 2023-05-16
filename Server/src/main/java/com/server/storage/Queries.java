@@ -3,7 +3,7 @@ package com.server.storage;
 public class Queries {
 
     // CALL QUERIES
-    public static final String GET_CALL = "SELECT call_id, user_id, service, description, address, city\n" +
+    public static final String GET_CALL = "SELECT call_id, user_id, worker_id, service, description, address, city, status\n" +
             "\tFROM public.call" +
             "\tWHERE public.call.call_id = ?::uuid;";
     public static final String UPDATE_CALL = "UPDATE public.call\n" +

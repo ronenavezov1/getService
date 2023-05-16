@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 @WebServlet(name = "CallServlet", value = "/call")
 public class CallServlet extends HttpServlet {
@@ -44,7 +45,6 @@ public class CallServlet extends HttpServlet {
             return;
         }
 
-        String callId = request.getParameter("id");
         String customerId = request.getParameter("customerId");
         String workerId = request.getParameter("workerId");
         String status = request.getParameter("status");
@@ -54,12 +54,22 @@ public class CallServlet extends HttpServlet {
             status = "";
         if(city == null)
             city = "";
-        if(callId == null)
-            callId = "";
         if(customerId == null)
             customerId = "";
         if(workerId == null)
             workerId = "";
+
+        String callId = request.getParameter("id");
+        if (callId == null) {
+            callId = "";
+        } else {
+            Call call = QueryHandler.getCall(callId);
+            if (user.getId().equals(call.getWorkerId()) || user.getId().equals(call.getCustomerId()) || call.getStatus().equals(Call.OPEN_CALL)) {
+                response.getWriter().print(Arrays.asList(call));
+                return;
+            }
+        }
+
         String responseString = null;
         if(status.equals(Call.OPEN_CALL)){//public calls
             responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city);
