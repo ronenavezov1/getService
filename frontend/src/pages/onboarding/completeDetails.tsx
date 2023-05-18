@@ -254,7 +254,12 @@ const TypeInput: FC = () => {
       <label htmlFor="type" className="label">
         Type
       </label>
-      <select id="type" defaultValue="" {...register("type")} className="input">
+      <select
+        id="type"
+        defaultValue=""
+        {...register("type")}
+        className="input capitalize"
+      >
         <option value="" disabled hidden={true}>
           Select type
         </option>

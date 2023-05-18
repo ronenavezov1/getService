@@ -16,6 +16,13 @@ export const ProfessionInput: FC = () => {
   const { data: professions } = useGetProfessions(session?.idToken ?? "");
   const [query, setQuery] = useState("");
 
+  const filteredProfessions =
+    query === ""
+      ? professions
+      : professions?.filter((profession) => {
+          return profession.value.toLowerCase().includes(query.toLowerCase());
+        });
+
   return (
     <>
       <Controller
@@ -27,7 +34,7 @@ export const ProfessionInput: FC = () => {
             defaultValue={getValues("profession") as string}
           >
             <Combobox.Label className={"label"}>profession</Combobox.Label>
-            <div className="relative  -mt-1 w-full cursor-default ">
+            <div className="relative z-10 -mt-1 w-full cursor-default ">
               <Combobox.Input
                 placeholder="Select Profession"
                 className="input"
@@ -51,22 +58,22 @@ export const ProfessionInput: FC = () => {
                 afterLeave={() => setQuery("")}
               >
                 <Combobox.Options className="comboboxOptions ">
-                  {professions?.length === 0 ? (
+                  {filteredProfessions?.length === 0 ? (
                     <div className=" cursor-default select-none py-2 px-4 text-gray-700">
                       Nothing found.
                     </div>
                   ) : (
-                    professions?.map((city: Profession) => (
+                    filteredProfessions?.map((profession: Profession) => (
                       <Combobox.Option
                         className={({ active }) =>
                           `  cursor-default select-none py-2 pl-10 pr-4 ${
                             active ? "bg-blue-500 text-white" : "text-gray-900"
                           }`
                         }
-                        key={city.value}
-                        value={city.value}
+                        key={profession.value}
+                        value={profession.value}
                       >
-                        {city.value}
+                        {profession.value}
                       </Combobox.Option>
                     ))
                   )}
@@ -97,6 +104,13 @@ export const ProfessionInputMultiple: FC = () => {
   } = useFormContext();
   const { data: professions } = useGetProfessions(session?.idToken ?? "");
   const [query, setQuery] = useState("");
+
+  const filteredProfessions =
+    query === ""
+      ? professions
+      : professions?.filter((profession) => {
+          return profession.value.toLowerCase().includes(query.toLowerCase());
+        });
 
   return (
     <>
@@ -135,12 +149,12 @@ export const ProfessionInputMultiple: FC = () => {
                 afterLeave={() => setQuery("")}
               >
                 <Combobox.Options className="comboboxOptions ">
-                  {professions?.length === 0 ? (
+                  {filteredProfessions?.length === 0 ? (
                     <div className=" cursor-default select-none py-2 px-4 text-gray-700">
                       Nothing found.
                     </div>
                   ) : (
-                    professions?.map((city: Profession) => (
+                    filteredProfessions?.map((city: Profession) => (
                       <Combobox.Option
                         className={({ active }) =>
                           `  cursor-default select-none py-2 pl-10 pr-4 ${
