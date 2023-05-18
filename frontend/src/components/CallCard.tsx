@@ -241,9 +241,9 @@ const UserActionRow = ({
           {style === ActionRowStyle.ICONS ? (
             <CheckCircleIcon className="w-5 fill-green-600 " />
           ) : style === ActionRowStyle.BUTTONS ? (
-            <button className="w-full  bg-green-600 py-2 px-4 font-bold text-white hover:bg-green-700">
+            <div className="w-full  bg-green-600 py-2 px-4 font-bold text-white hover:bg-green-700">
               Complete
-            </button>
+            </div>
           ) : null}
         </CompleteCallAction>
       )}
@@ -252,9 +252,9 @@ const UserActionRow = ({
         {style === ActionRowStyle.ICONS ? (
           <PencilSquareIcon className="w-5 fill-blue-600 " />
         ) : style === ActionRowStyle.BUTTONS ? (
-          <button className="w-full  bg-blue-600 py-2 px-4 font-bold text-white hover:bg-blue-700">
+          <div className="w-full  bg-blue-600 py-2 px-4 font-bold text-white hover:bg-blue-700">
             Edit
-          </button>
+          </div>
         ) : null}
       </EditAction>
 
@@ -262,9 +262,9 @@ const UserActionRow = ({
         {style === ActionRowStyle.ICONS ? (
           <TrashIcon className="w-5 fill-red-600 " />
         ) : style === ActionRowStyle.BUTTONS ? (
-          <button className="w-full  bg-red-600 py-2 px-4 font-bold text-white hover:bg-red-700">
+          <div className="w-full  bg-red-600 py-2 px-4 font-bold text-white hover:bg-red-700">
             Delete{" "}
-          </button>
+          </div>
         ) : null}
       </DeleteActionBtn>
     </>
@@ -319,9 +319,7 @@ const EditAction = ({ call, isFetchingCalls, children }: EditActionProps) => {
 
   return (
     <>
-      <button type="button" onClick={openModal} className="">
-        {children}
-      </button>
+      <button onClick={openModal}>{children}</button>
 
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -467,9 +465,9 @@ const WorkerActions = ({
           {style === ActionRowStyle.ICONS ? (
             <BriefcaseIcon className="h-5 w-5 fill-green-500" />
           ) : style === ActionRowStyle.BUTTONS ? (
-            <button className="w-full  bg-green-500 py-2 px-4 font-bold text-white hover:bg-green-600">
+            <div className="w-full  bg-green-500 py-2 px-4 font-bold text-white hover:bg-green-600">
               Pick
-            </button>
+            </div>
           ) : null}
         </PickAction>
       )}
@@ -478,9 +476,9 @@ const WorkerActions = ({
           {style === ActionRowStyle.ICONS ? (
             <BriefcaseIcon className="w-5 fill-red-600 " />
           ) : style === ActionRowStyle.BUTTONS ? (
-            <button className="w-full  bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-600">
+            <div className="w-full  bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-600">
               Unpick
-            </button>
+            </div>
           ) : null}
         </UnPickAction>
       )}

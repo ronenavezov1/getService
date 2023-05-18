@@ -126,12 +126,15 @@ const ApprovedToggle = ({
     <div className="flex flex-col items-center">
       <p className="font-bold underline">Approved</p>
       <div className=" flex gap-2 rounded-full bg-black bg-opacity-50">
+        {/* approve btn */}
         <button
           disabled={isApproved || !isIdle || isFetchingCalls}
           onClick={onApproveClick}
         >
           <TrueIcon isTrue={isApproved} />
         </button>
+
+        {/* disapprove btn */}
         <button
           disabled={!isApproved || !isIdle || isFetchingCalls}
           onClick={onDisapproveClick}
