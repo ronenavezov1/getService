@@ -291,9 +291,12 @@ const CompleteCallAction = ({
 
   const isDisabled = isFetchingCalls || !isIdlePutCall;
   const onCompleteCallActionClick = () => {
-    mutate();
-    toast.success("Completed call successfully");
-    void queryClient.invalidateQueries(["call"]);
+    mutate(void null, {
+      onSuccess: () => {
+        void queryClient.invalidateQueries(["call"]);
+        toast.success("Completed call successfully");
+      },
+    });
   };
 
   return (
