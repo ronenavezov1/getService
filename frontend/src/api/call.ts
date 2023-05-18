@@ -99,7 +99,6 @@ export const useCreateCall = (idToken: string) => {
   );
 };
 
-//TODO:what delete call response returns?
 const deleteCall = async (idToken: string, callId: string) => {
   const { data } = await axiosWithAuth(idToken).delete<Call>(
     `${BASE_CALL_API_URL}`,
@@ -112,4 +111,26 @@ export const useDeleteCall = (idToken: string) => {
   return useMutation(
     async (callId: string) => await deleteCall(idToken, callId)
   );
+};
+
+//TODO: ask how to complete call
+const putCompleteCall = async (idToken: string, callId: string) => {
+  interface CallCompleteParams {
+    status: CallStatus.DONE;
+  }
+
+  const completePayload = {
+    status: CallStatus.DONE,
+  };
+
+  const { data } = await axiosWithAuth(idToken).put<CallCompleteParams>(
+    `${BASE_CALL_API_URL}`,
+    completePayload,
+    { params: { id: callId } }
+  );
+  return data;
+};
+
+export const usePutCompleteCall = (idToken: string, callId: string) => {
+  return useMutation(async () => await putCompleteCall(idToken, callId));
 };

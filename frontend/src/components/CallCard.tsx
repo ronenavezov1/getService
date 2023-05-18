@@ -1,6 +1,7 @@
 import DatePicker from "react-datepicker";
 import {
   BriefcaseIcon,
+  CheckCircleIcon,
   PencilSquareIcon,
   TrashIcon,
   XMarkIcon,
@@ -14,6 +15,7 @@ import {
   type Call,
   CallStatus,
   useDeleteCall,
+  usePutCompleteCall,
 } from "~/api/call";
 import { UserRole } from "./Auth";
 import { Fragment, useState } from "react";
@@ -233,6 +235,19 @@ const UserActionRow = ({
 
   return (
     <>
+      {/*Call complete action appears only if call status = in progress */}
+      {call.status === CallStatus.IN_PROGRESS && (
+        <CompleteCallAction callId={callId} isFetchingCalls={isFetchingCalls}>
+          {style === ActionRowStyle.ICONS ? (
+            <CheckCircleIcon className="w-5 fill-green-600 " />
+          ) : style === ActionRowStyle.BUTTONS ? (
+            <button className="w-full  bg-green-600 py-2 px-4 font-bold text-white hover:bg-green-700">
+              Complete
+            </button>
+          ) : null}
+        </CompleteCallAction>
+      )}
+
       <EditAction call={call} isFetchingCalls={isFetchingCalls}>
         {style === ActionRowStyle.ICONS ? (
           <PencilSquareIcon className="w-5 fill-blue-600 " />
@@ -253,6 +268,38 @@ const UserActionRow = ({
         ) : null}
       </DeleteActionBtn>
     </>
+  );
+};
+
+interface CompleteCallActionProps {
+  callId: string;
+  isFetchingCalls: boolean;
+  children: React.ReactNode;
+}
+
+const CompleteCallAction = ({
+  callId,
+  isFetchingCalls,
+  children,
+}: CompleteCallActionProps) => {
+  const { data: session } = useSession();
+  const { mutate, isIdle: isIdlePutCall } = usePutCompleteCall(
+    session?.idToken ?? "",
+    callId
+  );
+  const queryClient = useQueryClient();
+
+  const isDisabled = isFetchingCalls || !isIdlePutCall;
+  const onCompleteCallActionClick = () => {
+    mutate();
+    toast.success("Completed call successfully");
+    void queryClient.invalidateQueries(["call"]);
+  };
+
+  return (
+    <button disabled={isDisabled} onClick={onCompleteCallActionClick}>
+      {children}
+    </button>
   );
 };
 
