@@ -4,7 +4,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import { useSession } from "next-auth/react";
 import { Fragment, type FC, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Profession, useGetProfessions } from "~/api/professions";
+import { type Profession, useGetProfessions } from "~/api/professions";
 
 export const ProfessionInput: FC = () => {
   const { data: session } = useSession();
@@ -128,7 +128,7 @@ export const ProfessionInputMultiple: FC = () => {
               <Combobox.Input
                 placeholder="Select Profession"
                 className="input"
-                displayValue={(value: any) => value.join(", ")}
+                displayValue={(value: string[]) => value.join(", ")}
                 onChange={(e) => {
                   setQuery(e.target.value);
                 }}
