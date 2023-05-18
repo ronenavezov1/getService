@@ -18,7 +18,7 @@ export interface Call {
   id: string;
   customer: UserCallDetails;
   worker?: UserCallDetails;
-  service: string;
+  profession: string;
   description: string;
   city: string;
   address: string;

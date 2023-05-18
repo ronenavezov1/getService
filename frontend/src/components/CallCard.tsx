@@ -69,7 +69,7 @@ const CallCard = ({
     creationTime,
     customer,
     description,
-    service,
+    profession,
     status,
     worker,
     expectedArrival,
@@ -103,7 +103,7 @@ const CallCard = ({
           </div>
           <div className="flex w-full flex-wrap justify-between gap-x-4 text-xs font-semibold ">
             <p>By: {`${customer.firstName} ${customer.lastName}`}</p>
-            <p>For: {service}</p>
+            <p>For: {profession}</p>
             <p>At: {`${city} ${address}`}</p>
           </div>
         </div>

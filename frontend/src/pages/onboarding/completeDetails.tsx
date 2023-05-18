@@ -14,7 +14,7 @@ import { UserRole } from "~/components/Auth";
 import { usePostUser } from "~/api/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { CityInput } from "~/components/Inputs/CityInput";
-import ProfessionInput from "~/components/Inputs/ProfessionInput";
+import { ProfessionInputMultiple } from "~/components/Inputs/ProfessionInput";
 import { MessageCardCentered } from "~/components/MessageCards";
 import { toast } from "react-toastify";
 
@@ -28,7 +28,7 @@ const UserSchema = z.object({
 
 const WorkerProviderSchema = UserSchema.extend({
   type: z.literal(UserRole.WORKER),
-  profession: z.string().min(1, { message: "Profession is required" }),
+  profession: z.array(z.string()).min(1, { message: "Profession is required" }),
 });
 
 const CustomerSchema = UserSchema.extend({
@@ -109,7 +109,7 @@ const CompleteDetails: FC = () => {
               </div>
             </div>
             <TypeInput />
-            {userType === UserRole.WORKER && <ProfessionInput />}
+            {userType === UserRole.WORKER && <ProfessionInputMultiple />}
 
             <input
               className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"

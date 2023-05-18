@@ -14,8 +14,8 @@ interface NavbarProps {
 
 const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
   return (
-    <div className=" sticky top-0 flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
-      <div className="flex  justify-between">
+    <div className=" sticky top-0 z-30 flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
+      <div className="flex justify-between">
         <LeftNavBar />
         <RightNavBar role={role} firstName={firstName} lastName={lastName} />
       </div>
@@ -73,7 +73,7 @@ const RightNavBar: FC<RightNavBarProps> = ({ role, firstName, lastName }) => {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <Popover.Panel className="absolute left-0 z-10 w-full rounded-b-md bg-indigo-600 shadow-md focus:outline-none  ">
+              <Popover.Panel className="absolute left-0 z-30 w-full rounded-b-md bg-indigo-600 shadow-md focus:outline-none  ">
                 <UserInfo
                   role={role}
                   firstName={firstName}
