@@ -117,7 +117,16 @@ const CallCard = ({
             <p className=" text-sm font-bold underline  ">Picked</p>
             <div className="flex flex-wrap justify-between text-xs font-semibold   ">
               <p>{`By: ${worker.firstName} ${worker.lastName}`}</p>
-              <p>{`At: ${expectedArrival.toLocaleString()}`}</p>
+              <p>{`At: ${new Date(expectedArrival).toLocaleString(
+                navigator.language,
+                {
+                  day: "numeric",
+                  month: "numeric",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                }
+              )}`}</p>
             </div>
           </div>
         )}
@@ -157,7 +166,15 @@ const CallCard = ({
         {/* PanelFooter */}
         <div className="flex flex-grow  p-2">
           <div className="flex h-fit w-full items-center justify-between self-end text-xs">
-            <p>{creationTime.toLocaleString()}</p>
+            <p>
+              {new Date(creationTime).toLocaleString(navigator.language, {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+              })}
+            </p>
 
             {/*Icons Actions - only on !fullSize */}
             {!fullSize && (
@@ -412,7 +429,7 @@ const WorkerActions = ({
             <BriefcaseIcon className="w-5 fill-red-600 " />
           ) : style === ActionRowStyle.BUTTONS ? (
             <button className="w-full  bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-600">
-              unPick
+              Unpick
             </button>
           ) : null}
         </UnPickAction>
