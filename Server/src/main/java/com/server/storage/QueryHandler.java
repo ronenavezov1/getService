@@ -341,5 +341,24 @@ public class QueryHandler {
     }
 
 
+    public static JSONArray getProfession(String startWith) {
+        JSONArray jsonFiles = new JSONArray();
+        String SQL = "SELECT value FROM public.profession WHERE starts_with(public.profession.value, ?)\n" +
+                "ORDER BY value ASC ";
+        try{
+            StorageManager.executeQuery(SQL,
+                    (statement) -> {
+                        statement.setString(1, startWith);
+                    },
+                    (resultSet) -> {
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("value", resultSet.getString(1));
+                        jsonFiles.put(jsonObject);
+                    });
+        } catch (SQLException e) {
+            return jsonFiles;
+        }
+        return jsonFiles;
+    }
 }
 
