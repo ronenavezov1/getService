@@ -261,14 +261,10 @@ public class QueryHandler {
 
     // WORKER
     public static void addWorkerProfession(String id, String profession) throws SQLException {
-        try {
-            StorageManager.executeUpdate(Queries.INSERT_WORKER, (statement) -> {
-                statement.setString(1, id);
-                statement.setString(2, profession);
-            });
-        } catch (SQLException e) {
-            throw e;
-        }
+        StorageManager.executeUpdate(Queries.INSERT_WORKER, (statement) -> {
+            statement.setString(1, id);
+            statement.setString(2, profession);
+        });
     }
 
     public static boolean updateWorkerProfession(String id, String profession) {

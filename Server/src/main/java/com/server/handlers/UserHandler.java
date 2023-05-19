@@ -53,6 +53,7 @@ public class UserHandler {
                     user = gson.fromJson(body, Worker.class);
                 } else if(type != null && type.equals(User.CUSTOMER)){
                     user = gson.fromJson(body, User.class);
+                    user.setApproved(true);
                 } else if (type != null && type.equals(User.ADMIN)) {
                     throw new InvalidUserException("cannot sign up as admin");
                 } else {
@@ -85,7 +86,7 @@ public class UserHandler {
                 missing.add("missing phone number");
                 ifMissing = true;
             }
-            if(user instanceof Worker && Authentication.isNullOrEmpty(((Worker) user).getProfession())) {
+            if(user instanceof Worker && ((Worker) user).getProfession().isEmpty()) {
                 missing.add("missing profession");
                 ifMissing = true;
             }
@@ -97,14 +98,14 @@ public class UserHandler {
             user.setEmail(email);
             if (QueryHandler.insertUser(user)) {
                 if (user instanceof Worker) {
-                    QueryHandler.addWorkerProfession(user.getId().toString(), ((Worker) user).getProfession());
+                    for (String profession: ((Worker) user).getProfession()) {
+                        QueryHandler.addWorkerProfession(user.getId().toString(), profession);
+                    }
                 }
             }
 
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException | IOException | SQLException e) {
             throw new InvalidUserException(e.getMessage());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 

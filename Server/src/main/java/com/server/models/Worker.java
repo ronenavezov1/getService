@@ -1,10 +1,13 @@
 package com.server.models;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class Worker extends User {
 
-    private String profession;
+    private List<String> profession;
 
     public Worker() {
         super();
@@ -14,16 +17,20 @@ public class Worker extends User {
         super(id, email, firstName, lastName);
     }
 
-    public Worker(UUID id, String email, String firstName, String lastName, String address, String city, long phoneNumber, String type, boolean isApproved, boolean isOnBoardingCompleted, String profession) {
+    public Worker(UUID id, String email, String firstName, String lastName, String address, String city, long phoneNumber, String type, boolean isApproved, boolean isOnBoardingCompleted,
+                  String[] profession) {
         super(id, email, firstName, lastName, address, city, phoneNumber, type, isApproved, isOnBoardingCompleted);
-        this.profession = profession;
+        this.profession = new ArrayList<>(Arrays.asList(profession));
     }
 
-    public String getProfession() {
+    public List<String> getProfession() {
         return profession;
     }
+    public void addProfession(String profession){
+        this.profession.add(profession);
+    }
 
-    public void setProfession(String profession) {
-        this.profession = profession;
+    public void setProfession(String[] profession) {
+        this.profession = new ArrayList<>(Arrays.asList(profession));
     }
 }
