@@ -119,16 +119,10 @@ const CallCard = ({
             <p className=" text-sm font-bold underline  ">Picked</p>
             <div className="flex flex-wrap justify-between text-xs font-semibold   ">
               <p>{`By: ${worker.firstName} ${worker.lastName}`}</p>
-              <p>{`At: ${new Date(expectedArrival).toLocaleString(
-                navigator.language,
-                {
-                  day: "numeric",
-                  month: "numeric",
-                  year: "numeric",
-                  hour: "numeric",
-                  minute: "numeric",
-                }
-              )}`}</p>
+              <p>{`At: ${new Date(expectedArrival).toLocaleString("en-GB", {
+                dateStyle: "short",
+                timeStyle: "short",
+              })}`}</p>
             </div>
           </div>
         )}
@@ -169,12 +163,9 @@ const CallCard = ({
         <div className="flex flex-grow  p-2">
           <div className="flex h-fit w-full items-center justify-between self-end text-xs">
             <p>
-              {new Date(creationTime).toLocaleString(navigator.language, {
-                day: "numeric",
-                month: "numeric",
-                year: "numeric",
-                hour: "numeric",
-                minute: "numeric",
+              {new Date(creationTime).toLocaleString("en-GB", {
+                dateStyle: "short",
+                timeStyle: "short",
               })}
             </p>
 
