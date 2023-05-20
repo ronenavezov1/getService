@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,19 +37,18 @@ public class QueryHandler {
         }
         return call.get();
     }
-    public static boolean updateCall(Call call){
-        try {
-            return StorageManager.executeUpdate(Queries.UPDATE_CALL, statement -> {
-                statement.setString(1, call.getService());
+
+    public static void updateCall(Call call) throws SQLException{
+        StorageManager.executeUpdate(Queries.UPDATE_CALL, statement -> {
+                statement.setString(1, call.getProfession());
                 statement.setString(2, call.getDescription());
                 statement.setString(3, call.getAddress());
                 statement.setString(4, call.getCity());
-                statement.setString(5, call.getCallId().toString());
-            }) == 1;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+                statement.setString(5, call.getStatus());
+                statement.setDouble(6, call.getRate());
+                statement.setString(7, call.getComment());
+                statement.setString(8, call.getCallId().toString());
+            });
     }
 
     public static boolean updatePickCall(String callId, String workerId, String status, java.util.Date expectedArrival) throws Exception {
@@ -91,13 +89,17 @@ public class QueryHandler {
         try{
             StorageManager.executeQuery("SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
                     "FROM public.call\n" +
-                    "WHERE starts_with(call_id::varchar, ?) and starts_with(user_id::varchar,?) and ((worker_id is NULL and ''=?)or starts_with(worker_id::varchar, ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);", (statement)->{
+                    "WHERE starts_with(call_id::varchar, ?) and\n" +
+                    "starts_with(user_id::varchar,?) and\n" +
+                    "((worker_id is NULL and ''=?) or (starts_with(worker_id::varchar, ?) and service in (select profession from worker where starts_with(worker_id::varchar, ?)))) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);\n" +
+                    " ", (statement)->{
                 statement.setString(1, callId);
                 statement.setString(2, customerId);
                 statement.setString(3, workerId);
                 statement.setString(4, workerId);
-                statement.setString(5, city);
-                statement.setString(6, status);
+                statement.setString(5, workerId);
+                statement.setString(6, city);
+                statement.setString(7, status);
             }, (resultSet) -> {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", resultSet.getString(1));
@@ -107,13 +109,14 @@ public class QueryHandler {
                 if(customer == null)
                 {
                     userObject.put("id", "undefine");
+                    return;
                 }else {
                     userObject.put("id", customer.getId().toString());
                     userObject.put("firstName", customer.getFirstName());
                     userObject.put("lastName", customer.getLastName());
                 }
                 jsonObject.put("customer", userObject);
-                jsonObject.put("service", resultSet.getString(4));
+                jsonObject.put("profession", resultSet.getString(4));
                 jsonObject.put("description", resultSet.getString(5));
                 jsonObject.put("status", resultSet.getString(7));
                 jsonObject.put("address", resultSet.getString(9));
@@ -149,7 +152,7 @@ public class QueryHandler {
             StorageManager.executeUpdate(Queries.CREATE_CALL, (statement)->{
                 statement.setString(1, call.getCallId().toString());
                 statement.setString(2, call.getCustomerId().toString());
-                statement.setString(3, call.getService());
+                statement.setString(3, call.getProfession());
                 statement.setString(4, call.getDescription());
                 statement.setString(5, call.getComment());
                 statement.setString(6, call.getStatus());
@@ -356,5 +359,6 @@ public class QueryHandler {
         }
         return jsonFiles;
     }
+
 }
 

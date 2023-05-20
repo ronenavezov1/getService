@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 @WebServlet(name = "CallServlet", value = "/call")
@@ -63,22 +64,8 @@ public class CallServlet extends HttpServlet {
             callId = "";
         }
 
-        String responseString = null;
-        if(status.equals(Call.OPEN_CALL) || (!Authentication.isNullOrEmpty(callId) && user.getType().equals(User.WORKER))){//public calls
-            responseString = QueryHandler.getCalls(callId, customerId, workerId, Call.OPEN_CALL, city);
-        } else {//private calls
-            switch (user.getType()) {
-                case User.WORKER:
-                    responseString = QueryHandler.getCalls(callId, customerId, user.getId().toString(), status, city);
-                    break;
-                case User.CUSTOMER:
-                    responseString = QueryHandler.getCalls(callId, user.getId().toString(), workerId, status, city);
-                    break;
-                case User.ADMIN:
-                    responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city);
-                    break;
-            }
-        }
+        String responseString = CallHandler.getCalls(user, callId, status, city, customerId, workerId);
+
         if(responseString != null)
             response.getWriter().print(responseString);
         else {
@@ -107,11 +94,26 @@ public class CallServlet extends HttpServlet {
         }
         request.setCharacterEncoding("UTF-8");
 
+        //for update
         String city = request.getParameter("city");
         String callId = request.getParameter("id");
-        String service = request.getParameter("service");
+        String profession = request.getParameter("profession");
         String description = request.getParameter("description");
         String address = request.getParameter("address");
+        //for close
+        String comment = request.getParameter("comment");
+        String rateString = request.getParameter("rate");
+        String status = request.getParameter("status");
+        float rate;
+        if(comment == null)
+            comment = "";
+        if(rateString == null)
+            rateString = "";
+        try{
+            rate = Float.parseFloat(rateString);
+        }catch (NumberFormatException e){
+            rate = 5;
+        }
 
         if(Authentication.isNullOrEmpty(callId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -121,9 +123,9 @@ public class CallServlet extends HttpServlet {
 
         try {
             if((user.getType().equals(User.CUSTOMER))) {
-                CallHandler.updateCall(callId, city, service, description, address, user.getId().toString());
+                CallHandler.updateCall(callId, city, profession, description, address, user.getId().toString(), status, rate, comment);
             } else if(user.getType().equals(User.ADMIN)){
-                CallHandler.updateCall(callId, city, service, description, address, User.ADMIN);
+                CallHandler.updateCall(callId, city, profession, description, address, User.ADMIN, null, 0, null);
             }else{
                 throw new InvalidCallException("you not allow to edit this call");
             }

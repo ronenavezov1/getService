@@ -14,7 +14,7 @@ public class Call {
     private UUID callId;
     private UUID customerId;
     private UUID workerId;
-    private String service;
+    private String profession;
     private String description;
     private String comment;
     private String status;
@@ -24,11 +24,11 @@ public class Call {
     private long creationTime;
     private long expectedArrival;
 
-    public Call(UUID callId, UUID customerId, UUID workerId, String service, String description, String address, String city, String status) {
+    public Call(UUID callId, UUID customerId, UUID workerId, String profession, String description, String address, String city, String status) {
         this.callId = callId;
         this.customerId = customerId;
         this.workerId = workerId;
-        this.service = service;
+        this.profession = profession;
         this.description = description;
         this.address = address;
         this.city = city;
@@ -60,12 +60,12 @@ public class Call {
         this.workerId = workerId;
     }
 
-    public String getService() {
-        return service;
+    public String getProfession() {
+        return profession;
     }
 
-    public void setService(String service) {
-        this.service = service;
+    public void setProfession(String profession) {
+        this.profession = profession;
     }
 
     public String getDescription() {

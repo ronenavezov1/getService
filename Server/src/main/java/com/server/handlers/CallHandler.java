@@ -7,12 +7,32 @@ import com.server.models.User;
 import com.server.storage.QueryHandler;
 import org.json.JSONObject;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class CallHandler {
+    public static String getCalls(User user, String callId, String status, String city, String customerId, String workerId){
+        String responseString = null;
+        if(status.equals(Call.OPEN_CALL) || (!Authentication.isNullOrEmpty(callId) && user.getType().equals(User.WORKER))){//public calls
+            responseString = QueryHandler.getCalls(callId, customerId, workerId, Call.OPEN_CALL, city);
+        } else {//private calls
+            switch (user.getType()) {
+                case User.WORKER:
+                    responseString = QueryHandler.getCalls(callId, customerId, user.getId().toString(), status, city);
+                    break;
+                case User.CUSTOMER:
+                    responseString = QueryHandler.getCalls(callId, user.getId().toString(), workerId, status, city);
+                    break;
+                case User.ADMIN:
+                    responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city);
+                    break;
+            }
+        }
+        return responseString;
+    }
     public static void creatCall(Call call) throws InvalidCallException {
 
         List<String> missing = new ArrayList<>();
@@ -36,9 +56,9 @@ public class CallHandler {
             ifMissing = true;
             missing.add("missing description");
         }
-        if(Authentication.isNullOrEmpty(call.getService())){
+        if(Authentication.isNullOrEmpty(call.getProfession())){
             ifMissing = true;
-            missing.add("missing service");
+            missing.add("missing profession");
         }
         if(ifMissing) {
             StringBuilder msg = new StringBuilder();
@@ -55,7 +75,7 @@ public class CallHandler {
             throw new InvalidCallException("oops something goes wrong");
     }
 
-    public static void updateCall(String callId, String city, String service, String description, String address, String userId) throws InvalidCallException{
+    public static void updateCall(String callId, String city, String profession, String description, String address, String userId, String status, float rate, String comment) throws InvalidCallException{
         Call updatedCall = QueryHandler.getCall(callId);
         if(updatedCall == null)
             throw new InvalidCallException("call not exist");
@@ -64,14 +84,24 @@ public class CallHandler {
         }
         if(!Authentication.isNullOrEmpty(city))
             updatedCall.setCity(city);
-        if(!Authentication.isNullOrEmpty(service))
-            updatedCall.setService(service);
+        if(!Authentication.isNullOrEmpty(profession))
+            updatedCall.setProfession(profession);
         if(!Authentication.isNullOrEmpty(description))
             updatedCall.setDescription(description);
         if(!Authentication.isNullOrEmpty(address))
             updatedCall.setAddress(address);
-        if(!QueryHandler.updateCall(updatedCall))
-            throw new InvalidCallException("oops something goes wrong");
+        if(!Authentication.isNullOrEmpty(status) && status.equals(Call.CLOSE_CALL)) {
+            updatedCall.setStatus(Call.CLOSE_CALL);
+            updatedCall.setComment(comment);
+            if(rate < 1 || rate > 5)
+                throw new InvalidCallException("rate mast be: 1 <= rate <= 5");
+            updatedCall.setRate(rate);
+        }
+        try{
+            QueryHandler.updateCall(updatedCall);
+        }catch (SQLException e){
+            throw new InvalidCallException(e.getMessage());
+        }
     }
 
     public static void pickCall(String callId, String body) throws Exception {

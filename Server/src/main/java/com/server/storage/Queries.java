@@ -7,7 +7,7 @@ public class Queries {
             "\tFROM public.call" +
             "\tWHERE public.call.call_id = ?::uuid;";
     public static final String UPDATE_CALL = "UPDATE public.call\n" +
-            "\tSET service=?, description=?, address=?, city=?\n" +
+            "\tSET service=?, description=?, address=?, city=?, status=?, rate=?, comment=?\n" +
             "\tWHERE call_id=?::uuid;";
 
     public static final String UPDATE_PICK_CALL = "UPDATE public.call " +
