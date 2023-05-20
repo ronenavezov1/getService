@@ -80,6 +80,7 @@ const CompleteDetails: FC = () => {
           switch (payload.status) {
             case "added":
               void queryClient.invalidateQueries(["user"]);
+              break;
             case "removed":
               // toast has been removed
               void router.push("/call");
