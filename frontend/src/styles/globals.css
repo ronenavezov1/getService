@@ -30,7 +30,7 @@ hover:bg-red-600 hover:shadow-md focus:bg-red-700 focus:shadow-sm focus:ring-4 f
 }
 
 .comboboxOptions {
-  @apply absolute z-10 mt-1 max-h-36 w-full overflow-auto rounded-md bg-white py-1 text-center text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;
+  @apply absolute z-40 mt-1 max-h-36 w-full overflow-auto rounded-md bg-white py-1 text-center text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;
 }
 
 .navBarLink {

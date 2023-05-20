@@ -34,7 +34,7 @@ export const ProfessionInput: FC = () => {
             defaultValue={getValues("profession") as string}
           >
             <Combobox.Label className={"label"}>profession</Combobox.Label>
-            <div className="relative z-10 -mt-1 w-full cursor-default ">
+            <div className="relative -mt-1 w-full cursor-default ">
               <Combobox.Input
                 placeholder="Select Profession"
                 className="input"

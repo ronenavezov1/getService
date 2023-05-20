@@ -274,18 +274,18 @@ const TypeInput: FC = () => {
         name="type"
         render={({ field: { onChange } }) => (
           <Listbox onChange={onChange}>
-            <Listbox.Label className="label">Type</Listbox.Label>
+            <Listbox.Label className="label ">Type</Listbox.Label>
             <div className="relative mt-1 w-full cursor-default ">
               <Listbox.Button className="input bg-white">
                 {getValues("type") ?? "Select type"}
-                <div className="absolute right-0 top-0 mt-2">
+                <div className="absolute right-0 top-0 mt-2 ">
                   <ChevronUpDownIcon
                     className="h-5 w-5 fill-indigo-500 "
                     aria-hidden="true"
                   />
                 </div>
               </Listbox.Button>
-              <Listbox.Options className="comboboxOptions">
+              <Listbox.Options className="comboboxOptions ">
                 {options}
               </Listbox.Options>
             </div>
