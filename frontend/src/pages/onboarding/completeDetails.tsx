@@ -12,7 +12,7 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { UserRole } from "~/components/Auth";
-import { usePostUser } from "~/api/user";
+import { useGetUserByIdToken, usePostUser } from "~/api/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { CityInput } from "~/components/Inputs/CityInput";
 import { ProfessionInputMultiple } from "~/components/Inputs/ProfessionInput";
@@ -52,6 +52,9 @@ export type CompeleteDetailsFormSchemaType = z.infer<
 const CompleteDetails: FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
   const queryClient = useQueryClient();
   const { mutate } = usePostUser(session?.idToken ?? "");
   const formHook = useForm<CompeleteDetailsFormSchemaType>({
@@ -78,7 +81,7 @@ const CompleteDetails: FC = () => {
             case "removed":
               // toast has been removed
               void queryClient.invalidateQueries(["user"]);
-              void router.push("/");
+              void router.push("/test");
               break;
           }
         });
@@ -87,9 +90,14 @@ const CompleteDetails: FC = () => {
     });
   };
 
-  if (status === "loading") {
+  if (status === "loading" || isLoadingUser) {
     return <MessageCardCentered message="Loading Session" />;
   }
+
+  // if (!!user?.isOnBoardingCompleted) {
+  //   void router.push("/");
+  //   return null;
+  // }
 
   return (
     <div className="bodyDiv">
