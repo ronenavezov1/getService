@@ -78,10 +78,11 @@ const CompleteDetails: FC = () => {
       onSuccess: () => {
         toast.onChange((payload) => {
           switch (payload.status) {
+            case "added":
+              void queryClient.invalidateQueries(["user"]);
             case "removed":
               // toast has been removed
-              void queryClient.invalidateQueries(["user"]);
-              void router.push("/test");
+              void router.push("/call");
               break;
           }
         });
@@ -94,10 +95,10 @@ const CompleteDetails: FC = () => {
     return <MessageCardCentered message="Loading Session" />;
   }
 
-  // if (!!user?.isOnBoardingCompleted) {
-  //   void router.push("/");
-  //   return null;
-  // }
+  if (user?.isOnBoardingCompleted) {
+    void router.push("/");
+    return null;
+  }
 
   return (
     <div className="bodyDiv">
