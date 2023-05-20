@@ -80,9 +80,10 @@ const CompleteDetails: FC = () => {
           switch (payload.status) {
             case "added":
               void queryClient.invalidateQueries(["user"]);
+              break;
             case "removed":
               // toast has been removed
-              void router.push("/call");
+              void router.push("/");
               break;
           }
         });
@@ -95,7 +96,7 @@ const CompleteDetails: FC = () => {
     return <MessageCardCentered message="Loading Session" />;
   }
 
-  if (user?.isOnBoardingCompleted) {
+  if (!!user?.isOnBoardingCompleted) {
     void router.push("/");
     return null;
   }
