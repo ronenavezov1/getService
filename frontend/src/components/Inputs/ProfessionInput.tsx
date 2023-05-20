@@ -1,5 +1,5 @@
 import { Combobox, Transition } from "@headlessui/react";
-import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "@hookform/error-message";
 import { useSession } from "next-auth/react";
 import { Fragment, type FC, useState } from "react";
@@ -66,14 +66,30 @@ export const ProfessionInput: FC = () => {
                     filteredProfessions?.map((profession: Profession) => (
                       <Combobox.Option
                         className={({ active }) =>
-                          `  cursor-default select-none py-2 pl-10 pr-4 ${
+                          ` relative  cursor-default select-none py-2 pl-10 pr-4 ${
                             active ? "bg-blue-500 text-white" : "text-gray-900"
                           }`
                         }
                         key={profession.value}
                         value={profession.value}
                       >
-                        {profession.value}
+                        {({ selected, active }) => (
+                          <div className="flex justify-center gap-1">
+                            {profession.value}
+                            {selected ? (
+                              <span
+                                className={`   ${
+                                  active ? "text-white" : "text-indigo-500"
+                                }`}
+                              >
+                                <CheckIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            ) : null}
+                          </div>
+                        )}
                       </Combobox.Option>
                     ))
                   )}
@@ -154,17 +170,33 @@ export const ProfessionInputMultiple: FC = () => {
                       Nothing found.
                     </div>
                   ) : (
-                    filteredProfessions?.map((city: Profession) => (
+                    filteredProfessions?.map((profession: Profession) => (
                       <Combobox.Option
                         className={({ active }) =>
-                          `  cursor-default select-none py-2 pl-10 pr-4 ${
+                          ` relative  cursor-default select-none py-2 pl-10 pr-4 ${
                             active ? "bg-blue-500 text-white" : "text-gray-900"
                           }`
                         }
-                        key={city.value}
-                        value={city.value}
+                        key={profession.value}
+                        value={profession.value}
                       >
-                        {city.value}
+                        {({ selected, active }) => (
+                          <div className="flex justify-center gap-1">
+                            {profession.value}
+                            {selected ? (
+                              <span
+                                className={`   ${
+                                  active ? "text-white" : "text-indigo-500"
+                                }`}
+                              >
+                                <CheckIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            ) : null}
+                          </div>
+                        )}
                       </Combobox.Option>
                     ))
                   )}
