@@ -39,6 +39,10 @@ export interface CallQueryParams {
   dateLimit?: number; //TODO days??
 }
 
+interface CallCompleteBody {
+  status: CallStatus.DONE;
+}
+
 const getCall = async (idToken: string, queryParams: CallQueryParams) => {
   const { data } = await axiosWithAuth(idToken).get<Call[]>(
     `${BASE_CALL_API_URL}`,
@@ -67,15 +71,13 @@ export const useGetCall = (
 const putCall = async (
   idToken: string,
   callId: string,
-  call: callCreateFormSchema
+  call: callCreateFormSchema | CallCompleteBody
 ) => {
-  const { data } = await axiosWithAuth(idToken).put<callCreateFormSchema>(
-    `${BASE_CALL_API_URL}`,
-    {},
-    {
-      params: { ...call, id: callId },
-    }
-  );
+  const { data } = await axiosWithAuth(idToken).put<
+    callCreateFormSchema | CallCompleteBody
+  >(`${BASE_CALL_API_URL}`, call, {
+    params: { id: callId },
+  });
   return data;
 };
 
@@ -113,24 +115,12 @@ export const useDeleteCall = (idToken: string) => {
   );
 };
 
-//TODO: ask how to complete call
-const putCompleteCall = async (idToken: string, callId: string) => {
-  interface CallCompleteParams {
-    status: CallStatus.DONE;
-  }
-
-  const completePayload = {
+export const usePutCompleteCall = (idToken: string, callId: string) => {
+  const completePayload: CallCompleteBody = {
     status: CallStatus.DONE,
   };
 
-  const { data } = await axiosWithAuth(idToken).put<CallCompleteParams>(
-    `${BASE_CALL_API_URL}`,
-    completePayload,
-    { params: { id: callId } }
+  return useMutation(
+    async () => await putCall(idToken, callId, completePayload)
   );
-  return data;
-};
-
-export const usePutCompleteCall = (idToken: string, callId: string) => {
-  return useMutation(async () => await putCompleteCall(idToken, callId));
 };
