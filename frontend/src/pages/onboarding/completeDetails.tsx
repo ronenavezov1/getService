@@ -76,14 +76,11 @@ const CompleteDetails: FC = () => {
   ) => {
     mutate(data, {
       onSuccess: () => {
-        toast.onChange((payload) => {
+        toast.onChange(async (payload) => {
           switch (payload.status) {
-            case "added":
-              void queryClient.invalidateQueries(["user"]);
-              break;
             case "removed":
               // toast has been removed
-              void router.push("/");
+              void queryClient.invalidateQueries(["user"]);
               break;
           }
         });
