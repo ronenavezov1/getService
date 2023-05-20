@@ -16,10 +16,11 @@ import { type Call, useCreateCall, usePutCall } from "~/api/call";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { MessageCard } from "./MessageCards";
+import ProfessionInput from "./Inputs/ProfessionInput";
 
 const callSchema = z.object({
   customerId: z.string().optional(),
-  service: z.string().min(1, { message: "Service is required" }),
+  profession: z.string().min(1, { message: "Profession is required" }),
   description: z.string().min(1, { message: "Description is required" }),
   city: z.string().min(1, { message: "City is required" }),
   address: z.string().min(1, { message: "Address is required" }),
@@ -79,7 +80,7 @@ export const CreateCallForm: FC = () => {
           onSubmit={handleSubmit(onCreateSubmit)}
           className=" card grid max-w-lg  gap-2  "
         >
-          <ServiceInput />
+          <ProfessionInput />
           <DescriptionInput />
           <div className="flex justify-between gap-2">
             <div>
@@ -123,7 +124,7 @@ export const EditCallForm: FC<EditCallFormProps> = ({
       address: call.address,
       city: call.city,
       description: call.description,
-      service: call.service,
+      profession: call.profession,
     },
   });
 
@@ -155,7 +156,7 @@ export const EditCallForm: FC<EditCallFormProps> = ({
           onSubmit={handleSubmit(onSubmit)}
           className="  grid max-w-lg  gap-2  "
         >
-          <ServiceInput />
+          <ProfessionInput />
           <DescriptionInput />
           <div className="flex justify-between gap-2">
             <div>
@@ -177,33 +178,33 @@ export const EditCallForm: FC<EditCallFormProps> = ({
   );
 };
 
-const ServiceInput: FC = () => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext<callCreateFormSchema>();
+// const ProfessionInput: FC = () => {
+//   const {
+//     register,
+//     formState: { errors },
+//   } = useFormContext<callCreateFormSchema>();
 
-  return (
-    <div>
-      <label htmlFor="service" className="label">
-        Service
-      </label>
-      <input
-        className="input"
-        {...register("service")}
-        type="text"
-        id="service"
-      />
-      <ErrorMessage
-        errors={errors}
-        name="service"
-        render={({ message }) => (
-          <p className=" pt-1 text-xs text-red-600">{message}</p>
-        )}
-      />
-    </div>
-  );
-};
+//   return (
+//     <div>
+//       <label htmlFor="profession" className="label capitalize">
+//         profession
+//       </label>
+//       <input
+//         className="input"
+//         {...register("profession")}
+//         type="text"
+//         id="profession"
+//       />
+//       <ErrorMessage
+//         errors={errors}
+//         name="profession"
+//         render={({ message }) => (
+//           <p className=" pt-1 text-xs text-red-600">{message}</p>
+//         )}
+//       />
+//     </div>
+//   );
+// };
 
 const DescriptionInput: FC = () => {
   const {

@@ -8,15 +8,18 @@ import {
   useForm,
   useFormContext,
   type SubmitHandler,
+  Controller,
 } from "react-hook-form";
 import { z } from "zod";
 import { UserRole } from "~/components/Auth";
 import { usePostUser } from "~/api/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { CityInput } from "~/components/Inputs/CityInput";
-import ProfessionInput from "~/components/Inputs/ProfessionInput";
+import { ProfessionInputMultiple } from "~/components/Inputs/ProfessionInput";
 import { MessageCardCentered } from "~/components/MessageCards";
 import { toast } from "react-toastify";
+import { Listbox } from "@headlessui/react";
+import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 const UserSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -28,7 +31,7 @@ const UserSchema = z.object({
 
 const WorkerProviderSchema = UserSchema.extend({
   type: z.literal(UserRole.WORKER),
-  profession: z.string().min(1, { message: "Profession is required" }),
+  profession: z.array(z.string()).min(1, { message: "Profession is required" }),
 });
 
 const CustomerSchema = UserSchema.extend({
@@ -70,8 +73,15 @@ const CompleteDetails: FC = () => {
   ) => {
     mutate(data, {
       onSuccess: () => {
-        void router.push("/");
-        void queryClient.invalidateQueries(["users"]);
+        toast.onChange((payload) => {
+          switch (payload.status) {
+            case "removed":
+              // toast has been removed
+              void queryClient.invalidateQueries(["user"]);
+              void router.push("/");
+              break;
+          }
+        });
         toast.success("User created successfully");
       },
     });
@@ -102,10 +112,10 @@ const CompleteDetails: FC = () => {
               </div>
             </div>
             <TypeInput />
-            {userType === UserRole.WORKER && <ProfessionInput />}
+            {userType === UserRole.WORKER && <ProfessionInputMultiple />}
 
             <input
-              className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
+              className="mt-2 rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
               disabled={isSubmitting}
               type="submit"
               value="Update profile"
@@ -229,30 +239,53 @@ const AddressInput: FC = () => {
 
 const TypeInput: FC = () => {
   const {
-    register,
+    control,
     formState: { errors },
+    getValues,
   } = useFormContext();
 
-  //Consist all options from Auth enum without ADMIN
   const options = Object.values(UserRole)
     .filter((value) => value !== UserRole.ADMIN)
     .map((value) => (
-      <option key={value} value={value}>
+      <Listbox.Option
+        key={value}
+        value={value}
+        className={({ active }) =>
+          `  cursor-default select-none py-2 pl-10 pr-4 ${
+            active ? "bg-blue-500 text-white" : "text-gray-900"
+          }`
+        }
+      >
         {value}
-      </option>
+      </Listbox.Option>
     ));
 
   return (
     <div>
-      <label htmlFor="type" className="label">
-        Type
-      </label>
-      <select id="type" defaultValue="" {...register("type")} className="input">
-        <option value="" disabled hidden={true}>
-          Select type
-        </option>
-        {options}
-      </select>
+      <Controller
+        control={control}
+        name="type"
+        render={({ field: { onChange } }) => (
+          <Listbox onChange={onChange}>
+            <Listbox.Label className="label">Type</Listbox.Label>
+            <div className="relative mt-1 w-full cursor-default ">
+              <Listbox.Button className="input bg-white">
+                {getValues("type") ?? "Select type"}
+                <div className="absolute right-0 top-0 mt-2">
+                  <ChevronUpDownIcon
+                    className="h-5 w-5 fill-indigo-500 "
+                    aria-hidden="true"
+                  />
+                </div>
+              </Listbox.Button>
+              <Listbox.Options className="comboboxOptions">
+                {options}
+              </Listbox.Options>
+            </div>
+          </Listbox>
+        )}
+      />
+
       <ErrorMessage
         errors={errors}
         name="type"

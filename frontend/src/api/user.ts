@@ -24,7 +24,7 @@ interface Admin extends User {
 
 interface Worker extends User {
   type: UserRole.WORKER;
-  profession: string;
+  profession: string[];
 }
 
 export type FullUser = Customer | Worker | Admin;

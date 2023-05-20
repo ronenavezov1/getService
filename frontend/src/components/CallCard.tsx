@@ -1,6 +1,7 @@
 import DatePicker from "react-datepicker";
 import {
   BriefcaseIcon,
+  CheckCircleIcon,
   PencilSquareIcon,
   TrashIcon,
   XMarkIcon,
@@ -14,6 +15,7 @@ import {
   type Call,
   CallStatus,
   useDeleteCall,
+  usePutCompleteCall,
 } from "~/api/call";
 import { UserRole } from "./Auth";
 import { Fragment, useState } from "react";
@@ -69,7 +71,7 @@ const CallCard = ({
     creationTime,
     customer,
     description,
-    service,
+    profession,
     status,
     worker,
     expectedArrival,
@@ -103,7 +105,7 @@ const CallCard = ({
           </div>
           <div className="flex w-full flex-wrap justify-between gap-x-4 text-xs font-semibold ">
             <p>By: {`${customer.firstName} ${customer.lastName}`}</p>
-            <p>For: {service}</p>
+            <p>For: {profession}</p>
             <p>At: {`${city} ${address}`}</p>
           </div>
         </div>
@@ -117,7 +119,16 @@ const CallCard = ({
             <p className=" text-sm font-bold underline  ">Picked</p>
             <div className="flex flex-wrap justify-between text-xs font-semibold   ">
               <p>{`By: ${worker.firstName} ${worker.lastName}`}</p>
-              <p>{`At: ${expectedArrival.toLocaleString()}`}</p>
+              <p>{`At: ${new Date(expectedArrival).toLocaleString(
+                navigator.language,
+                {
+                  day: "numeric",
+                  month: "numeric",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                }
+              )}`}</p>
             </div>
           </div>
         )}
@@ -157,7 +168,15 @@ const CallCard = ({
         {/* PanelFooter */}
         <div className="flex flex-grow  p-2">
           <div className="flex h-fit w-full items-center justify-between self-end text-xs">
-            <p>{creationTime.toLocaleString()}</p>
+            <p>
+              {new Date(creationTime).toLocaleString(navigator.language, {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+              })}
+            </p>
 
             {/*Icons Actions - only on !fullSize */}
             {!fullSize && (
@@ -216,13 +235,26 @@ const UserActionRow = ({
 
   return (
     <>
+      {/*Call complete action appears only if call status = in progress */}
+      {call.status === CallStatus.IN_PROGRESS && (
+        <CompleteCallAction callId={callId} isFetchingCalls={isFetchingCalls}>
+          {style === ActionRowStyle.ICONS ? (
+            <CheckCircleIcon className="w-5 fill-green-600 " />
+          ) : style === ActionRowStyle.BUTTONS ? (
+            <div className="w-full  bg-green-600 py-2 px-4 font-bold text-white hover:bg-green-700">
+              Complete
+            </div>
+          ) : null}
+        </CompleteCallAction>
+      )}
+
       <EditAction call={call} isFetchingCalls={isFetchingCalls}>
         {style === ActionRowStyle.ICONS ? (
           <PencilSquareIcon className="w-5 fill-blue-600 " />
         ) : style === ActionRowStyle.BUTTONS ? (
-          <button className="w-full  bg-blue-600 py-2 px-4 font-bold text-white hover:bg-blue-700">
+          <div className="w-full  bg-blue-600 py-2 px-4 font-bold text-white hover:bg-blue-700">
             Edit
-          </button>
+          </div>
         ) : null}
       </EditAction>
 
@@ -230,12 +262,47 @@ const UserActionRow = ({
         {style === ActionRowStyle.ICONS ? (
           <TrashIcon className="w-5 fill-red-600 " />
         ) : style === ActionRowStyle.BUTTONS ? (
-          <button className="w-full  bg-red-600 py-2 px-4 font-bold text-white hover:bg-red-700">
+          <div className="w-full  bg-red-600 py-2 px-4 font-bold text-white hover:bg-red-700">
             Delete{" "}
-          </button>
+          </div>
         ) : null}
       </DeleteActionBtn>
     </>
+  );
+};
+
+interface CompleteCallActionProps {
+  callId: string;
+  isFetchingCalls: boolean;
+  children: React.ReactNode;
+}
+
+const CompleteCallAction = ({
+  callId,
+  isFetchingCalls,
+  children,
+}: CompleteCallActionProps) => {
+  const { data: session } = useSession();
+  const { mutate, isIdle: isIdlePutCall } = usePutCompleteCall(
+    session?.idToken ?? "",
+    callId
+  );
+  const queryClient = useQueryClient();
+
+  const isDisabled = isFetchingCalls || !isIdlePutCall;
+  const onCompleteCallActionClick = () => {
+    mutate(void null, {
+      onSuccess: () => {
+        void queryClient.invalidateQueries(["call"]);
+        toast.success("Completed call successfully");
+      },
+    });
+  };
+
+  return (
+    <button disabled={isDisabled} onClick={onCompleteCallActionClick}>
+      {children}
+    </button>
   );
 };
 
@@ -252,9 +319,7 @@ const EditAction = ({ call, isFetchingCalls, children }: EditActionProps) => {
 
   return (
     <>
-      <button type="button" onClick={openModal} className="">
-        {children}
-      </button>
+      <button onClick={openModal}>{children}</button>
 
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -341,9 +406,17 @@ const DeleteActionBtn = ({
         onClick={() => {
           mutate(callId, {
             onSuccess: () => {
-              void queryClient.invalidateQueries(["call"]);
+              toast.onChange((payload) => {
+                switch (payload.status) {
+                  case "removed":
+                    // toast has been removed
+                    void queryClient.invalidateQueries(["call"]);
+                    void push(`${basePath}${BASE_CALL_API_URL}`);
+                    break;
+                }
+              });
+
               toast.success("Deleted call successfully");
-              void push(`${basePath}${BASE_CALL_API_URL}`);
             },
           });
         }}
@@ -392,9 +465,9 @@ const WorkerActions = ({
           {style === ActionRowStyle.ICONS ? (
             <BriefcaseIcon className="h-5 w-5 fill-green-500" />
           ) : style === ActionRowStyle.BUTTONS ? (
-            <button className="w-full  bg-green-500 py-2 px-4 font-bold text-white hover:bg-green-600">
+            <div className="w-full  bg-green-500 py-2 px-4 font-bold text-white hover:bg-green-600">
               Pick
-            </button>
+            </div>
           ) : null}
         </PickAction>
       )}
@@ -403,9 +476,9 @@ const WorkerActions = ({
           {style === ActionRowStyle.ICONS ? (
             <BriefcaseIcon className="w-5 fill-red-600 " />
           ) : style === ActionRowStyle.BUTTONS ? (
-            <button className="w-full  bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-600">
-              unPick
-            </button>
+            <div className="w-full  bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-600">
+              Unpick
+            </div>
           ) : null}
         </UnPickAction>
       )}
