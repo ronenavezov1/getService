@@ -16,18 +16,18 @@ import java.util.UUID;
 public class CallHandler {
     public static String getCalls(User user, String callId, String status, String city, String customerId, String workerId){
         String responseString = null;
-        if(status.equals(Call.OPEN_CALL) || (!Authentication.isNullOrEmpty(callId) && user.getType().equals(User.WORKER))){//public calls
-            responseString = QueryHandler.getCalls(callId, customerId, workerId, Call.OPEN_CALL, city);
+        if(status.equals(Call.OPEN_CALL) && user.getType().equals(User.WORKER)){//public calls
+            responseString = QueryHandler.getCalls(callId, customerId, workerId, Call.OPEN_CALL, city, user.getId().toString());
         } else {//private calls
             switch (user.getType()) {
                 case User.WORKER:
-                    responseString = QueryHandler.getCalls(callId, customerId, user.getId().toString(), status, city);
+                    responseString = QueryHandler.getCalls(callId, customerId, user.getId().toString(), status, city, user.getId().toString());
                     break;
                 case User.CUSTOMER:
-                    responseString = QueryHandler.getCalls(callId, user.getId().toString(), workerId, status, city);
+                    responseString = QueryHandler.getCalls(callId, user.getId().toString(), workerId, status, city, "all");
                     break;
                 case User.ADMIN:
-                    responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city);
+                    responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city, "all");
                     break;
             }
         }
@@ -93,7 +93,7 @@ public class CallHandler {
         if(!Authentication.isNullOrEmpty(status) && status.equals(Call.CLOSE_CALL)) {
             updatedCall.setStatus(Call.CLOSE_CALL);
             updatedCall.setComment(comment);
-            if(rate < 1 || rate > 5)
+            if((rate < 1 || rate > 5) && rate != 0)
                 throw new InvalidCallException("rate mast be: 1 <= rate <= 5");
             updatedCall.setRate(rate);
         }

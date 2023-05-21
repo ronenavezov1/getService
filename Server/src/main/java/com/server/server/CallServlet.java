@@ -11,6 +11,8 @@ import com.server.models.Call;
 import com.server.models.User;
 import com.server.storage.QueryHandler;
 import com.server.utils.ErrorResponse;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -77,6 +79,8 @@ public class CallServlet extends HttpServlet {
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
+        request.setCharacterEncoding("UTF-8");
+        //find user
         User user;
         try {
             user = AuthorizationHandler.authorizeUser(request);
@@ -92,40 +96,62 @@ public class CallServlet extends HttpServlet {
             response.getWriter().print(new ErrorResponse("user's type undefined", HttpServletResponse.SC_BAD_REQUEST));
             return;
         }
-        request.setCharacterEncoding("UTF-8");
-
-        //for update
-        String city = request.getParameter("city");
+        //find call
         String callId = request.getParameter("id");
-        String profession = request.getParameter("profession");
-        String description = request.getParameter("description");
-        String address = request.getParameter("address");
-        //for close
-        String comment = request.getParameter("comment");
-        String rateString = request.getParameter("rate");
-        String status = request.getParameter("status");
-        float rate;
-        if(comment == null)
-            comment = "";
-        if(rateString == null)
-            rateString = "";
-        try{
-            rate = Float.parseFloat(rateString);
-        }catch (NumberFormatException e){
-            rate = 5;
-        }
-
         if(Authentication.isNullOrEmpty(callId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().print(new ErrorResponse("call id not given", HttpServletResponse.SC_BAD_REQUEST));
             return;
         }
-
+        Call call = QueryHandler.getCall(callId);
+        if(call == null){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print(new ErrorResponse("call not found", HttpServletResponse.SC_BAD_REQUEST));
+            return;
+        }
+        //read body
+        BufferedReader reader = request.getReader();
+        String line;
+        StringBuilder body = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            body.append(line);
+        }
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(body.toString());
+        } catch (JSONException e){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print(new ErrorResponse("not in json format", HttpServletResponse.SC_BAD_REQUEST));
+            return;
+        }
+        //read new parameters
+        try {
+            call.setCity(jsonObject.getString("city"));
+        } catch (JSONException ignored){}
+        try {
+            call.setProfession(jsonObject.getString("profession"));
+        } catch (JSONException ignored){}
+        try {
+            call.setDescription(jsonObject.getString("description"));
+        } catch (JSONException ignored){}
+        try {
+            call.setAddress(jsonObject.getString("address"));
+        } catch (JSONException ignored){}
+        try {
+            call.setComment(jsonObject.getString("comment"));
+        } catch (JSONException ignored){}
+        try {
+            call.setStatus(jsonObject.getString("status"));
+        } catch (JSONException ignored){}
+        try{
+            call.setRate(Double.parseDouble(jsonObject.getString("rate")));
+        }catch (NumberFormatException | JSONException ignored){}
+        //update by user's permissions
         try {
             if((user.getType().equals(User.CUSTOMER))) {
-                CallHandler.updateCall(callId, city, profession, description, address, user.getId().toString(), status, rate, comment);
+                CallHandler.updateCall(call.getCallId().toString(), call.getCity(), call.getProfession(), call.getDescription(), call.getAddress(), user.getId().toString(), call.getStatus(), (float) call.getRate(), call.getComment());
             } else if(user.getType().equals(User.ADMIN)){
-                CallHandler.updateCall(callId, city, profession, description, address, User.ADMIN, null, 0, null);
+                CallHandler.updateCall(call.getCallId().toString(), call.getCity(), call.getProfession(), call.getDescription(), call.getAddress(), User.ADMIN, null, 0, null);
             }else{
                 throw new InvalidCallException("you not allow to edit this call");
             }

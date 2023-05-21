@@ -84,22 +84,23 @@ public class QueryHandler {
             return false;
         }
     }
-    public static String getCalls(String callId, String customerId, String workerId, String status, String city) {
+    public static String getCalls(String callId, String customerId, String workerId, String status, String city, String workerProfessions) {
         JSONArray jsonArray = new JSONArray();
         try{
             StorageManager.executeQuery("SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
                     "FROM public.call\n" +
                     "WHERE starts_with(call_id::varchar, ?) and\n" +
                     "starts_with(user_id::varchar,?) and\n" +
-                    "((worker_id is NULL and ''=?) or (starts_with(worker_id::varchar, ?) and service in (select profession from worker where starts_with(worker_id::varchar, ?)))) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);\n" +
+                    "((worker_id is NULL and ''=?) or (starts_with(worker_id::varchar, ?))) and (service in (select profession from worker where starts_with(worker_id::varchar, ?)) or starts_with('all', ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);\n" +
                     " ", (statement)->{
                 statement.setString(1, callId);
                 statement.setString(2, customerId);
                 statement.setString(3, workerId);
                 statement.setString(4, workerId);
-                statement.setString(5, workerId);
-                statement.setString(6, city);
-                statement.setString(7, status);
+                statement.setString(5, workerProfessions);
+                statement.setString(6, workerProfessions);
+                statement.setString(7, city);
+                statement.setString(8, status);
             }, (resultSet) -> {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", resultSet.getString(1));
