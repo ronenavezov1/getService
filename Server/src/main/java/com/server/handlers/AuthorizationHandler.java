@@ -8,6 +8,8 @@ import com.server.storage.QueryHandler;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AuthorizationHandler {
 
@@ -31,6 +33,14 @@ public class AuthorizationHandler {
     }
 
     public static User authorizeUser(HttpServletRequest request) throws IOException, InvalidUserException {
+        List<String> allowedTypes = new ArrayList<>();
+        allowedTypes.add("admin");
+        allowedTypes.add("worker");
+        allowedTypes.add("customer");
+        return authorizeUser(request, allowedTypes);
+    }
+
+    public static User authorizeUser(HttpServletRequest request, List<String> allowedTypes) throws IOException, InvalidUserException {
         String idToken = AuthorizationHandler.authorizeByGoogle(request);
         if (idToken == null) {
             throw new InvalidUserException("User is not authorized by google. Try to sign in again.");
@@ -47,6 +57,9 @@ public class AuthorizationHandler {
         }
         if (!user.isApproved()){
             throw new InvalidUserException("User is not approved by admin");
+        }
+        if (!allowedTypes.contains(user.getType())){
+            throw new InvalidUserException("User does not have permissions");
         }
         return user;
     }

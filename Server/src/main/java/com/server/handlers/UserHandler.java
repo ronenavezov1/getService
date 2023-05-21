@@ -1,7 +1,7 @@
 package com.server.handlers;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonSyntaxException;
 import com.server.exceptions.InvalidUserException;
@@ -11,9 +11,11 @@ import com.server.storage.QueryHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 public class UserHandler {
@@ -107,6 +109,39 @@ public class UserHandler {
         } catch (GeneralSecurityException | IOException | SQLException e) {
             throw new InvalidUserException(e.getMessage());
         }
+    }
+
+    public static List<User> getUsers(@Nullable String isApproved, @Nullable String isOnBoardingCompleted, @Nullable String firstName, @Nullable String lastName, @Nullable  String type) {
+        try {
+            if (Strings.isNullOrEmpty(isApproved)) {
+                isApproved = "";
+            }
+            if (Strings.isNullOrEmpty(isOnBoardingCompleted)) {
+                isOnBoardingCompleted = "";
+            }
+            if (Strings.isNullOrEmpty(firstName)) {
+                firstName = "";
+            }
+            if (Strings.isNullOrEmpty(lastName)) {
+                lastName = "";
+            }
+            if (Strings.isNullOrEmpty(type)) {
+                type = "";
+            }
+            return QueryHandler.getUsers(
+                    isApproved,
+                    isOnBoardingCompleted,
+                    firstName,
+                    lastName,
+                    type
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static public void setApproved(String userId, boolean isApproved) throws SQLException {
+        QueryHandler.setApproved(userId, isApproved);
     }
 
 }

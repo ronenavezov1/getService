@@ -8,6 +8,9 @@ import org.json.JSONObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -243,6 +246,82 @@ public class QueryHandler {
             return null;
         }
         return user[0];
+    }
+
+    public static List<User> getUsers(final String firstName, final String lastName, final String type) throws SQLException {
+        final List<User> users = new ArrayList<>();
+        try {
+            StorageManager.executeQuery(Queries.SELECT_USERS, (statement)->{
+                statement.setString(1, firstName);
+                statement.setString(2, lastName);
+                statement.setString(3, type);
+            }, (resultSet) -> {
+                users.add(new User((UUID) resultSet.getObject("user_id"),
+                        resultSet.getString("email"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("address"),
+                        resultSet.getString("city"),
+                        resultSet.getLong("phone"),
+                        resultSet.getString("type"),
+                        resultSet.getBoolean("is_approved"),
+                        resultSet.getBoolean("is_onboarding_completed")
+                ));
+            });
+        } catch (SQLException e) {
+            throw e;
+        }
+        return users;
+    }
+
+    public static List<User> getUsers(String isApproved, String isOnBoardingCompleted, final String firstName, final String lastName, final String type) throws SQLException {
+        final List<User> users = new ArrayList<>();
+        final boolean filterByApproved = Strings.isNullOrEmpty(isApproved) ? false : true;
+        final boolean filterByOnBoarding = Strings.isNullOrEmpty(isOnBoardingCompleted) ? false : true;
+
+        try {
+            String query = Queries.SELECT_USERS;
+            if (!Strings.isNullOrEmpty(isApproved)) {
+                query = query + Queries.USERS_AND_APPROVED;
+            }
+            if (!Strings.isNullOrEmpty(isOnBoardingCompleted)) {
+                query = query + Queries.USERS_AND_ONBOARDING;
+            }
+            StorageManager.executeQuery(query, (statement)->{
+                statement.setString(1, firstName);
+                statement.setString(2, lastName);
+                statement.setString(3, type);
+                if (filterByApproved) statement.setBoolean(4, Boolean.parseBoolean(isApproved));
+                if (filterByOnBoarding && !filterByApproved) statement.setBoolean(4, Boolean.parseBoolean(isOnBoardingCompleted));
+                if (filterByOnBoarding && filterByApproved) statement.setBoolean(5, Boolean.parseBoolean(isOnBoardingCompleted));
+            }, (resultSet) -> {
+                users.add(new User((UUID) resultSet.getObject("user_id"),
+                        resultSet.getString("email"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("address"),
+                        resultSet.getString("city"),
+                        resultSet.getLong("phone"),
+                        resultSet.getString("type"),
+                        resultSet.getBoolean("is_approved"),
+                        resultSet.getBoolean("is_onboarding_completed")
+                ));
+            });
+        } catch (SQLException e) {
+            throw e;
+        }
+        return users;
+    }
+
+    public static boolean setApproved(String userId, boolean isApproved) throws SQLException {
+        try {
+            return StorageManager.executeUpdate(Queries.UPDATE_USER_APPROVED, (statement) -> {
+                statement.setBoolean(1, isApproved);
+                statement.setString(2, userId);
+            }) == 1;
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 
     public static boolean updateUser(String firstName, String lastName, long phoneNumber, String address, String city, String id, String type) {

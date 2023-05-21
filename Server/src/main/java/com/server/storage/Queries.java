@@ -25,10 +25,16 @@ public class Queries {
     // USER QUERIES
     public static final String SELECT_USER_BY_EMAIL = "SELECT * FROM public.user WHERE \"user\".email = ?";
     public static final String SELECT_USER_BY_UUID = "SELECT * FROM public.user WHERE \"user\".user_id = ?::uuid";
+
+    public static final String SELECT_USERS = "SELECT * FROM public.user WHERE starts_with(first_name, ?) AND starts_with(last_name, ?) AND starts_with(type, ?)";
+    public static final String USERS_AND_APPROVED = " AND is_approved = ?";
+    public static final String USERS_AND_ONBOARDING = " AND is_onboarding_completed = ?";
+
     public static final String INSERT_USER          = "INSERT INTO public.user (user_id, email, first_name, last_name, address, city, phone, type, is_approved, is_onboarding_completed) " +
             "VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, true)";
     public static final String UPDATE_USER          = "UPDATE public.user SET email = ?, first_name = ?, last_name = ?, address = ?, city = ?, phone = ?, type = ?, is_onboarding_completed = true " +
             "WHERE user_id = ?::uuid";
+    public static final String UPDATE_USER_APPROVED = "UPDATE public.user SET is_approved = ? WHERE user_id = ?::uuid AND type in ('worker', 'customer')";
 
     // WORKER QUERIES
     public static final String INSERT_WORKER        = "INSERT INTO public.worker VALUES (?::uuid,?)";
