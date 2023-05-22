@@ -28,8 +28,6 @@ export const useGetUsers = (
     () => getUsers(idToken, queryParams),
     {
       enabled: !!idToken,
-      staleTime: Infinity,
-      cacheTime: Infinity,
     }
   );
 };

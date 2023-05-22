@@ -60,6 +60,16 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
     setQueryParams(data);
   };
 
+  /**
+   * Unregister empty names to avoid sending them to the server
+   */
+  const unRegisterEmptyNames = () => {
+    const currentValues = formHook.getValues();
+
+    if (currentValues.firstName === "") unregister("firstName");
+    if (currentValues.lastName === "") unregister("lastName");
+  };
+
   return (
     <FormProvider {...formHook}>
       <Disclosure>
@@ -82,14 +92,8 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
             <Disclosure.Panel className="w-full  max-w-2xl text-gray-500">
               <form
                 onSubmit={handleSubmit(() => {
-                  const nonEmptyValues: UsersQuerySchemaType =
-                    Object.fromEntries(
-                      Object.entries(formHook.getValues()).filter(
-                        ([key, val]) => val != ""
-                      )
-                    );
-
-                  onSubmit(nonEmptyValues);
+                  unRegisterEmptyNames();
+                  onSubmit(formHook.getValues());
                   close();
                 })}
                 className="card grid gap-2"
@@ -192,12 +196,7 @@ const FirstNameInput: FC = () => {
       <label htmlFor="firstName" className="label">
         First Name
       </label>
-      <input
-        id="firstName"
-        {...register("firstName")}
-        className="input"
-        defaultValue={undefined}
-      />
+      <input id="firstName" {...register("firstName")} className="input" />
     </div>
   );
 };

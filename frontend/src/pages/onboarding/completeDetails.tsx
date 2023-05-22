@@ -76,7 +76,7 @@ const CompleteDetails: FC = () => {
   ) => {
     mutate(data, {
       onSuccess: () => {
-        toast.onChange(async (payload) => {
+        toast.onChange((payload) => {
           switch (payload.status) {
             case "removed":
               // toast has been removed
