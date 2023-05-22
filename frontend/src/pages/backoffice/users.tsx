@@ -25,16 +25,18 @@ const UsersQuerySchema = z.object({
 
 type UsersQuerySchemaType = z.infer<typeof UsersQuerySchema>;
 
-const defaultUsersQueryParams = {};
+const defaultEmptyUsersQueryParams = {};
 
 const Users: NextPageWithAuth = () => {
   const [usersQueryParams, setUsersQueryParams] =
-    useState<UsersQuerySchemaType>(defaultUsersQueryParams);
+    useState<UsersQuerySchemaType>(defaultEmptyUsersQueryParams);
 
   return (
     <div className="flex flex-col items-center gap-4 p-2">
       <UsersQuery setQueryParams={setUsersQueryParams} />
-      <QueryUsersResult queryParams={usersQueryParams} />
+      {usersQueryParams !== defaultEmptyUsersQueryParams && (
+        <QueryUsersResult queryParams={usersQueryParams} />
+      )}
     </div>
   );
 };
@@ -50,6 +52,7 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
 
   const {
     handleSubmit,
+    unregister,
     formState: { isSubmitting },
   } = formHook;
 
@@ -79,7 +82,14 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
             <Disclosure.Panel className="w-full  max-w-2xl text-gray-500">
               <form
                 onSubmit={handleSubmit(() => {
-                  onSubmit(formHook.getValues());
+                  const nonEmptyValues: UsersQuerySchemaType =
+                    Object.fromEntries(
+                      Object.entries(formHook.getValues()).filter(
+                        ([key, val]) => val != ""
+                      )
+                    );
+
+                  onSubmit(nonEmptyValues);
                   close();
                 })}
                 className="card grid gap-2"
@@ -184,8 +194,9 @@ const FirstNameInput: FC = () => {
       </label>
       <input
         id="firstName"
-        {...register("firstName", { required: "First name is required " })}
+        {...register("firstName")}
         className="input"
+        defaultValue={undefined}
       />
     </div>
   );
