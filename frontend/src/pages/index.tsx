@@ -1,8 +1,24 @@
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
+import { MessageCardCentered } from "~/components/MessageCards";
 
 const Home: NextPageWithAuth = () => {
   const router = useRouter();
+  const { data: session, status } = useSession({ required: true });
+  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
+    session?.idToken ?? ""
+  );
+
+  if (status === "loading" || isLoadingUser) {
+    return <MessageCardCentered message="Loading Session" />;
+  }
+
+  if (user?.type === UserRole.ADMIN) {
+    void router.push("/backoffice/users");
+    return null;
+  }
 
   void router.push("/call");
   return null;

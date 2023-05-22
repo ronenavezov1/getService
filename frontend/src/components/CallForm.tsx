@@ -17,6 +17,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { MessageCard } from "./MessageCards";
 import ProfessionInput from "./Inputs/ProfessionInput";
+import DatePicker from "react-datepicker";
+
+enum ArrivalTimeSlots {
+  Morning = "[8:00 -12:00]",
+  Afternoon = "[12:00 - 16:00]",
+  Evening = "[16:00 - 20:00]",
+}
 
 const callSchema = z.object({
   customerId: z.string().optional(),
@@ -24,6 +31,8 @@ const callSchema = z.object({
   description: z.string().min(1, { message: "Description is required" }),
   city: z.string().min(1, { message: "City is required" }),
   address: z.string().min(1, { message: "Address is required" }),
+  expectedArrivalDate: z.date(),
+  // expectedArrivalTime: z.nativeEnum(ArrivalTimeSlots),
 });
 
 export type callCreateFormSchema = z.infer<typeof callSchema>;
@@ -98,6 +107,34 @@ export const CreateCallForm: FC = () => {
           />
         </form>
       </FormProvider>
+    </>
+  );
+};
+
+const DateInput: FC = () => {
+  const {
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useFormContext<callCreateFormSchema>();
+  return (
+    <>
+      <DatePicker
+        selected={getValues("expectedArrivalDate")}
+        onChange={(date: Date) => setValue("expectedArrivalDate", date)}
+        minDate={new Date()}
+        dateFormat="dd/MM/yyyy"
+        preventOpenOnFocus={true}
+        className="rounded-md text-center shadow-md"
+      />
+    </>
+  );
+};
+
+const TimeIntervalsInput = () => {
+  return (
+    <>
+      <span>time intervalsS</span>
     </>
   );
 };

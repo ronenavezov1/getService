@@ -550,7 +550,6 @@ const PickAction = ({
     const pick = {
       workerId: userId,
       status: CallStatus.IN_PROGRESS,
-      expectedArrivalTime: expectedArrivalTime,
     };
 
     mutate(pick, {
