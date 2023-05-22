@@ -136,10 +136,6 @@ const Links = ({ role, closeBurger }: LinksProps) => {
 const AdminLinks = ({ closeBurger }: PopItemProps) => {
   return (
     <>
-      {/* status - /call */}
-      <Link href={"/call"} onClick={closeBurger} className={`navBarLink `}>
-        Status Calls
-      </Link>
       {/* users /backoffice/users */}
       <Link
         href={"/backoffice/users"}

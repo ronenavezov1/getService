@@ -20,7 +20,7 @@ const UsersQuerySchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   isApproved: z.boolean().optional(),
-  isCompletedOnBoarding: z.boolean().optional(),
+  isOnBoardingCompleted: z.boolean().optional(),
 });
 
 type UsersQuerySchemaType = z.infer<typeof UsersQuerySchema>;
@@ -95,7 +95,7 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
 
                 <div className="flex justify-evenly">
                   <IsApprovedInput />
-                  <IsCompletedOnBoardingInput />
+                  <IsOnBoardingCompletedInput />
                 </div>
 
                 <input
@@ -157,18 +157,18 @@ const IsApprovedInput: FC = () => {
   );
 };
 
-const IsCompletedOnBoardingInput: FC = () => {
+const IsOnBoardingCompletedInput: FC = () => {
   const { register } = useFormContext();
 
   return (
     <div className="flex gap-2">
-      <label className="label" htmlFor="isCompletedOnBoarding">
+      <label className="label" htmlFor="isOnBoardingCompleted">
         Completed on boarding
       </label>
       <input
-        id="isCompletedOnBoarding"
+        id="isOnBoardingCompleted"
         type="checkbox"
-        {...register("isCompletedOnBoarding")}
+        {...register("isOnBoardingCompleted")}
       />
     </div>
   );
