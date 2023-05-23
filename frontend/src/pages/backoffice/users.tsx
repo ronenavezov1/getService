@@ -20,21 +20,23 @@ const UsersQuerySchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   isApproved: z.boolean().optional(),
-  isCompletedOnBoarding: z.boolean().optional(),
+  isOnBoardingCompleted: z.boolean().optional(),
 });
 
 type UsersQuerySchemaType = z.infer<typeof UsersQuerySchema>;
 
-const defaultUsersQueryParams = {};
+const defaultEmptyUsersQueryParams = {};
 
 const Users: NextPageWithAuth = () => {
   const [usersQueryParams, setUsersQueryParams] =
-    useState<UsersQuerySchemaType>(defaultUsersQueryParams);
+    useState<UsersQuerySchemaType>(defaultEmptyUsersQueryParams);
 
   return (
     <div className="flex flex-col items-center gap-4 p-2">
       <UsersQuery setQueryParams={setUsersQueryParams} />
-      <QueryUsersResult queryParams={usersQueryParams} />
+      {usersQueryParams !== defaultEmptyUsersQueryParams && (
+        <QueryUsersResult queryParams={usersQueryParams} />
+      )}
     </div>
   );
 };
@@ -50,11 +52,22 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
 
   const {
     handleSubmit,
+    unregister,
     formState: { isSubmitting },
   } = formHook;
 
   const onSubmit: SubmitHandler<UsersQuerySchemaType> = (data) => {
     setQueryParams(data);
+  };
+
+  /**
+   * Unregister empty names to avoid sending them to the server
+   */
+  const unRegisterEmptyNames = () => {
+    const currentValues = formHook.getValues();
+
+    if (currentValues.firstName === "") unregister("firstName");
+    if (currentValues.lastName === "") unregister("lastName");
   };
 
   return (
@@ -79,6 +92,7 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
             <Disclosure.Panel className="w-full  max-w-2xl text-gray-500">
               <form
                 onSubmit={handleSubmit(() => {
+                  unRegisterEmptyNames();
                   onSubmit(formHook.getValues());
                   close();
                 })}
@@ -95,7 +109,7 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
 
                 <div className="flex justify-evenly">
                   <IsApprovedInput />
-                  <IsCompletedOnBoardingInput />
+                  <IsOnBoardingCompletedInput />
                 </div>
 
                 <input
@@ -157,18 +171,18 @@ const IsApprovedInput: FC = () => {
   );
 };
 
-const IsCompletedOnBoardingInput: FC = () => {
+const IsOnBoardingCompletedInput: FC = () => {
   const { register } = useFormContext();
 
   return (
     <div className="flex gap-2">
-      <label className="label" htmlFor="isCompletedOnBoarding">
+      <label className="label" htmlFor="isOnBoardingCompleted">
         Completed on boarding
       </label>
       <input
-        id="isCompletedOnBoarding"
+        id="isOnBoardingCompleted"
         type="checkbox"
-        {...register("isCompletedOnBoarding")}
+        {...register("isOnBoardingCompleted")}
       />
     </div>
   );
@@ -182,11 +196,7 @@ const FirstNameInput: FC = () => {
       <label htmlFor="firstName" className="label">
         First Name
       </label>
-      <input
-        id="firstName"
-        {...register("firstName", { required: "First name is required " })}
-        className="input"
-      />
+      <input id="firstName" {...register("firstName")} className="input" />
     </div>
   );
 };

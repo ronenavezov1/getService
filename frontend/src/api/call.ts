@@ -14,6 +14,12 @@ interface UserCallDetails {
   lastName: string;
 }
 
+export enum ExpectedArrivalTimeSlots {
+  Morning = "8:00-12:00",
+  Afternoon = "12:00-16:00",
+  Evening = "16:00-20:00",
+}
+
 export interface Call {
   id: string;
   customer: UserCallDetails;
@@ -22,7 +28,8 @@ export interface Call {
   description: string;
   city: string;
   address: string;
-  expectedArrival: Date;
+  expectedArrivalDate: Date;
+  expectedArrivalTime: ExpectedArrivalTimeSlots;
   creationTime: Date;
   status: CallStatus;
 }
@@ -37,6 +44,10 @@ export interface CallQueryParams {
   profession?: string;
   city?: string;
   dateLimit?: number; //TODO days??
+}
+
+interface CallCompleteBody {
+  status: CallStatus.DONE;
 }
 
 const getCall = async (idToken: string, queryParams: CallQueryParams) => {
@@ -67,15 +78,13 @@ export const useGetCall = (
 const putCall = async (
   idToken: string,
   callId: string,
-  call: callCreateFormSchema
+  call: callCreateFormSchema | CallCompleteBody
 ) => {
-  const { data } = await axiosWithAuth(idToken).put<callCreateFormSchema>(
-    `${BASE_CALL_API_URL}`,
-    {},
-    {
-      params: { ...call, id: callId },
-    }
-  );
+  const { data } = await axiosWithAuth(idToken).put<
+    callCreateFormSchema | CallCompleteBody
+  >(`${BASE_CALL_API_URL}`, call, {
+    params: { id: callId },
+  });
   return data;
 };
 
@@ -113,24 +122,12 @@ export const useDeleteCall = (idToken: string) => {
   );
 };
 
-//TODO: ask how to complete call
-const putCompleteCall = async (idToken: string, callId: string) => {
-  interface CallCompleteParams {
-    status: CallStatus.DONE;
-  }
-
-  const completePayload = {
+export const usePutCompleteCall = (idToken: string, callId: string) => {
+  const completePayload: CallCompleteBody = {
     status: CallStatus.DONE,
   };
 
-  const { data } = await axiosWithAuth(idToken).put<CallCompleteParams>(
-    `${BASE_CALL_API_URL}`,
-    completePayload,
-    { params: { id: callId } }
+  return useMutation(
+    async () => await putCall(idToken, callId, completePayload)
   );
-  return data;
-};
-
-export const usePutCompleteCall = (idToken: string, callId: string) => {
-  return useMutation(async () => await putCompleteCall(idToken, callId));
 };

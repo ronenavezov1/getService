@@ -5,7 +5,6 @@ import { type CallStatus } from "./call";
 export interface PickCall {
   workerId: string;
   status: CallStatus;
-  expectedArrivalTime: Date | string;
 }
 
 const BASE_PICK_API_URL = `/pick`;
