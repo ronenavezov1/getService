@@ -22,16 +22,16 @@ import { Listbox } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 const UserSchema = z.object({
-  firstName: z.string().min(1, { message: "First name is required" }),
-  lastName: z.string().min(1, { message: "Last name is required" }),
-  phoneNumber: z.number().min(1, { message: "Phone number is required" }),
-  city: z.string().min(1, { message: "City is required" }),
-  address: z.string().min(1, { message: "Address is required" }),
+  firstName: z.string().min(1, { message: "Required" }),
+  lastName: z.string().min(1, { message: "Required" }),
+  phoneNumber: z.number().min(1, { message: "Required" }),
+  city: z.string().min(1, { message: "Required" }),
+  address: z.string().min(1, { message: "Required" }),
 });
 
 const WorkerProviderSchema = UserSchema.extend({
   type: z.literal(UserRole.WORKER),
-  profession: z.array(z.string()).min(1, { message: "Profession is required" }),
+  profession: z.array(z.string()).min(1, { message: "Required" }),
 });
 
 const CustomerSchema = UserSchema.extend({
@@ -276,8 +276,13 @@ const TypeInput: FC = () => {
           <Listbox onChange={onChange}>
             <Listbox.Label className="label ">Type</Listbox.Label>
             <div className="relative mt-1 w-full cursor-default ">
-              <Listbox.Button className="input bg-white">
-                {getValues("type") ?? "Select type"}
+              <Listbox.Button
+                className="input bg-white"
+                placeholder="Select Type"
+              >
+                {getValues("type") ?? (
+                  <span className="text-gray-400">Select type</span>
+                )}
                 <div className="absolute right-0 top-0 mt-2 ">
                   <ChevronUpDownIcon
                     className="h-5 w-5 fill-indigo-500 "

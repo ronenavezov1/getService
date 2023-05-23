@@ -14,6 +14,12 @@ interface UserCallDetails {
   lastName: string;
 }
 
+export enum ExpectedArrivalTimeSlots {
+  Morning = "8:00-12:00",
+  Afternoon = "12:00-16:00",
+  Evening = "16:00-20:00",
+}
+
 export interface Call {
   id: string;
   customer: UserCallDetails;
@@ -22,7 +28,8 @@ export interface Call {
   description: string;
   city: string;
   address: string;
-  expectedArrival: Date;
+  expectedArrivalDate: Date;
+  expectedArrivalTime: ExpectedArrivalTimeSlots;
   creationTime: Date;
   status: CallStatus;
 }

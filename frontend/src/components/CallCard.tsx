@@ -74,7 +74,8 @@ const CallCard = ({
     profession,
     status,
     worker,
-    expectedArrival,
+    expectedArrivalDate,
+    expectedArrivalTime,
   } = call;
 
   /**
@@ -106,7 +107,12 @@ const CallCard = ({
           <div className="flex w-full flex-wrap justify-between gap-x-4 text-xs font-semibold ">
             <p>By: {`${customer.firstName} ${customer.lastName}`}</p>
             <p>For: {profession}</p>
-            <p>At: {`${city} ${address}`}</p>
+            <p>Location: {`${city} ${address}`}</p>
+            <p>
+              {`Date: ${new Date(expectedArrivalDate).toLocaleString("en-GB", {
+                dateStyle: "short",
+              })} ${expectedArrivalTime}`}
+            </p>
           </div>
         </div>
       </div>
@@ -119,10 +125,6 @@ const CallCard = ({
             <p className=" text-sm font-bold underline  ">Picked</p>
             <div className="flex flex-wrap justify-between text-xs font-semibold   ">
               <p>{`By: ${worker.firstName} ${worker.lastName}`}</p>
-              <p>{`At: ${new Date(expectedArrival).toLocaleString("en-GB", {
-                dateStyle: "short",
-                timeStyle: "short",
-              })}`}</p>
             </div>
           </div>
         )}
@@ -535,7 +537,6 @@ const PickAction = ({
   children,
 }: PickActionProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [expectedArrivalTime, setExpectedArrivalTime] = useState(new Date());
   const { data: session } = useSession();
   const { mutate, isIdle: isIdlePostPick } = usePostPick(
     session?.idToken ?? "",
@@ -606,19 +607,6 @@ const PickAction = ({
                   >
                     Pick call
                   </Dialog.Title>
-
-                  <div className="mt-4">
-                    <DatePicker
-                      selected={expectedArrivalTime}
-                      onChange={(date: Date) => setExpectedArrivalTime(date)}
-                      showTimeSelect
-                      timeIntervals={30}
-                      minDate={new Date()}
-                      dateFormat="dd/MM/yyyy HH:mm aa"
-                      preventOpenOnFocus={true}
-                      className="rounded-md text-center shadow-md"
-                    />
-                  </div>
 
                   <div className="mt-4 flex justify-center gap-2 text-white">
                     <button

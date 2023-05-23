@@ -1,5 +1,9 @@
 import { Combobox, Transition } from "@headlessui/react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import {
+  CheckIcon,
+  ChevronUpDownIcon,
+  XMarkIcon,
+} from "@heroicons/react/20/solid";
 import { ErrorMessage } from "@hookform/error-message";
 import { useSession } from "next-auth/react";
 import { Fragment, type FC, useState } from "react";
@@ -117,8 +121,12 @@ export const ProfessionInputMultiple: FC = () => {
     control,
     formState: { errors },
     getValues,
+    setValue,
+    watch,
   } = useFormContext();
-  const { data: professions } = useGetProfessions(session?.idToken ?? "");
+  const { data: professions, isFetching } = useGetProfessions(
+    session?.idToken ?? ""
+  );
   const [query, setQuery] = useState("");
 
   const filteredProfessions =
@@ -136,7 +144,7 @@ export const ProfessionInputMultiple: FC = () => {
         render={({ field: { onChange } }) => (
           <Combobox
             onChange={onChange}
-            defaultValue={getValues("profession") as string}
+            value={watch("profession") ?? []}
             multiple
           >
             <Combobox.Label className={"label"}>profession</Combobox.Label>
@@ -144,13 +152,13 @@ export const ProfessionInputMultiple: FC = () => {
               <Combobox.Input
                 placeholder="Select Profession"
                 className="input"
-                displayValue={(value: string[]) => value.join(", ")}
+                // displayValue={(value: string[]) => value.join(", ")}
                 onChange={(e) => {
                   setQuery(e.target.value);
                 }}
               />
 
-              <Combobox.Button className="absolute right-0  h-full pr-2 ">
+              <Combobox.Button className="absolute right-0 top-2 pr-2 ">
                 <ChevronUpDownIcon
                   className="h-5 w-5 fill-indigo-500 "
                   aria-hidden="true"
@@ -165,6 +173,11 @@ export const ProfessionInputMultiple: FC = () => {
                 afterLeave={() => setQuery("")}
               >
                 <Combobox.Options className="comboboxOptions ">
+                  {isFetching && (
+                    <div className=" cursor-default select-none py-2 px-4 text-gray-700">
+                      Loading professions...
+                    </div>
+                  )}
                   {filteredProfessions?.length === 0 ? (
                     <div className=" cursor-default select-none py-2 px-4 text-gray-700">
                       Nothing found.
@@ -207,6 +220,8 @@ export const ProfessionInputMultiple: FC = () => {
         )}
       />
 
+      <SelectProfession />
+
       <ErrorMessage
         errors={errors}
         name="profession"
@@ -214,6 +229,38 @@ export const ProfessionInputMultiple: FC = () => {
           <p className=" pt-1 text-xs text-red-600">{message}</p>
         )}
       />
+    </>
+  );
+};
+
+const SelectProfession: FC = () => {
+  const { getValues, setValue, watch } = useFormContext();
+
+  return (
+    <>
+      {watch("profession")?.length > 0 && (
+        <div className="flex flex-col gap-2 ">
+          <span className="label">Selected professions:</span>
+          {watch("profession").map((val: string) => (
+            <div className="flex gap-2  px-4 marker:text-indigo-600" key={val}>
+              <li>{val}</li>
+              <button
+                onClick={() => {
+                  setValue(
+                    "profession",
+                    getValues("profession").filter((v: string) => v !== val)
+                  );
+                }}
+              >
+                <XMarkIcon
+                  className="h-5 w-5 fill-red-500"
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 };

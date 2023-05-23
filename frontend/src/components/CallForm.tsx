@@ -4,6 +4,7 @@ import {
   type SubmitHandler,
   useForm,
   useFormContext,
+  Controller,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type FC } from "react";
@@ -12,27 +13,28 @@ import { CityInput } from "./Inputs/CityInput";
 import { useSession } from "next-auth/react";
 import { useGetUserByIdToken } from "~/api/user";
 import { useRouter } from "next/router";
-import { type Call, useCreateCall, usePutCall } from "~/api/call";
+import {
+  type Call,
+  useCreateCall,
+  usePutCall,
+  ExpectedArrivalTimeSlots,
+} from "~/api/call";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { MessageCard } from "./MessageCards";
 import ProfessionInput from "./Inputs/ProfessionInput";
 import DatePicker from "react-datepicker";
-
-enum ArrivalTimeSlots {
-  Morning = "[8:00 -12:00]",
-  Afternoon = "[12:00 - 16:00]",
-  Evening = "[16:00 - 20:00]",
-}
+import { Listbox } from "@headlessui/react";
+import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 const callSchema = z.object({
   customerId: z.string().optional(),
-  profession: z.string().min(1, { message: "Profession is required" }),
-  description: z.string().min(1, { message: "Description is required" }),
-  city: z.string().min(1, { message: "City is required" }),
-  address: z.string().min(1, { message: "Address is required" }),
-  expectedArrivalDate: z.date(),
-  // expectedArrivalTime: z.nativeEnum(ArrivalTimeSlots),
+  profession: z.string().min(1, { message: "Required" }),
+  description: z.string().min(1, { message: "Required" }),
+  city: z.string().min(1, { message: "Required" }),
+  address: z.string().min(1, { message: "Required" }),
+  expectedArrivalDate: z.coerce.date(),
+  expectedArrivalTime: z.nativeEnum(ExpectedArrivalTimeSlots),
 });
 
 export type callCreateFormSchema = z.infer<typeof callSchema>;
@@ -100,6 +102,11 @@ export const CreateCallForm: FC = () => {
             </div>
           </div>
 
+          <div className="flex justify-between gap-2">
+            <ExpectedArrivalDateInput />
+            <ExpectedArrivalTimeInput />
+          </div>
+
           <input
             className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
             disabled={isSubmitting}
@@ -111,31 +118,122 @@ export const CreateCallForm: FC = () => {
   );
 };
 
-const DateInput: FC = () => {
+const ExpectedArrivalDateInput: FC = () => {
   const {
-    setValue,
-    getValues,
+    control,
+    watch,
     formState: { errors },
   } = useFormContext<callCreateFormSchema>();
   return (
-    <>
-      <DatePicker
-        selected={getValues("expectedArrivalDate")}
-        onChange={(date: Date) => setValue("expectedArrivalDate", date)}
-        minDate={new Date()}
-        dateFormat="dd/MM/yyyy"
-        preventOpenOnFocus={true}
-        className="rounded-md text-center shadow-md"
+    <div className="w-full">
+      <Controller
+        control={control}
+        name="expectedArrivalDate"
+        render={({ field: { onChange } }) => (
+          <>
+            <label htmlFor="expectedArrivalDate" className="label">
+              Arrival Date
+            </label>
+            <div className="relative mt-1 w-full cursor-default ">
+              <DatePicker
+                id="expectedArrivalDate"
+                selected={watch("expectedArrivalDate")}
+                placeholderText="Select Date"
+                onChange={onChange}
+                minDate={new Date()}
+                dateFormat="dd/MM/yyyy"
+                preventOpenOnFocus={true}
+                className="input text-center"
+              />
+              <label
+                htmlFor="expectedArrivalDate"
+                className="absolute right-0 top-0 mt-2 "
+              >
+                <ChevronUpDownIcon
+                  className="h-5 w-5 fill-indigo-500 "
+                  aria-hidden="true"
+                />
+              </label>
+            </div>
+          </>
+        )}
       />
-    </>
+      <ErrorMessage
+        errors={errors}
+        name="expectedArrivalDate"
+        render={({ message }) => (
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
+        )}
+      />
+    </div>
   );
 };
 
-const TimeIntervalsInput = () => {
+const ExpectedArrivalTimeInput = () => {
+  const {
+    control,
+    formState: { errors },
+    getValues,
+  } = useFormContext();
+
+  const options = Object.values(ExpectedArrivalTimeSlots).map((value) => (
+    <Listbox.Option
+      key={value}
+      value={value}
+      className={({ active }) =>
+        `  cursor-default select-none py-2 pl-10 pr-4 ${
+          active ? "bg-blue-500 text-white" : "text-gray-900"
+        }`
+      }
+    >
+      {value}
+    </Listbox.Option>
+  ));
+
   return (
-    <>
-      <span>time intervalsS</span>
-    </>
+    <div className="w-full ">
+      <Controller
+        control={control}
+        name="expectedArrivalTime"
+        render={({ field: { onChange } }) => (
+          <Listbox
+            onChange={onChange}
+            as={"div"}
+            className="w-full"
+            defaultValue={getValues("expectedArrivalTime") ?? "Select time"}
+          >
+            <Listbox.Label className="label ">Arrival Time</Listbox.Label>
+            <div className="relative mt-1 w-full  cursor-default ">
+              <Listbox.Button
+                className="input bg-white"
+                placeholder="Select Time"
+              >
+                {getValues("expectedArrivalTime") ?? (
+                  <span className="text-gray-400">Select Time</span>
+                )}
+                <div className="absolute right-0 top-0 mt-2 ">
+                  <ChevronUpDownIcon
+                    className="h-5 w-5 fill-indigo-500 "
+                    aria-hidden="true"
+                  />
+                </div>
+              </Listbox.Button>
+              <Listbox.Options className="comboboxOptions ">
+                {options}
+              </Listbox.Options>
+            </div>
+          </Listbox>
+        )}
+      />
+
+      <ErrorMessage
+        errors={errors}
+        name="expectedArrivalTime"
+        render={({ message }) => (
+          <p className=" pt-1 text-xs text-red-600">{message}</p>
+        )}
+      />
+    </div>
   );
 };
 
@@ -162,6 +260,8 @@ export const EditCallForm: FC<EditCallFormProps> = ({
       city: call.city,
       description: call.description,
       profession: call.profession,
+      expectedArrivalTime: call.expectedArrivalTime,
+      expectedArrivalDate: new Date(call.expectedArrivalDate),
     },
   });
 
@@ -202,6 +302,11 @@ export const EditCallForm: FC<EditCallFormProps> = ({
             <div>
               <CityInput />
             </div>
+          </div>
+
+          <div className="flex justify-between gap-2">
+            <ExpectedArrivalDateInput />
+            <ExpectedArrivalTimeInput />
           </div>
 
           <input
