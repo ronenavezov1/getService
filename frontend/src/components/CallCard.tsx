@@ -1,4 +1,3 @@
-import DatePicker from "react-datepicker";
 import {
   BriefcaseIcon,
   CheckCircleIcon,
@@ -22,7 +21,6 @@ import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { usePostPick } from "~/api/pick";
 import { EditCallForm } from "./CallForm";
-import { on } from "events";
 
 enum StatusColorButton {
   "new" = "bg-zinc-500 hover:bg-zinc-600",
@@ -458,7 +456,7 @@ const DeleteActionBtn = ({
   isFetchingCalls,
   children,
 }: DeleteActionProps) => {
-  const { push, basePath } = useRouter();
+  const { push } = useRouter();
   const { data: session } = useSession();
   const { mutate, isIdle: deleteBtnIsIdle } = useDeleteCall(
     session?.idToken ?? ""

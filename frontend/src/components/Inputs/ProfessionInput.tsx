@@ -142,7 +142,7 @@ export const ProfessionInputMultiple: FC = () => {
         render={({ field: { onChange } }) => (
           <Combobox
             onChange={onChange}
-            value={watch("profession") ?? []}
+            value={(watch("profession") as string[]) ?? []}
             multiple
           >
             <Combobox.Label className={"label"}>profession</Combobox.Label>
@@ -234,19 +234,25 @@ export const ProfessionInputMultiple: FC = () => {
 const SelectProfession: FC = () => {
   const { getValues, setValue, watch } = useFormContext();
 
+  const currentProfessions = watch("profession") as string[];
+
   return (
     <>
-      {watch("profession")?.length > 0 && (
+      {currentProfessions?.length > 0 && (
         <div className="flex flex-col gap-2 ">
           <span className="label">Selected professions:</span>
-          {watch("profession").map((val: string) => (
+          {currentProfessions.map((val: string) => (
             <div className="flex gap-2  px-4 marker:text-indigo-600" key={val}>
               <li>{val}</li>
               <button
                 onClick={() => {
+                  const currentProfessions = getValues(
+                    "profession"
+                  ) as string[];
+
                   setValue(
                     "profession",
-                    getValues("profession").filter((v: string) => v !== val)
+                    currentProfessions.filter((v: string) => v !== val)
                   );
                 }}
               >

@@ -200,7 +200,9 @@ const ExpectedArrivalTimeInput = () => {
             onChange={onChange}
             as={"div"}
             className="w-full"
-            defaultValue={getValues("expectedArrivalTime") ?? "Select time"}
+            defaultValue={
+              (getValues("expectedArrivalTime") as string) ?? "Select time"
+            }
           >
             <Listbox.Label className="label ">Arrival Time</Listbox.Label>
             <div className="relative mt-1 w-full  cursor-default ">
