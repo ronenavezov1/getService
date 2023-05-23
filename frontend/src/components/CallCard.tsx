@@ -478,7 +478,7 @@ const DeleteActionBtn = ({
             case "removed":
               // toast has been removed
               void queryClient.invalidateQueries(["call"]);
-              void push(`${basePath}${BASE_CALL_API_URL}`);
+              void push(`/${BASE_CALL_API_URL}`);
               break;
           }
         });

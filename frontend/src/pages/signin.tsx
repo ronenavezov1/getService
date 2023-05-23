@@ -17,8 +17,7 @@ const SignIn: NextPage<
           Welcome to Get-Service
         </h2>
         <h2 className=" text-lg leading-none text-white">
-          Your One-Stop Home Services Solution! Experience hassle-free and
-          reliable home services right a
+          Your One-Stop Home Services Solution!
         </h2>
         <h2 className=" leading-none text-white">
           Experience hassle-free and reliable home services right at
