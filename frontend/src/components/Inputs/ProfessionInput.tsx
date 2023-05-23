@@ -120,8 +120,6 @@ export const ProfessionInputMultiple: FC = () => {
   const {
     control,
     formState: { errors },
-    getValues,
-    setValue,
     watch,
   } = useFormContext();
   const { data: professions, isFetching } = useGetProfessions(
