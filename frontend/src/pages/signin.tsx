@@ -13,7 +13,7 @@ const SignIn: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ providers }) => {
   return (
-    <div className="flex min-h-screen  w-screen flex-col items-center justify-center gap-4 p-2  ">
+    <div className="flex min-h-screen   flex-col items-center justify-center gap-4 p-2  ">
       <div className="flex flex-col gap-2 text-center">
         <h2 className="text-3xl font-bold  leading-none text-yellow-400 ">
           Welcome to Get-Service
@@ -27,7 +27,11 @@ const SignIn: NextPage<
         </h2>
       </div>
       <div>
-        <Lottie animationData={builderAnimation} loop={true} />
+        <Lottie
+          animationData={builderAnimation}
+          loop={true}
+          className="h-96 w-96"
+        />
       </div>
 
       <div className=" w-full max-w-lg p-2 ">
