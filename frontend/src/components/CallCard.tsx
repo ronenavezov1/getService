@@ -529,7 +529,7 @@ const DeleteActionBtn = ({
                       as="h3"
                       className="text-lg font-bold leading-6 text-indigo-500"
                     >
-                      Compete Call
+                      Delete Call
                     </Dialog.Title>
 
                     <div>
