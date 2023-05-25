@@ -33,9 +33,7 @@ const Users: NextPageWithAuth = () => {
   return (
     <div className="flex flex-col items-center gap-4 p-2">
       <UsersQuery setQueryParams={setUsersQueryParams} />
-      {usersQueryParams !== defaultEmptyUsersQueryParams && (
-        <QueryUsersResult queryParams={usersQueryParams} />
-      )}
+      <QueryUsersResult queryParams={usersQueryParams} />
     </div>
   );
 };
