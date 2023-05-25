@@ -17,7 +17,7 @@ import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import CityInput from "~/components/Inputs/CityInput";
 import ProfessionInput from "~/components/Inputs/ProfessionInput";
-import { MessageCard } from "~/components/MessageCards";
+import { MessageCardCentered } from "~/components/MessageCards";
 import { sortByDate } from "~/utils/sortUtils";
 
 const defualtPickQueryParams = {
@@ -143,7 +143,7 @@ const QueryCallsResult = ({ queryParams }: QueryCallsResultProps) => {
   });
 
   if (isLoadingUser || isLoadingCalls || status === "loading") {
-    return <MessageCard message="Loading calls..." />;
+    return <MessageCardCentered message="Loading calls..." />;
   }
 
   return (

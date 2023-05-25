@@ -3,7 +3,10 @@ import { useGetCall } from "~/api/call";
 import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
-import { MessageCard } from "~/components/MessageCards";
+import {
+  MessageCardCentered,
+  MessageCardCenteredNotFound,
+} from "~/components/MessageCards";
 import { sortByDate } from "~/utils/sortUtils";
 
 const Status: NextPageWithAuth = () => {
@@ -13,11 +16,11 @@ const Status: NextPageWithAuth = () => {
   );
 
   if (status == "loading" || isLoadingUser) {
-    return <MessageCard message={"Loading user"} />;
+    return <MessageCardCentered message={"Loading user"} />;
   }
 
   return (
-    <div className="flex flex-wrap items-stretch justify-center gap-4  px-2 py-4">
+    <>
       {user?.type == UserRole.CUSTOMER ? (
         <CustomerCalls />
       ) : user?.type === UserRole.WORKER ? (
@@ -25,7 +28,7 @@ const Status: NextPageWithAuth = () => {
       ) : user?.type === UserRole.ADMIN ? (
         <AdminCalls />
       ) : null}
-    </div>
+    </>
   );
 
   // return (
@@ -78,15 +81,15 @@ const WorkerCalls = () => {
   } = useGetCall(session?.idToken ?? "", { workerId: user?.id });
 
   if (isLoadingUser || status == "loading" || isLoadingworkerCalls) {
-    return <MessageCard message={"Loading worker calls"} />;
+    return <MessageCardCentered message={"Loading worker calls"} />;
   }
 
   if (workerCalls?.length === 0) {
-    return <MessageCard message={"No calls found"} />;
+    return <MessageCardCenteredNotFound message={"No calls found"} />;
   }
 
   return (
-    <>
+    <div className="flex flex-wrap items-stretch justify-center gap-4  px-2 py-4">
       {workerCalls &&
         user &&
         workerCalls
@@ -101,7 +104,7 @@ const WorkerCalls = () => {
               fullSize={false}
             />
           ))}
-    </>
+    </div>
   );
 };
 
@@ -118,15 +121,15 @@ const CustomerCalls = () => {
   } = useGetCall(session?.idToken ?? "", { customerId: user?.id });
 
   if (isLoadingUser || status == "loading" || isLoadingCustomerCalls) {
-    return <MessageCard message={"Loading customer calls"} />;
+    return <MessageCardCentered message={"Loading customer calls"} />;
   }
 
   if (customerCalls?.length === 0) {
-    return <MessageCard message={"No calls found"} />;
+    return <MessageCardCenteredNotFound message={"No calls found"} />;
   }
 
   return (
-    <>
+    <div className="flex flex-wrap items-stretch justify-center gap-4  px-2 py-4">
       {customerCalls &&
         user &&
         customerCalls
@@ -141,7 +144,7 @@ const CustomerCalls = () => {
               fullSize={false}
             />
           ))}
-    </>
+    </div>
   );
 };
 

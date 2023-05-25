@@ -21,7 +21,7 @@ import {
 } from "~/api/call";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { MessageCard } from "./MessageCards";
+import { MessageCardCentered } from "./MessageCards";
 import ProfessionInput from "./Inputs/ProfessionInput";
 import DatePicker from "react-datepicker";
 import { Listbox } from "@headlessui/react";
@@ -57,7 +57,7 @@ export const CreateCallForm: FC = () => {
   } = formHook;
 
   if (isLoading || status === "loading") {
-    return <MessageCard message="loading" />;
+    return <MessageCardCentered message="loading" />;
   }
 
   const onCreateSubmit: SubmitHandler<callCreateFormSchema> = (data) => {
@@ -273,7 +273,7 @@ export const EditCallForm: FC<EditCallFormProps> = ({
   } = formHook;
 
   if (status === "loading") {
-    return <MessageCard message="Loading Call" />;
+    return <MessageCardCentered message="Loading Call" />;
   }
 
   const onSubmit: SubmitHandler<callCreateFormSchema> = (data) => {
