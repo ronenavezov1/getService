@@ -12,7 +12,10 @@ import {
 import { z } from "zod";
 import { useGetUsers } from "~/api/users";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
-import { MessageCardCentered } from "~/components/MessageCards";
+import {
+  MessageCardCentered,
+  MessageCardCenteredNotFound,
+} from "~/components/MessageCards";
 import UserCard from "~/components/UserCard";
 
 const UsersQuerySchema = z.object({
@@ -141,6 +144,10 @@ const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
 
   if (isLoadingUsers || status === "loading") {
     return <MessageCardCentered message="Loading users..." />;
+  }
+
+  if (!users || users.length === 0) {
+    return <MessageCardCenteredNotFound message="No users found" />;
   }
 
   return (
