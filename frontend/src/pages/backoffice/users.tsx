@@ -11,9 +11,11 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { useGetUsers } from "~/api/users";
-// import { useGetUsers } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
-import { MessageCard } from "~/components/MessageCards";
+import {
+  MessageCardCentered,
+  MessageCardCenteredNotFound,
+} from "~/components/MessageCards";
 import UserCard from "~/components/UserCard";
 
 const UsersQuerySchema = z.object({
@@ -34,9 +36,7 @@ const Users: NextPageWithAuth = () => {
   return (
     <div className="flex flex-col items-center gap-4 p-2">
       <UsersQuery setQueryParams={setUsersQueryParams} />
-      {usersQueryParams !== defaultEmptyUsersQueryParams && (
-        <QueryUsersResult queryParams={usersQueryParams} />
-      )}
+      <QueryUsersResult queryParams={usersQueryParams} />
     </div>
   );
 };
@@ -143,7 +143,11 @@ const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
   });
 
   if (isLoadingUsers || status === "loading") {
-    return <MessageCard message="Loading users..." />;
+    return <MessageCardCentered message="Loading users..." />;
+  }
+
+  if (!users || users.length === 0) {
+    return <MessageCardCenteredNotFound message="No users found" />;
   }
 
   return (

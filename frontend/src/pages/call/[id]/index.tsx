@@ -4,7 +4,7 @@ import { useGetCall } from "~/api/call";
 import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
-import { MessageCard } from "~/components/MessageCards";
+import { MessageCardCentered } from "~/components/MessageCards";
 
 interface CallIndexProps {
   id: string;
@@ -25,7 +25,7 @@ const CallIndex: NextPageWithAuth<CallIndexProps> = ({ id }) => {
   });
 
   if (isLoadingUser || status == "loading" || isLoading) {
-    return <MessageCard message={"Loading call"} />;
+    return <MessageCardCentered message={"Loading call"} />;
   }
 
   const call = calls?.[0];

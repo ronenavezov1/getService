@@ -529,7 +529,7 @@ const DeleteActionBtn = ({
                       as="h3"
                       className="text-lg font-bold leading-6 text-indigo-500"
                     >
-                      Compete Call
+                      Delete Call
                     </Dialog.Title>
 
                     <div>
@@ -542,7 +542,7 @@ const DeleteActionBtn = ({
                         className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white  hover:bg-red-600 focus:outline-none"
                         onClick={onDeleteCallClick}
                       >
-                        Delete Call
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -848,7 +848,7 @@ const PickAction = ({
                       as="h3"
                       className="text-2xl font-bold leading-6 text-indigo-500 "
                     >
-                      Call
+                      Pick call
                     </Dialog.Title>
 
                     <div>
