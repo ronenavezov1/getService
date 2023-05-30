@@ -37,6 +37,7 @@ public class Queries {
     public static final String UPDATE_USER_APPROVED = "UPDATE public.user SET is_approved = ? WHERE user_id = ?::uuid AND type in ('worker', 'customer')";
 
     // WORKER QUERIES
+    public static final String SELECT_WORKER        = "SELECT * FROM public.worker WHERE worker_id = ?::uuid";
     public static final String INSERT_WORKER        = "INSERT INTO public.worker VALUES (?::uuid,?)";
     public static final String UPDATE_WORKER        = "UPDATE public.worker SET profession = ? WHERE worker_id = ?::uuid";
 

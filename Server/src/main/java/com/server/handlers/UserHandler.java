@@ -23,13 +23,21 @@ public class UserHandler {
     public static User getUser(String idToken) {
         try {
             String email = GoogleApiHandler.getEmail(idToken);
-            return QueryHandler.getUser(email);
+            User user = QueryHandler.getUser(email);
+            if (user.getType().equals(User.WORKER)) {
+                user = new Worker(
+                        user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getAddress(), user.getCity(),
+                        user.getPhoneNumber(), user.getType(), user.isApproved(), user.isOnBoardingCompleted(),
+                        QueryHandler.getWorkerProfession(user.getId().toString())
+                );
+            }
+            return user;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void createUser(String idToken, String body) throws InvalidUserException {
+    public static User createUser(String idToken, String body) throws InvalidUserException {
         try {
             //create and check what missing
             JsonArray missing = new JsonArray();
@@ -105,6 +113,8 @@ public class UserHandler {
                     }
                 }
             }
+
+            return user;
 
         } catch (GeneralSecurityException | IOException | SQLException e) {
             throw new InvalidUserException(e.getMessage());

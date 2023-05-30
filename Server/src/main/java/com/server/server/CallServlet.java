@@ -2,6 +2,7 @@ package com.server.server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.server.EmailSender;
 import com.server.exceptions.InvalidCallException;
 import com.server.exceptions.InvalidUserException;
 import com.server.handlers.Authentication;
@@ -20,8 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Arrays;
+
+import static com.server.utils.Constants.*;
+import static com.server.utils.Constants.DONE_MSG;
 
 @WebServlet(name = "CallServlet", value = "/call")
 public class CallServlet extends HttpServlet {
@@ -150,6 +152,11 @@ public class CallServlet extends HttpServlet {
         try {
             if((user.getType().equals(User.CUSTOMER))) {
                 CallHandler.updateCall(call.getCallId().toString(), call.getCity(), call.getProfession(), call.getDescription(), call.getAddress(), user.getId().toString(), call.getStatus(), (float) call.getRate(), call.getComment());
+                if (call.getStatus().equals(Call.CLOSE_CALL)) {
+                    EmailSender emailSender = EmailSender.getInstance();
+                    String msg = HI_MSG + user.getFirstName() + "," + DONE_MSG;
+                    emailSender.send(user.getEmail(), DONE_SUBJECT, msg);
+                }
             } else if(user.getType().equals(User.ADMIN)){
                 CallHandler.updateCall(call.getCallId().toString(), call.getCity(), call.getProfession(), call.getDescription(), call.getAddress(), User.ADMIN, null, 0, null);
             }else{

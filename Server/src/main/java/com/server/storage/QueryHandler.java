@@ -94,7 +94,9 @@ public class QueryHandler {
                     "FROM public.call\n" +
                     "WHERE starts_with(call_id::varchar, ?) and\n" +
                     "starts_with(user_id::varchar,?) and\n" +
-                    "((worker_id is NULL and ''=?) or (starts_with(worker_id::varchar, ?))) and (service in (select profession from worker where starts_with(worker_id::varchar, ?)) or starts_with('all', ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);\n" +
+                    "((worker_id is NULL and ''=?) or (starts_with(worker_id::varchar, ?))) and (service in (select profession from worker where starts_with(worker_id::varchar, ?)) " +
+                    "or starts_with('all', ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?) " +
+                    "ORDER BY creation_time;\n" +
                     " ", (statement)->{
                 statement.setString(1, callId);
                 statement.setString(2, customerId);
@@ -360,6 +362,21 @@ public class QueryHandler {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static List<String> getWorkerProfession(String id) throws SQLException {
+        List<String> professions = new ArrayList<>();
+        StorageManager.executeQuery(Queries.SELECT_WORKER,
+                (statement) -> {
+                    statement.setString(1, id);
+                },
+                (resultSet) -> {
+                    while (resultSet.next()) {
+                        professions.add(resultSet.getString("profession"));
+                    }
+
+                });
+        return professions;
     }
 
     // CITY
