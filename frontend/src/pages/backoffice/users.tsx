@@ -69,6 +69,8 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
     if (currentValues.lastName === "") unregister("lastName");
   };
 
+  const isDisabled = isSubmitting;
+
   return (
     <FormProvider {...formHook}>
       <Disclosure>
@@ -113,8 +115,8 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
                   </div>
 
                   <input
-                    className="w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500"
-                    disabled={isSubmitting}
+                    className="w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500 disabled:bg-yellow-500"
+                    disabled={isDisabled}
                     type="submit"
                     value="Search"
                   />

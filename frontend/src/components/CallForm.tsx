@@ -44,7 +44,9 @@ export const CreateCallForm: FC = () => {
   const { data: session, status } = useSession();
   const { data: user, isLoading } = useGetUserByIdToken(session?.idToken ?? "");
   const queryClient = useQueryClient();
-  const { mutate: mutateCreateCall } = useCreateCall(session?.idToken ?? "");
+  const { mutate: mutateCreateCall, isIdle } = useCreateCall(
+    session?.idToken ?? ""
+  );
 
   const formHook = useForm<callCreateFormSchema>({
     mode: "onChange",
@@ -94,8 +96,8 @@ export const CreateCallForm: FC = () => {
           </div>
 
           <input
-            className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
-            disabled={isSubmitting}
+            className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500 disabled:bg-yellow-500"
+            disabled={isSubmitting || !isIdle}
             type="submit"
           />
         </form>
@@ -238,7 +240,7 @@ export const EditCallForm: FC<EditCallFormProps> = ({
 }) => {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
-  const { mutate } = usePutCall(session?.idToken ?? "", call.id);
+  const { mutate, isIdle } = usePutCall(session?.idToken ?? "", call.id);
 
   const formHook = useForm<callCreateFormSchema>({
     mode: "onChange",
@@ -272,7 +274,7 @@ export const EditCallForm: FC<EditCallFormProps> = ({
     });
   };
 
-  const isDisabled = isSubmitting || isFetchingCalls;
+  const isDisabled = isSubmitting || isFetchingCalls || !isIdle;
 
   return (
     <>
@@ -298,7 +300,7 @@ export const EditCallForm: FC<EditCallFormProps> = ({
           </div>
 
           <input
-            className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
+            className="rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500 disabled:bg-yellow-500"
             disabled={isDisabled}
             type="submit"
           />
@@ -307,34 +309,6 @@ export const EditCallForm: FC<EditCallFormProps> = ({
     </>
   );
 };
-
-// const ProfessionInput: FC = () => {
-//   const {
-//     register,
-//     formState: { errors },
-//   } = useFormContext<callCreateFormSchema>();
-
-//   return (
-//     <div>
-//       <label htmlFor="profession" className="label capitalize">
-//         profession
-//       </label>
-//       <input
-//         className="input"
-//         {...register("profession")}
-//         type="text"
-//         id="profession"
-//       />
-//       <ErrorMessage
-//         errors={errors}
-//         name="profession"
-//         render={({ message }) => (
-//           <p className=" pt-1 text-xs text-red-600">{message}</p>
-//         )}
-//       />
-//     </div>
-//   );
-// };
 
 const DescriptionInput: FC = () => {
   const {

@@ -56,7 +56,7 @@ const CompleteDetails: FC = () => {
     session?.idToken ?? ""
   );
   const queryClient = useQueryClient();
-  const { mutate } = usePostUser(session?.idToken ?? "");
+  const { mutate, isIdle } = usePostUser(session?.idToken ?? "");
   const formHook = useForm<CompeleteDetailsFormSchemaType>({
     mode: "onChange",
     resolver: zodResolver(compeleteDetailsFormSchema),
@@ -91,6 +91,8 @@ const CompleteDetails: FC = () => {
     return null;
   }
 
+  const isDisabled = isSubmitting || !isIdle;
+
   return (
     <div className="bodyDiv ">
       <div className="grid justify-center gap-10 ">
@@ -115,8 +117,8 @@ const CompleteDetails: FC = () => {
             {userType === UserRole.WORKER && <ProfessionInputMultiple />}
 
             <input
-              className="mt-2 rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
-              disabled={isSubmitting}
+              className="mt-2 rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500 disabled:bg-yellow-500"
+              disabled={isDisabled}
               type="submit"
               value="Update profile"
             />
