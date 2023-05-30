@@ -63,23 +63,9 @@ export const CreateCallForm: FC = () => {
   const onCreateSubmit: SubmitHandler<callCreateFormSchema> = (data) => {
     mutateCreateCall(data, {
       onSuccess: () => {
-        toast.onChange((payload) => {
-          switch (payload.status) {
-            case "added":
-              // new toast added
-              break;
-            case "updated":
-              // toast updated
-              break;
-            case "removed":
-              // toast has been removed
-              void router.push("/call");
-              void queryClient.invalidateQueries(["call"]);
-              break;
-          }
-        });
-
         toast.success("Call created successfully");
+        void router.push("/call");
+        void queryClient.invalidateQueries(["call"]);
       },
     });
   };
