@@ -24,7 +24,7 @@ const CallIndex: NextPageWithAuth<CallIndexProps> = ({ id }) => {
     id: id,
   });
 
-  if (isLoadingUser || status == "loading" || isLoading) {
+  if (isLoadingUser || status == "loading" || isLoading || isFetching) {
     return <MessageCardCentered message={"Loading call"} />;
   }
 

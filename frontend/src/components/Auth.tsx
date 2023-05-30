@@ -41,11 +41,11 @@ const Auth = ({ children }: AuthProps) => {
   };
 
   if (status === "loading") {
-    return <MessageCardCentered message="Loading Session" />;
+    return <MessageCardCentered message="Loading Session..." />;
   }
 
   if (isLoadingUser) {
-    return <MessageCardCentered message="Loading User" />;
+    return <MessageCardCentered message="Loading User..." />;
   }
 
   if (!user) {
@@ -71,7 +71,7 @@ const Auth = ({ children }: AuthProps) => {
 
   // Type/Role check
   if (!requiredRoles.includes(user.type)) {
-    return <MessageCardCentered message="Unauthorized" />;
+    return <MessageCardCenteredXMark message="Unauthorized" />;
   }
 
   return (
