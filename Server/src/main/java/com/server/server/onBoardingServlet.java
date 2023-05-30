@@ -1,8 +1,10 @@
 package com.server.server;
 
+import com.server.EmailSender;
 import com.server.exceptions.InvalidUserException;
 import com.server.handlers.AuthorizationHandler;
 import com.server.handlers.UserHandler;
+import com.server.models.User;
 import com.server.utils.ErrorResponse;
 
 import javax.servlet.annotation.WebServlet;
@@ -11,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import static com.server.utils.Constants.*;
 
 @WebServlet(name = "onBoardingServlet", value = "/onBoarding")
 public class onBoardingServlet extends HttpServlet {
@@ -34,7 +38,12 @@ public class onBoardingServlet extends HttpServlet {
             sb.append(line);
         }
         try {
-            UserHandler.createUser(idToken, sb.toString());
+            User user = UserHandler.createUser(idToken, sb.toString());
+
+            EmailSender emailSender = EmailSender.getInstance();
+            String msg = HI_MSG + user.getFirstName() + "," + GREETING_MSG;
+            emailSender.send(user.getEmail(), GREETING_SUBJECT, msg);
+
         } catch (InvalidUserException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR));

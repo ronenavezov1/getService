@@ -16,11 +16,15 @@ public class Worker extends User {
     public Worker(UUID id, String email, String firstName, String lastName) {
         super(id, email, firstName, lastName);
     }
+    public Worker(UUID id, String email, String firstName, String lastName, String address, String city, long phoneNumber, String type, boolean isApproved,
+                  boolean isOnBoardingCompleted, List<String> profession) {
+        super(id, email, firstName, lastName, address, city, phoneNumber, type, isApproved, isOnBoardingCompleted);
+        this.profession = profession;
+    }
 
     public Worker(UUID id, String email, String firstName, String lastName, String address, String city, long phoneNumber, String type, boolean isApproved, boolean isOnBoardingCompleted,
                   String[] profession) {
-        super(id, email, firstName, lastName, address, city, phoneNumber, type, isApproved, isOnBoardingCompleted);
-        this.profession = new ArrayList<>(Arrays.asList(profession));
+        this(id, email, firstName, lastName, address, city, phoneNumber, type, isApproved, isOnBoardingCompleted, new ArrayList<>(Arrays.asList(profession)));
     }
 
     public List<String> getProfession() {

@@ -104,7 +104,7 @@ public class CallHandler {
             updatedCall.setStatus(Call.CLOSE_CALL);
             updatedCall.setComment(comment);
             if((rate < 1 || rate > 5) && rate != 0)
-                throw new InvalidCallException("rate mast be: 1 <= rate <= 5");
+                throw new InvalidCallException("rate must be: 1 <= rate <= 5");
             updatedCall.setRate(rate);
         }
         if(expectedArrivalDate != 0){

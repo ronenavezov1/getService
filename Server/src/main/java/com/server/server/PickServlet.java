@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-@WebServlet(name = "WorkerServlet", value = "/pick")
+@WebServlet(name = "PickServlet", value = "/pick")
 public class PickServlet extends HttpServlet {
 
     @Override
