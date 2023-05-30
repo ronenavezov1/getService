@@ -99,8 +99,8 @@ const CompleteDetails: FC = () => {
   }
 
   return (
-    <div className="bodyDiv">
-      <div className="grid justify-center gap-2 ">
+    <div className="bodyDiv ">
+      <div className="grid justify-center gap-10 ">
         <FormProvider {...formHook}>
           <Header />
           <form

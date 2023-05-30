@@ -3,9 +3,8 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import type { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { MessageCardCentered } from "./MessageCards";
+import { MessageCardCentered, MessageCardCenteredXMark } from "./MessageCards";
 import { useGetUserByIdToken } from "~/api/user";
-import { toast } from "react-toastify";
 
 //////////////////////////////////////////////// types
 export enum UserRole {
@@ -61,16 +60,10 @@ const Auth = ({ children }: AuthProps) => {
 
   // not approved
   if (!user.isApproved) {
-    toast.onChange((payload) => {
-      switch (payload.status) {
-        case "removed":
-          // toast has been removed
-          void signOut();
-          break;
-      }
-    });
-    toast.error("Your account is not approved yet");
-    return null;
+    void setTimeout(() => void signOut(), 3000);
+    return (
+      <MessageCardCenteredXMark message="User not approved, Logging out..." />
+    );
   }
 
   const pageAuth = children.type.auth;
