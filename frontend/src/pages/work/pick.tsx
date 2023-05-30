@@ -18,7 +18,6 @@ import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import CityInput from "~/components/Inputs/CityInput";
 import ProfessionInput from "~/components/Inputs/ProfessionInput";
-import { MessageCardCentered } from "~/components/MessageCards";
 import { sortByDate } from "~/utils/sortUtils";
 import toolsAnimation from "public/lottie/95851-tools.json";
 import noDataAnimation from "public/lottie/107420-no-data-loader.json";
