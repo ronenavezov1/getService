@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +30,9 @@ public class QueryHandler {
                         resultSet.getString(5),
                         resultSet.getString(6),
                         resultSet.getString(7),
-                        resultSet.getString(8)
+                        resultSet.getString(8),
+                        resultSet.getLong(9),
+                        resultSet.getString(10)
                         ));
             });
         } catch (SQLException e) {
@@ -50,7 +51,9 @@ public class QueryHandler {
                 statement.setString(5, call.getStatus());
                 statement.setDouble(6, call.getRate());
                 statement.setString(7, call.getComment());
-                statement.setString(8, call.getCallId().toString());
+                statement.setLong(8, call.getExpectedArrivalDate());
+                statement.setString(9, call.getExpectedArrivalTime());
+                statement.setString(10, call.getCallId().toString());
             });
     }
 
@@ -87,15 +90,19 @@ public class QueryHandler {
             return false;
         }
     }
-    public static String getCalls(String callId, String customerId, String workerId, String status, String city, String workerProfessions) {
+    public static String getCalls(String callId, String customerId, String workerId, String status, String city, String workerProfessions, String profession) {
         JSONArray jsonArray = new JSONArray();
         try{
-            StorageManager.executeQuery("SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival\n" +
+            StorageManager.executeQuery("SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival, expected_arrival_date\n" +
                     "FROM public.call\n" +
                     "WHERE starts_with(call_id::varchar, ?) and\n" +
                     "starts_with(user_id::varchar,?) and\n" +
-                    "((worker_id is NULL and ''=?) or (starts_with(worker_id::varchar, ?))) and (service in (select profession from worker where starts_with(worker_id::varchar, ?)) or starts_with('all', ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);\n" +
-                    " ", (statement)->{
+                    "((worker_id is NULL and ''=?) or (starts_with(worker_id::varchar, ?))) and\n" +
+                    " (service in (select profession from worker where starts_with(worker_id::varchar, ?)) or starts_with('all', ?)) and\n" +
+                    " starts_with(public.call.city, ?) and\n" +
+                    " starts_with( public.call.status, ?) and\n" +
+                    " starts_with( public.call.service, ?);"
+                    , (statement)->{
                 statement.setString(1, callId);
                 statement.setString(2, customerId);
                 statement.setString(3, workerId);
@@ -104,17 +111,15 @@ public class QueryHandler {
                 statement.setString(6, workerProfessions);
                 statement.setString(7, city);
                 statement.setString(8, status);
+                statement.setString(9, profession);
             }, (resultSet) -> {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("id", resultSet.getString(1));
 
                 User customer = getUser((UUID)resultSet.getObject(2));
                 JSONObject userObject = new JSONObject();
-                if(customer == null)
+                if(customer != null)
                 {
-                    userObject.put("id", "undefine");
-                    return;
-                }else {
                     userObject.put("id", customer.getId().toString());
                     userObject.put("firstName", customer.getFirstName());
                     userObject.put("lastName", customer.getLastName());
@@ -125,19 +130,18 @@ public class QueryHandler {
                 jsonObject.put("status", resultSet.getString(7));
                 jsonObject.put("address", resultSet.getString(9));
                 jsonObject.put("city", resultSet.getString(10));
+                jsonObject.put("expectedArrivalDate", Call.SIMPLE_DATE_FORMAT.format(new Date(resultSet.getLong(12))));
+                jsonObject.put("expectedArrivalTime", resultSet.getString(13));
                 jsonObject.put("creationTime", Call.SIMPLE_DATE_FORMAT.format(new Date(resultSet.getLong(11))));
                 if(resultSet.getString(7) != null && !resultSet.getString(7).equals(Call.OPEN_CALL)) {
                     User worker = getUser((UUID)resultSet.getObject(3));
                     JSONObject workerObject = new JSONObject();
-                    if(worker == null) {
-                        jsonObject.put("id", "undefine");
-                    }else {
+                    if (worker != null) {
                         workerObject.put("id", worker.getId().toString());
                         workerObject.put("firstName", worker.getFirstName());
                         workerObject.put("lastName", worker.getLastName());
                     }
                     jsonObject.put("worker", workerObject);
-                    jsonObject.put("expectedArrival", Call.SIMPLE_DATE_FORMAT.format(new Date(resultSet.getLong(12))));
                 }
                 if(resultSet.getString(7) != null && resultSet.getString(7).equals(Call.CLOSE_CALL)) {
                     jsonObject.put("rate", resultSet.getFloat(8));
@@ -163,6 +167,8 @@ public class QueryHandler {
                 statement.setString(7, call.getAddress());
                 statement.setString(8, call.getCity());
                 statement.setLong(9, call.getCreationTime());
+                statement.setLong(10, call.getExpectedArrivalDate());
+                statement.setString(11, call.getExpectedArrivalTime());
             });
         } catch (SQLException e) {
             e.printStackTrace();

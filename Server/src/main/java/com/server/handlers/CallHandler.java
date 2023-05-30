@@ -14,20 +14,20 @@ import java.util.List;
 import java.util.UUID;
 
 public class CallHandler {
-    public static String getCalls(User user, String callId, String status, String city, String customerId, String workerId){
+    public static String getCalls(User user, String callId, String status, String city, String customerId, String workerId, String profession){
         String responseString = null;
-        if(status.equals(Call.OPEN_CALL) && user.getType().equals(User.WORKER)){//public calls
-            responseString = QueryHandler.getCalls(callId, customerId, workerId, Call.OPEN_CALL, city, user.getId().toString());
+        if((status.equals(Call.OPEN_CALL) || !Authentication.isNullOrEmpty(callId)) && user.getType().equals(User.WORKER)){//public calls
+            responseString = QueryHandler.getCalls(callId, customerId, workerId, Call.OPEN_CALL, city, user.getId().toString(), profession);
         } else {//private calls
             switch (user.getType()) {
                 case User.WORKER:
-                    responseString = QueryHandler.getCalls(callId, customerId, user.getId().toString(), status, city, user.getId().toString());
+                    responseString = QueryHandler.getCalls(callId, customerId, user.getId().toString(), status, city, user.getId().toString(), profession);
                     break;
                 case User.CUSTOMER:
-                    responseString = QueryHandler.getCalls(callId, user.getId().toString(), workerId, status, city, "all");
+                    responseString = QueryHandler.getCalls(callId, user.getId().toString(), workerId, status, city, "all", profession);
                     break;
                 case User.ADMIN:
-                    responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city, "all");
+                    responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city, "all", profession);
                     break;
             }
         }
@@ -60,6 +60,14 @@ public class CallHandler {
             ifMissing = true;
             missing.add("missing profession");
         }
+        if(call.getExpectedArrivalDate() == 0){
+            ifMissing = true;
+            missing.add("missing date");
+        }
+        if(Authentication.isNullOrEmpty(call.getExpectedArrivalTime())){
+            ifMissing = true;
+            missing.add("missing time");
+        }
         if(ifMissing) {
             StringBuilder msg = new StringBuilder();
             for (int i = 0; i < missing.size(); i++) {
@@ -75,13 +83,15 @@ public class CallHandler {
             throw new InvalidCallException("oops something goes wrong");
     }
 
-    public static void updateCall(String callId, String city, String profession, String description, String address, String userId, String status, float rate, String comment) throws InvalidCallException{
+    public static void updateCall(String callId, String city, String profession, String description, String address, String userId, String status, float rate, String comment, long expectedArrivalDate, String expectedArrivalTime) throws InvalidCallException{
         Call updatedCall = QueryHandler.getCall(callId);
         if(updatedCall == null)
             throw new InvalidCallException("call not exist");
         else if (updatedCall.getCustomerId() == null || (!updatedCall.getCustomerId().toString().equals(userId) && !userId.equals(User.ADMIN))) {
             throw new InvalidCallException("you not allow to edit this call");
         }
+        if(!Authentication.isNullOrEmpty(expectedArrivalTime))
+            updatedCall.setExpectedArrivalTime(expectedArrivalTime);
         if(!Authentication.isNullOrEmpty(city))
             updatedCall.setCity(city);
         if(!Authentication.isNullOrEmpty(profession))
@@ -96,6 +106,9 @@ public class CallHandler {
             if((rate < 1 || rate > 5) && rate != 0)
                 throw new InvalidCallException("rate mast be: 1 <= rate <= 5");
             updatedCall.setRate(rate);
+        }
+        if(expectedArrivalDate != 0){
+            updatedCall.setExpectedArrivalDate(expectedArrivalDate);
         }
         try{
             QueryHandler.updateCall(updatedCall);

@@ -22,9 +22,10 @@ public class Call {
     private String address;
     private String city;
     private long creationTime;
-    private long expectedArrival;
+    private long expectedArrivalDate;
+    private String expectedArrivalTime;
 
-    public Call(UUID callId, UUID customerId, UUID workerId, String profession, String description, String address, String city, String status) {
+    public Call(UUID callId, UUID customerId, UUID workerId, String profession, String description, String address, String city, String status, long expectedArrivalDate, String expectedArrivalTime) {
         this.callId = callId;
         this.customerId = customerId;
         this.workerId = workerId;
@@ -34,6 +35,16 @@ public class Call {
         this.city = city;
         this.creationTime = System.currentTimeMillis();
         this.status = status;
+        this.expectedArrivalDate = expectedArrivalDate;
+        this.expectedArrivalTime = expectedArrivalTime;
+    }
+
+    public String getExpectedArrivalTime() {
+        return expectedArrivalTime;
+    }
+
+    public void setExpectedArrivalTime(String expectedArrivalTime) {
+        this.expectedArrivalTime = expectedArrivalTime;
     }
 
     public UUID getCallId() {
@@ -124,12 +135,12 @@ public class Call {
         this.creationTime = creationTime;
     }
 
-    public long getExpectedArrival() {
-        return expectedArrival;
+    public long getExpectedArrivalDate() {
+        return expectedArrivalDate;
     }
 
-    public void setExpectedArrival(long expectedArrival) {
-        this.expectedArrival = expectedArrival;
+    public void setExpectedArrivalDate(long expectedArrivalDate) {
+        this.expectedArrivalDate = expectedArrivalDate;
     }
 
     @Override

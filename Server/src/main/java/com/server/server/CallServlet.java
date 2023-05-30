@@ -1,5 +1,6 @@
 package com.server.server;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.server.exceptions.InvalidCallException;
@@ -21,7 +22,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Date;
 
 @WebServlet(name = "CallServlet", value = "/call")
 public class CallServlet extends HttpServlet {
@@ -53,7 +57,10 @@ public class CallServlet extends HttpServlet {
         String workerId = request.getParameter("workerId");
         String status = request.getParameter("status");
         String city = request.getParameter("city");
+        String profession = request.getParameter("profession");
 
+        if (profession == null)
+            profession = "";
         if(status == null)
             status = "";
         if(city == null)
@@ -66,7 +73,7 @@ public class CallServlet extends HttpServlet {
             callId = "";
         }
 
-        String responseString = CallHandler.getCalls(user, callId, status, city, customerId, workerId);
+        String responseString = CallHandler.getCalls(user, callId, status, city, customerId, workerId, profession);
 
         if(responseString != null)
             response.getWriter().print(responseString);
@@ -143,15 +150,25 @@ public class CallServlet extends HttpServlet {
         try {
             call.setStatus(jsonObject.getString("status"));
         } catch (JSONException ignored){}
+        try {
+            String expectedArrivalString = jsonObject.getString("expectedArrivalDate");
+            if (!Strings.isNullOrEmpty(expectedArrivalString)) {
+                call.setExpectedArrivalDate(Call.SIMPLE_DATE_FORMAT.parse(expectedArrivalString).getTime());
+            }
+        } catch (JSONException | ParseException ignored){}
+        try {
+            call.setExpectedArrivalTime(jsonObject.getString("expectedArrivalTime"));
+        } catch (JSONException ignored){}
+
         try{
             call.setRate(Double.parseDouble(jsonObject.getString("rate")));
         }catch (NumberFormatException | JSONException ignored){}
         //update by user's permissions
         try {
             if((user.getType().equals(User.CUSTOMER))) {
-                CallHandler.updateCall(call.getCallId().toString(), call.getCity(), call.getProfession(), call.getDescription(), call.getAddress(), user.getId().toString(), call.getStatus(), (float) call.getRate(), call.getComment());
+                CallHandler.updateCall(call.getCallId().toString(), call.getCity(), call.getProfession(), call.getDescription(), call.getAddress(), user.getId().toString(), call.getStatus(), (float) call.getRate(), call.getComment(), call.getExpectedArrivalDate(), call.getExpectedArrivalTime());
             } else if(user.getType().equals(User.ADMIN)){
-                CallHandler.updateCall(call.getCallId().toString(), call.getCity(), call.getProfession(), call.getDescription(), call.getAddress(), User.ADMIN, null, 0, null);
+                CallHandler.updateCall(call.getCallId().toString(), call.getCity(), call.getProfession(), call.getDescription(), call.getAddress(), User.ADMIN, null, 0, null, 0, null);
             }else{
                 throw new InvalidCallException("you not allow to edit this call");
             }

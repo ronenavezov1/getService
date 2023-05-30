@@ -3,11 +3,11 @@ package com.server.storage;
 public class Queries {
 
     // CALL QUERIES
-    public static final String GET_CALL = "SELECT call_id, user_id, worker_id, service, description, address, city, status\n" +
+    public static final String GET_CALL = "SELECT call_id, user_id, worker_id, service, description, address, city, status, expected_arrival, expected_arrival_time\n" +
             "\tFROM public.call" +
             "\tWHERE public.call.call_id = ?::uuid;";
     public static final String UPDATE_CALL = "UPDATE public.call\n" +
-            "\tSET service=?, description=?, address=?, city=?, status=?, rate=?, comment=?\n" +
+            "\tSET service=?, description=?, address=?, city=?, status=?, rate=?, comment=?, expected_arrival=?, expected_arrival_time=?\n" +
             "\tWHERE call_id=?::uuid;";
 
     public static final String UPDATE_PICK_CALL = "UPDATE public.call " +
@@ -19,8 +19,8 @@ public class Queries {
             "FROM public.call\n" +
             "WHERE starts_with(call_id::varchar, ?) and starts_with(user_id::varchar,?) and ((worker_id is NULL and ''=?)or starts_with(worker_id::varchar, ?)) and starts_with(public.call.city, ?) and starts_with( public.call.status, ?);";
     public static final String CREATE_CALL = "INSERT INTO public.call(\n" +
-            "\tcall_id, user_id, service, description, comment, status, address, city, creation_time)\n" +
-            "\tVALUES (?::uuid,?::uuid,?,?,?,?,?,?,?);";
+            "\tcall_id, user_id, service, description, comment, status, address, city, creation_time, expected_arrival, expected_arrival_time)\n" +
+            "\tVALUES (?::uuid,?::uuid,?,?,?,?,?,?,?,?,?);";
 
     // USER QUERIES
     public static final String SELECT_USER_BY_EMAIL = "SELECT * FROM public.user WHERE \"user\".email = ?";
