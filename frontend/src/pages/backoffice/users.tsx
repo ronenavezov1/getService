@@ -12,11 +12,10 @@ import {
 import { z } from "zod";
 import { useGetUsers } from "~/api/users";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
-import {
-  MessageCardCentered,
-  MessageCardCenteredNotFound,
-} from "~/components/MessageCards";
 import UserCard from "~/components/UserCard";
+import toolsAnimation from "public/lottie/95851-tools.json";
+import noDataAnimation from "public/lottie/107420-no-data-loader.json";
+import Lottie from "lottie-react";
 
 const UsersQuerySchema = z.object({
   firstName: z.string().optional(),
@@ -34,7 +33,7 @@ const Users: NextPageWithAuth = () => {
     useState<UsersQuerySchemaType>(defaultEmptyUsersQueryParams);
 
   return (
-    <div className="flex flex-col items-center gap-4 p-2">
+    <div className="flex flex-col items-center gap-2 p-2">
       <UsersQuery setQueryParams={setUsersQueryParams} />
       <QueryUsersResult queryParams={usersQueryParams} />
     </div>
@@ -70,6 +69,8 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
     if (currentValues.lastName === "") unregister("lastName");
   };
 
+  const isDisabled = isSubmitting;
+
   return (
     <FormProvider {...formHook}>
       <Disclosure>
@@ -89,37 +90,39 @@ const UsersQuery = ({ setQueryParams }: UsersQueryProps) => {
                 className={`${open ? "-rotate-90 transform" : ""}   h-5 `}
               />
             </Disclosure.Button>
-            <Disclosure.Panel className="w-full  max-w-2xl text-gray-500">
-              <form
-                onSubmit={handleSubmit(() => {
-                  unRegisterEmptyNames();
-                  onSubmit(formHook.getValues());
-                  close();
-                })}
-                className="card grid gap-2"
-              >
-                <div className=" flex flex-wrap gap-1 ">
-                  <div className="grow">
-                    <FirstNameInput />
+            <div className="relative flex h-full  w-full justify-center">
+              <Disclosure.Panel className="absolute z-10 w-full  max-w-2xl text-gray-500  shadow-2xl">
+                <form
+                  onSubmit={handleSubmit(() => {
+                    unRegisterEmptyNames();
+                    onSubmit(formHook.getValues());
+                    close();
+                  })}
+                  className="card grid gap-2"
+                >
+                  <div className=" flex flex-wrap gap-1 ">
+                    <div className="grow">
+                      <FirstNameInput />
+                    </div>
+                    <div className="grow">
+                      <LastNameInput />
+                    </div>
                   </div>
-                  <div className="grow">
-                    <LastNameInput />
+
+                  <div className="flex justify-evenly">
+                    <IsApprovedInput />
+                    <IsOnBoardingCompletedInput />
                   </div>
-                </div>
 
-                <div className="flex justify-evenly">
-                  <IsApprovedInput />
-                  <IsOnBoardingCompletedInput />
-                </div>
-
-                <input
-                  className="w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500"
-                  disabled={isSubmitting}
-                  type="submit"
-                  value="Search"
-                />
-              </form>
-            </Disclosure.Panel>
+                  <input
+                    className="w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500 disabled:bg-yellow-500"
+                    disabled={isDisabled}
+                    type="submit"
+                    value="Search"
+                  />
+                </form>
+              </Disclosure.Panel>
+            </div>
           </>
         )}
       </Disclosure>
@@ -142,17 +145,35 @@ const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
     ...queryParams,
   });
 
-  if (isLoadingUsers || status === "loading") {
-    return <MessageCardCentered message="Loading users..." />;
+  if (isLoadingUsers || status === "loading" || isFetching) {
+    return (
+      <div className="flex min-h-screen flex-col place-items-center gap-10 ">
+        <h1 className="text-center text-5xl text-white">Loading users...</h1>
+        <Lottie
+          animationData={toolsAnimation}
+          loop={true}
+          className="max-w-xs"
+        />
+      </div>
+    );
   }
 
   if (!users || users.length === 0) {
-    return <MessageCardCenteredNotFound message="No users found" />;
+    return (
+      <div className="flex min-h-screen flex-col place-items-center gap-10 ">
+        <h1 className="text-center text-5xl text-white">No users found</h1>
+        <Lottie
+          animationData={noDataAnimation}
+          loop={true}
+          className="max-w-xs"
+        />
+      </div>
+    );
   }
 
   return (
     <>
-      <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 py-4">
+      <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 ">
         {users &&
           users.map((user) => (
             <UserCard key={user.id} user={user} isFetchingCalls={isFetching} />
@@ -170,7 +191,12 @@ const IsApprovedInput: FC = () => {
       <label className="label" htmlFor="isApproved">
         Approved
       </label>
-      <input id="isApproved" type="checkbox" {...register("isApproved")} />
+      <input
+        id="isApproved"
+        type="checkbox"
+        defaultChecked={true}
+        {...register("isApproved")}
+      />
     </div>
   );
 };
@@ -186,6 +212,7 @@ const IsOnBoardingCompletedInput: FC = () => {
       <input
         id="isOnBoardingCompleted"
         type="checkbox"
+        defaultChecked={true}
         {...register("isOnBoardingCompleted")}
       />
     </div>

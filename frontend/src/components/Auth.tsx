@@ -3,9 +3,11 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import type { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { MessageCardCentered } from "./MessageCards";
+import {
+  MessageCardCenteredLoading,
+  MessageCardCenteredXMark,
+} from "./MessageCards";
 import { useGetUserByIdToken } from "~/api/user";
-import { toast } from "react-toastify";
 
 //////////////////////////////////////////////// types
 export enum UserRole {
@@ -41,16 +43,12 @@ const Auth = ({ children }: AuthProps) => {
     await router.push("/onboarding/completeDetails");
   };
 
-  if (status === "loading") {
-    return <MessageCardCentered message="Loading Session" />;
-  }
-
-  if (isLoadingUser) {
-    return <MessageCardCentered message="Loading User" />;
+  if (status === "loading" || isLoadingUser) {
+    return <MessageCardCenteredLoading />;
   }
 
   if (!user) {
-    return <MessageCardCentered message="No User" />;
+    return <MessageCardCenteredXMark message="No User" />;
   }
 
   // not completed onboarding
@@ -61,16 +59,10 @@ const Auth = ({ children }: AuthProps) => {
 
   // not approved
   if (!user.isApproved) {
-    toast.onChange((payload) => {
-      switch (payload.status) {
-        case "removed":
-          // toast has been removed
-          void signOut();
-          break;
-      }
-    });
-    toast.error("Your account is not approved yet");
-    return null;
+    void setTimeout(() => void signOut(), 3000);
+    return (
+      <MessageCardCenteredXMark message="User not approved, Logging out..." />
+    );
   }
 
   const pageAuth = children.type.auth;
@@ -78,7 +70,7 @@ const Auth = ({ children }: AuthProps) => {
 
   // Type/Role check
   if (!requiredRoles.includes(user.type)) {
-    return <MessageCardCentered message="Unauthorized" />;
+    return <MessageCardCenteredXMark message="Unauthorized" />;
   }
 
   return (

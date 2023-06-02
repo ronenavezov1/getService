@@ -2,6 +2,7 @@ import { Disclosure } from "@headlessui/react";
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Lottie from "lottie-react";
 import { useSession } from "next-auth/react";
 import { useState, type FC, type Dispatch, type SetStateAction } from "react";
 import {
@@ -17,11 +18,9 @@ import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import CityInput from "~/components/Inputs/CityInput";
 import ProfessionInput from "~/components/Inputs/ProfessionInput";
-import {
-  MessageCardCentered,
-  MessageCardCenteredNotFound,
-} from "~/components/MessageCards";
 import { sortByDate } from "~/utils/sortUtils";
+import toolsAnimation from "public/lottie/95851-tools.json";
+import noDataAnimation from "public/lottie/107420-no-data-loader.json";
 
 const defualtPickQueryParams = {
   status: CallStatus.NEW,
@@ -44,7 +43,7 @@ const Pick: NextPageWithAuth = () => {
   );
 
   return (
-    <div className="flex flex-col items-center gap-4 p-2">
+    <div className="flex flex-col items-center gap-2 p-2">
       <PickQuery setQueryParams={setQueryParams} />
       <QueryCallsResult queryParams={queryParams} />
     </div>
@@ -85,40 +84,42 @@ const PickQuery = ({ setQueryParams }: PickQueryProps) => {
                 ? "bg-indigo-700 text-yellow-500"
                 : "bg-indigo-600 text-white"
             }
-            flex  w-full max-w-2xl gap-2  rounded-xl  p-2  text-sm font-bold  hover:bg-indigo-700`}
+            flex w-full max-w-2xl gap-2  rounded-xl  p-2  text-sm font-bold  hover:bg-indigo-700`}
             >
               <div className="grow">Search</div>
               <ChevronLeftIcon
                 className={`${open ? "-rotate-90 transform" : ""}   h-5 `}
               />
             </Disclosure.Button>
-            <Disclosure.Panel className="w-full max-w-2xl text-gray-500">
-              <form
-                onSubmit={handleSubmit(() => {
-                  onSubmit(formHook.getValues());
-                  close();
-                })}
-                className="card"
-              >
-                <div className=" flex flex-wrap gap-1 ">
-                  <div className="grow">
-                    <ProfessionInput />
+            <div className="relative flex h-full  w-full justify-center">
+              <Disclosure.Panel className="absolute z-10 w-full  max-w-2xl text-gray-500  shadow-2xl">
+                <form
+                  onSubmit={handleSubmit(() => {
+                    onSubmit(formHook.getValues());
+                    close();
+                  })}
+                  className="card"
+                >
+                  <div className=" flex flex-wrap gap-1 ">
+                    <div className="grow">
+                      <ProfessionInput />
+                    </div>
+                    <div className="grow">
+                      <CityInput />
+                    </div>
+                    <div className="grow">
+                      <DateLimitInput />
+                    </div>
                   </div>
-                  <div className="grow">
-                    <CityInput />
-                  </div>
-                  <div className="grow">
-                    <DateLimitInput />
-                  </div>
-                </div>
 
-                <input
-                  className="mt-2 w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500"
-                  disabled={isSubmitting}
-                  type="submit"
-                />
-              </form>
-            </Disclosure.Panel>
+                  <input
+                    className="mt-2 w-full  rounded bg-yellow-400 p-2 font-bold text-white hover:bg-yellow-500"
+                    disabled={isSubmitting}
+                    type="submit"
+                  />
+                </form>
+              </Disclosure.Panel>
+            </div>
           </>
         )}
       </Disclosure>
@@ -145,17 +146,40 @@ const QueryCallsResult = ({ queryParams }: QueryCallsResultProps) => {
     status: CallStatus.NEW,
   });
 
-  if (isLoadingUser || isLoadingCalls || status === "loading") {
-    return <MessageCardCentered message="Loading calls..." />;
+  if (
+    isLoadingUser ||
+    isLoadingCalls ||
+    status === "loading" ||
+    isFetchingCalls
+  ) {
+    return (
+      <div className="flex min-h-screen flex-col place-items-center gap-10 ">
+        <h1 className="text-center text-5xl text-white">Loading calls...</h1>
+        <Lottie
+          animationData={toolsAnimation}
+          loop={true}
+          className="max-w-xs"
+        />
+      </div>
+    );
   }
 
   if (!calls || calls.length === 0) {
-    return <MessageCardCenteredNotFound message="No calls found" />;
+    return (
+      <div className="flex min-h-screen flex-col place-items-center gap-10 ">
+        <h1 className="text-center text-5xl text-white">Calls not found</h1>
+        <Lottie
+          animationData={noDataAnimation}
+          loop={true}
+          className="max-w-xs"
+        />
+      </div>
+    );
   }
 
   return (
     <>
-      <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 py-4">
+      <div className="flex flex-wrap items-stretch justify-center gap-4 px-2 ">
         {calls &&
           user &&
           calls
