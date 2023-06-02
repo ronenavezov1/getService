@@ -16,7 +16,7 @@ import { useGetUserByIdToken, usePostUser } from "~/api/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { CityInput } from "~/components/Inputs/CityInput";
 import { ProfessionInputMultiple } from "~/components/Inputs/ProfessionInput";
-import { MessageCardCentered } from "~/components/MessageCards";
+import { MessageCardCenteredLoading } from "~/components/MessageCards";
 import { toast } from "react-toastify";
 import { Listbox } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
@@ -83,7 +83,7 @@ const CompleteDetails: FC = () => {
   };
 
   if (status === "loading" || isLoadingUser) {
-    return <MessageCardCentered message="Loading Session" />;
+    return <MessageCardCenteredLoading />;
   }
 
   if (!!user?.isOnBoardingCompleted) {

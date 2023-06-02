@@ -3,7 +3,10 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import type { ReactNode } from "react";
 import Navbar from "~/components/Navbar";
-import { MessageCardCentered, MessageCardCenteredXMark } from "./MessageCards";
+import {
+  MessageCardCenteredLoading,
+  MessageCardCenteredXMark,
+} from "./MessageCards";
 import { useGetUserByIdToken } from "~/api/user";
 
 //////////////////////////////////////////////// types
@@ -40,16 +43,12 @@ const Auth = ({ children }: AuthProps) => {
     await router.push("/onboarding/completeDetails");
   };
 
-  if (status === "loading") {
-    return <MessageCardCentered message="Loading Session..." />;
-  }
-
-  if (isLoadingUser) {
-    return <MessageCardCentered message="Loading User..." />;
+  if (status === "loading" || isLoadingUser) {
+    return <MessageCardCenteredLoading />;
   }
 
   if (!user) {
-    return <MessageCardCentered message="No User" />;
+    return <MessageCardCenteredXMark message="No User" />;
   }
 
   // not completed onboarding

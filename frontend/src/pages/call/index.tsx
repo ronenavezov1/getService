@@ -4,7 +4,7 @@ import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import {
-  MessageCardCentered,
+  MessageCardCenteredLoading,
   MessageCardCenteredNotFound,
 } from "~/components/MessageCards";
 import { sortByDate } from "~/utils/sortUtils";
@@ -16,7 +16,7 @@ const Status: NextPageWithAuth = () => {
   );
 
   if (status == "loading" || isLoadingUser) {
-    return <MessageCardCentered message={"Loading user"} />;
+    return <MessageCardCenteredLoading />;
   }
 
   return (
@@ -65,7 +65,7 @@ const WorkerCalls = () => {
     isLoadingworkerCalls ||
     isFetching
   ) {
-    return <MessageCardCentered message={"Loading worker calls"} />;
+    return <MessageCardCenteredLoading />;
   }
 
   if (workerCalls?.length === 0) {
@@ -110,7 +110,7 @@ const CustomerCalls = () => {
     isLoadingCustomerCalls ||
     isFetchingCustomerCalls
   ) {
-    return <MessageCardCentered message={"Loading customer calls"} />;
+    return <MessageCardCenteredLoading />;
   }
 
   if (customerCalls?.length === 0) {
