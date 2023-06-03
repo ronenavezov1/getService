@@ -93,7 +93,7 @@ public class QueryHandler {
     public static String getCalls(String callId, String customerId, String workerId, String status, String city, String workerProfessions, String profession) {
         JSONArray jsonArray = new JSONArray();
         try{
-            StorageManager.executeQuery("SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival, expected_arrival_date\n" +
+            StorageManager.executeQuery("SELECT call_id, user_id, worker_id, service, description, comment, status, rate, address, city, creation_time, expected_arrival, expected_arrival_time\n" +
                     "FROM public.call\n" +
                     "WHERE starts_with(call_id::varchar, ?) and\n" +
                     "starts_with(user_id::varchar,?) and\n" +
