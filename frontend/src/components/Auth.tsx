@@ -79,6 +79,9 @@ const Auth = ({ children }: AuthProps) => {
         firstName={user.firstName}
         lastName={user.lastName}
         role={user.type}
+        professions={
+          user.type === UserRole.WORKER ? user.professions : undefined
+        }
       />
       {children}
     </>
