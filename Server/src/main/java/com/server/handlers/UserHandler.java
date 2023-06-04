@@ -24,7 +24,7 @@ public class UserHandler {
         try {
             String email = GoogleApiHandler.getEmail(idToken);
             User user = QueryHandler.getUser(email);
-            if (user.getType().equals(User.WORKER)) {
+            if (user.getType() != null && user.getType().equals(User.WORKER)) {
                 user = new Worker(
                         user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getAddress(), user.getCity(),
                         user.getPhoneNumber(), user.getType(), user.isApproved(), user.isOnBoardingCompleted(),
