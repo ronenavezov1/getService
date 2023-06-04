@@ -21,20 +21,21 @@ import java.util.UUID;
 public class UserHandler {
 
     public static User getUser(String idToken) {
+        User user = null;
         try {
             String email = GoogleApiHandler.getEmail(idToken);
-            User user = QueryHandler.getUser(email);
-            if (user.getType() != null && user.getType().equals(User.WORKER)) {
+            user = QueryHandler.getUser(email);
+            if (user != null && user.getType() != null && user.getType().equals(User.WORKER)) {
                 user = new Worker(
                         user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getAddress(), user.getCity(),
                         user.getPhoneNumber(), user.getType(), user.isApproved(), user.isOnBoardingCompleted(),
                         QueryHandler.getWorkerProfession(user.getId().toString())
                 );
             }
-            return user;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        return user;
     }
 
     public static User createUser(String idToken, String body) throws InvalidUserException {
