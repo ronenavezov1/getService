@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
-import { MessageCardCentered } from "~/components/MessageCards";
+import { MessageCardCenteredLoading } from "~/components/MessageCards";
 
 const Home: NextPageWithAuth = () => {
   const router = useRouter();
@@ -12,7 +12,7 @@ const Home: NextPageWithAuth = () => {
   );
 
   if (status === "loading" || isLoadingUser) {
-    return <MessageCardCentered message="Loading Session" />;
+    return <MessageCardCenteredLoading />;
   }
 
   if (user?.type === UserRole.ADMIN) {

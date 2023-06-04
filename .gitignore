@@ -1,2 +1,4 @@
 
 *.properties
+Server/src/main/resources/config.properties
+Server/src/main/resources/config.properties

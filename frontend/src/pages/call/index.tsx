@@ -4,7 +4,7 @@ import { useGetUserByIdToken } from "~/api/user";
 import { type NextPageWithAuth, UserRole } from "~/components/Auth";
 import CallCard from "~/components/CallCard";
 import {
-  MessageCardCentered,
+  MessageCardCenteredLoading,
   MessageCardCenteredNotFound,
 } from "~/components/MessageCards";
 import { sortByDate } from "~/utils/sortUtils";
@@ -16,7 +16,7 @@ const Status: NextPageWithAuth = () => {
   );
 
   if (status == "loading" || isLoadingUser) {
-    return <MessageCardCentered message={"Loading user"} />;
+    return <MessageCardCenteredLoading />;
   }
 
   return (
@@ -30,29 +30,6 @@ const Status: NextPageWithAuth = () => {
       ) : null}
     </>
   );
-
-  // return (
-  //   <div className="flex flex-col items-center p-2">
-  //     <Tab.Group>
-  //       <Tab.List className="flex w-full max-w-2xl  justify-between   overflow-hidden rounded-xl bg-indigo-600 p-1  font-semibold text-white shadow  ">
-  //         <Tab className=" grow rounded-xl hover:bg-indigo-700 ui-selected:bg-yellow-500 ui-selected:text-slate-900">
-  //           <span>Customer</span>
-  //         </Tab>
-  //         <Tab className=" grow rounded-xl hover:bg-indigo-700 ui-selected:bg-yellow-500 ui-selected:text-slate-900">
-  //           <span> worker</span>
-  //         </Tab>
-  //       </Tab.List>
-  //       <Tab.Panels className="">
-  //         <Tab.Panel className="flex  flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-  //           <CustomerCalls />
-  //         </Tab.Panel>
-  //         <Tab.Panel className="flex flex-wrap items-stretch justify-center  gap-4 px-2 py-4">
-  //           <WorkerCalls />
-  //         </Tab.Panel>
-  //       </Tab.Panels>
-  //     </Tab.Group>
-  //   </div>
-  // );
 };
 
 Status.auth = {
@@ -70,9 +47,11 @@ const AdminCalls = () => {
 
 const WorkerCalls = () => {
   const { data: session, status } = useSession();
-  const { data: user, isLoading: isLoadingUser } = useGetUserByIdToken(
-    session?.idToken ?? ""
-  );
+  const {
+    data: user,
+    isLoading: isLoadingUser,
+    isFetching,
+  } = useGetUserByIdToken(session?.idToken ?? "");
 
   const {
     data: workerCalls,
@@ -80,8 +59,13 @@ const WorkerCalls = () => {
     isFetching: isFetchingWorkerCalls,
   } = useGetCall(session?.idToken ?? "", { workerId: user?.id });
 
-  if (isLoadingUser || status == "loading" || isLoadingworkerCalls) {
-    return <MessageCardCentered message={"Loading worker calls"} />;
+  if (
+    isLoadingUser ||
+    status == "loading" ||
+    isLoadingworkerCalls ||
+    isFetching
+  ) {
+    return <MessageCardCenteredLoading />;
   }
 
   if (workerCalls?.length === 0) {
@@ -120,8 +104,13 @@ const CustomerCalls = () => {
     isFetching: isFetchingCustomerCalls,
   } = useGetCall(session?.idToken ?? "", { customerId: user?.id });
 
-  if (isLoadingUser || status == "loading" || isLoadingCustomerCalls) {
-    return <MessageCardCentered message={"Loading customer calls"} />;
+  if (
+    isLoadingUser ||
+    status == "loading" ||
+    isLoadingCustomerCalls ||
+    isFetchingCustomerCalls
+  ) {
+    return <MessageCardCenteredLoading />;
   }
 
   if (customerCalls?.length === 0) {

@@ -24,7 +24,7 @@ interface Admin extends User {
 
 interface Worker extends User {
   type: UserRole.WORKER;
-  profession: string[];
+  professions: string[];
 }
 
 export type FullUser = Customer | Worker | Admin;
@@ -53,7 +53,7 @@ export const usePostUser = (idToken: string) => {
 };
 
 const getUserByIdToken = async (idToken: string) => {
-  const { data } = await axiosWithAuth(idToken).get<Customer | Worker | Admin>(
+  const { data } = await axiosWithAuth(idToken).get<FullUser>(
     `${BASE_USER_API_URL}`
   );
   return data;

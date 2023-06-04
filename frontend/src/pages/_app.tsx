@@ -81,7 +81,7 @@ const MyApp = ({
         {/* toast container */}
         <ToastContainer
           position="bottom-center"
-          autoClose={2000}
+          autoClose={850}
           toastClassName={"m-2"}
           hideProgressBar={false}
           newestOnTop={false}

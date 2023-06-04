@@ -37,7 +37,7 @@ export const ProfessionInput: FC = () => {
             onChange={onChange}
             defaultValue={getValues("profession") as string}
           >
-            <Combobox.Label className={"label"}>profession</Combobox.Label>
+            <Combobox.Label className={"label pb-1"}>profession</Combobox.Label>
             <div className="relative -mt-1 w-full cursor-default ">
               <Combobox.Input
                 placeholder="Select Profession"

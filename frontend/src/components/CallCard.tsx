@@ -258,15 +258,15 @@ const UserActionRow = ({
         ) : null}
       </EditAction>
 
-      <DeleteActionBtn callId={callId} isFetchingCalls={isFetchingCalls}>
+      <DeleteAction callId={callId} isFetchingCalls={isFetchingCalls}>
         {style === ActionRowStyle.ICONS ? (
           <TrashIcon className="w-5 fill-red-600 " />
         ) : style === ActionRowStyle.BUTTONS ? (
-          <div className="w-full  bg-red-600 py-2 px-4 font-bold text-white hover:bg-red-700">
-            Delete{" "}
+          <div className="w-full  bg-red-600 py-2 px-4 font-bold text-white hover:bg-red-700  ">
+            Delete
           </div>
         ) : null}
-      </DeleteActionBtn>
+      </DeleteAction>
     </>
   );
 };
@@ -354,7 +354,7 @@ const CompleteCallAction = ({
                     <div>
                       <button
                         type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium text-white  hover:bg-green-600 focus:outline-none"
+                        className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600  focus:outline-none disabled:bg-green-600"
                         onClick={onCompleteCallActionClick}
                         disabled={isDisabled}
                       >
@@ -451,7 +451,7 @@ interface DeleteActionProps {
   children: React.ReactNode;
 }
 
-const DeleteActionBtn = ({
+const DeleteAction = ({
   callId,
   isFetchingCalls,
   children,
@@ -471,17 +471,9 @@ const DeleteActionBtn = ({
   const onDeleteCallClick = () => {
     mutate(callId, {
       onSuccess: () => {
-        toast.onChange((payload) => {
-          switch (payload.status) {
-            case "removed":
-              // toast has been removed
-              void queryClient.invalidateQueries(["call"]);
-              void push(`/${BASE_CALL_API_URL}`);
-              break;
-          }
-        });
-
         toast.success("Deleted call successfully");
+        void push(`/${BASE_CALL_API_URL}`);
+        void queryClient.invalidateQueries(["call"]);
       },
     });
   };
@@ -539,7 +531,7 @@ const DeleteActionBtn = ({
                     <div>
                       <button
                         disabled={isDisabled}
-                        className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white  hover:bg-red-600 focus:outline-none"
+                        className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white  hover:bg-red-600 focus:outline-none disabled:bg-red-600"
                         onClick={onDeleteCallClick}
                       >
                         Delete
@@ -624,7 +616,7 @@ const WorkerActions = ({
           {style === ActionRowStyle.ICONS ? (
             <BriefcaseIcon className="w-5 fill-red-600 " />
           ) : style === ActionRowStyle.BUTTONS ? (
-            <div className="w-full  bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-600">
+            <div className="w-full  bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-600 ">
               Unpick
             </div>
           ) : null}
@@ -674,6 +666,7 @@ const UnPickAction = ({
       onSuccess: () => {
         void queryClient.invalidateQueries(["call"]);
         toast.success("Unpicked call successfully");
+        closeModal();
       },
     });
   };
@@ -739,7 +732,7 @@ const UnPickAction = ({
                     <div className="flex justify-center gap-2 text-white">
                       <button
                         type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium  hover:bg-red-600 focus:outline-none"
+                        className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium  hover:bg-red-600 focus:outline-none disabled:bg-red-600"
                         onClick={onSubmit}
                         disabled={isFetchingCalls || !isIdlePostUnPick}
                       >
@@ -865,7 +858,7 @@ const PickAction = ({
                     <div className="flex justify-center gap-2 text-white">
                       <button
                         type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium  hover:bg-green-600 focus:outline-none"
+                        className="inline-flex justify-center rounded-md border border-transparent bg-green-500 px-4 py-2 text-sm font-medium  hover:bg-green-600 focus:outline-none disabled:bg-green-600"
                         onClick={onSubmit}
                         disabled={isFetchingCalls || !isIdlePostPick}
                       >

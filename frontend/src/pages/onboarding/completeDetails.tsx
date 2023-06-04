@@ -16,7 +16,7 @@ import { useGetUserByIdToken, usePostUser } from "~/api/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { CityInput } from "~/components/Inputs/CityInput";
 import { ProfessionInputMultiple } from "~/components/Inputs/ProfessionInput";
-import { MessageCardCentered } from "~/components/MessageCards";
+import { MessageCardCenteredLoading } from "~/components/MessageCards";
 import { toast } from "react-toastify";
 import { Listbox } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
@@ -56,7 +56,7 @@ const CompleteDetails: FC = () => {
     session?.idToken ?? ""
   );
   const queryClient = useQueryClient();
-  const { mutate } = usePostUser(session?.idToken ?? "");
+  const { mutate, isIdle } = usePostUser(session?.idToken ?? "");
   const formHook = useForm<CompeleteDetailsFormSchemaType>({
     mode: "onChange",
     resolver: zodResolver(compeleteDetailsFormSchema),
@@ -76,21 +76,14 @@ const CompleteDetails: FC = () => {
   ) => {
     mutate(data, {
       onSuccess: () => {
-        toast.onChange((payload) => {
-          switch (payload.status) {
-            case "removed":
-              // toast has been removed
-              void queryClient.invalidateQueries(["user"]);
-              break;
-          }
-        });
         toast.success("User created successfully");
+        void queryClient.invalidateQueries(["user"]);
       },
     });
   };
 
   if (status === "loading" || isLoadingUser) {
-    return <MessageCardCentered message="Loading Session" />;
+    return <MessageCardCenteredLoading />;
   }
 
   if (!!user?.isOnBoardingCompleted) {
@@ -98,9 +91,11 @@ const CompleteDetails: FC = () => {
     return null;
   }
 
+  const isDisabled = isSubmitting || !isIdle;
+
   return (
-    <div className="bodyDiv">
-      <div className="grid justify-center gap-2 ">
+    <div className="bodyDiv ">
+      <div className="grid justify-center gap-10 ">
         <FormProvider {...formHook}>
           <Header />
           <form
@@ -122,8 +117,8 @@ const CompleteDetails: FC = () => {
             {userType === UserRole.WORKER && <ProfessionInputMultiple />}
 
             <input
-              className="mt-2 rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500"
-              disabled={isSubmitting}
+              className="mt-2 rounded bg-yellow-400 py-2 px-4 font-bold text-white hover:bg-yellow-500 disabled:bg-yellow-500"
+              disabled={isDisabled}
               type="submit"
               value="Update profile"
             />
