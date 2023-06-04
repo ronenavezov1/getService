@@ -116,7 +116,7 @@ const UserInfo = ({
 }: RightNavBarProps) => {
   const customerMsg =
     "Create service calls and we will find you a worker that fits your needs";
-  const workerMsg: string = `Pick service calls that fits your preferences!`;
+  const workerMsg = `Pick service calls that fits your preferences!`;
   const adminMsg = "";
 
   return (
