@@ -153,14 +153,11 @@ const QueryCallsResult = ({ queryParams }: QueryCallsResultProps) => {
     isFetchingCalls
   ) {
     return (
-      <div className="flex min-h-screen flex-col place-items-center gap-10 ">
-        <h1 className="text-center text-5xl text-white">Loading calls...</h1>
-        <Lottie
-          animationData={toolsAnimation}
-          loop={true}
-          className="max-w-xs"
-        />
-      </div>
+      <Lottie
+        animationData={toolsAnimation}
+        loop={true}
+        className="max-w-[12rem]"
+      />
     );
   }
 

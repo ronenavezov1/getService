@@ -10,14 +10,25 @@ interface NavbarProps {
   firstName: string;
   lastName: string;
   role: UserRole;
+  professions?: string[];
 }
 
-const Navbar: FC<NavbarProps> = ({ firstName, lastName, role }) => {
+const Navbar: FC<NavbarProps> = ({
+  firstName,
+  lastName,
+  role,
+  professions,
+}) => {
   return (
     <div className=" sticky top-0 z-30 flex flex-col gap-4 bg-indigo-600 px-2 pt-1 shadow-md">
       <div className="flex justify-between">
         <LeftNavBar />
-        <RightNavBar role={role} firstName={firstName} lastName={lastName} />
+        <RightNavBar
+          role={role}
+          firstName={firstName}
+          lastName={lastName}
+          professions={professions}
+        />
       </div>
     </div>
   );
@@ -30,6 +41,7 @@ interface RoleProps {
 interface RightNavBarProps extends RoleProps {
   firstName: string;
   lastName: string;
+  professions?: string[];
 }
 
 const LeftNavBar: FC = () => {
@@ -40,7 +52,12 @@ const LeftNavBar: FC = () => {
   );
 };
 
-const RightNavBar: FC<RightNavBarProps> = ({ role, firstName, lastName }) => {
+const RightNavBar: FC<RightNavBarProps> = ({
+  role,
+  firstName,
+  lastName,
+  professions,
+}) => {
   return (
     <>
       {/* Desktop menu */}
@@ -78,6 +95,7 @@ const RightNavBar: FC<RightNavBarProps> = ({ role, firstName, lastName }) => {
                   role={role}
                   firstName={firstName}
                   lastName={lastName}
+                  professions={professions}
                 />
 
                 <Links role={role} closeBurger={close} />
@@ -90,10 +108,15 @@ const RightNavBar: FC<RightNavBarProps> = ({ role, firstName, lastName }) => {
   );
 };
 
-const UserInfo = ({ firstName, lastName, role }: RightNavBarProps) => {
+const UserInfo = ({
+  firstName,
+  lastName,
+  role,
+  professions,
+}: RightNavBarProps) => {
   const customerMsg =
     "Create service calls and we will find you a worker that fits your needs";
-  const workerMsg = "Pick service calls that fits your preferences!";
+  const workerMsg = `Pick service calls that fits your preferences!`;
   const adminMsg = "";
 
   return (
@@ -110,6 +133,16 @@ const UserInfo = ({ firstName, lastName, role }: RightNavBarProps) => {
             : null}
         </p>
       }
+      {professions && professions.length > 0 && (
+        <div className="pt-1 text-sm">
+          <p className="underline">Selected professions:</p>
+          <ul className="list-disc px-4">
+            {professions.map((profession) => (
+              <li key={profession}>{profession}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

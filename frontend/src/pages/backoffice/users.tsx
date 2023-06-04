@@ -147,14 +147,11 @@ const QueryUsersResult = ({ queryParams }: QueryUsersResultProps) => {
 
   if (isLoadingUsers || status === "loading" || isFetching) {
     return (
-      <div className="flex min-h-screen flex-col place-items-center gap-10 ">
-        <h1 className="text-center text-5xl text-white">Loading users...</h1>
-        <Lottie
-          animationData={toolsAnimation}
-          loop={true}
-          className="max-w-xs"
-        />
-      </div>
+      <Lottie
+        animationData={toolsAnimation}
+        loop={true}
+        className="max-w-[12rem]"
+      />
     );
   }
 
