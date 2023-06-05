@@ -19,6 +19,6 @@ public class Constants {
             "Thanks for using our app - \"Get Service\". \n" +
             "We would like to know how was your service provider and your satisfaction of using “Get Service” app.\n" +
             "\n" +
-            "Your feedback is important to us!" +
+            "Your feedback is important to us!\n" +
             "https://get-service-98uv.vercel.app/";
 }
