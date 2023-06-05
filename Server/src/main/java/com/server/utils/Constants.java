@@ -11,14 +11,14 @@ public class Constants {
             "\n" +
             "If you have questions about the usage of the app, contact our customer service team any time at getserviceapp.openu@gmail.com \n" +
             "\n" +
-            "We're so happy to have you!\n";
-    //todo add link
+            "We're so happy to have you!\n" +
+            "https://get-service-98uv.vercel.app/";
 
     public static final String DONE_SUBJECT = "Thank you!";
     public static final String DONE_MSG = "\n" +
             "Thanks for using our app - \"Get Service\". \n" +
             "We would like to know how was your service provider and your satisfaction of using “Get Service” app.\n" +
             "\n" +
-            "Your feedback is important to us!";
-    //todo add link
+            "Your feedback is important to us!" +
+            "https://get-service-98uv.vercel.app/";
 }
