@@ -11,7 +11,7 @@ public class Queries {
             "\tWHERE call_id=?::uuid;";
 
     public static final String UPDATE_PICK_CALL = "UPDATE public.call " +
-            "SET worker_id=?::uuid, status=?, expected_arrival=? " +
+            "SET worker_id=?::uuid, status=? " +
             "WHERE call_id=?::uuid;";
     public static final String DELETE_CALL = "DELETE FROM public.call\n" +
             "\tWHERE call_id = ?::uuid and (user_id = ?::uuid or ?) ;";

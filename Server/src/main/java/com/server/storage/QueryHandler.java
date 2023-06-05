@@ -57,7 +57,7 @@ public class QueryHandler {
             });
     }
 
-    public static boolean updatePickCall(String callId, String workerId, String status, java.util.Date expectedArrival) throws Exception {
+    public static boolean updatePickCall(String callId, String workerId, String status) throws Exception {
         try {
             return StorageManager.executeUpdate(Queries.UPDATE_PICK_CALL, statement -> {
                 if (Strings.isNullOrEmpty(workerId)) {
@@ -66,12 +66,7 @@ public class QueryHandler {
                     statement.setString(1, workerId);
                 }
                 statement.setString(2, status);
-                if (expectedArrival == null) {
-                    statement.setNull(3, Types.BIGINT);
-                } else {
-                    statement.setLong(3, expectedArrival.getTime());
-                }
-                statement.setString(4, callId);
+                statement.setString(3, callId);
             }) == 1;
         } catch (SQLException e) {
             throw new Exception("Error updating call: " + callId + " error: " + e.getMessage());

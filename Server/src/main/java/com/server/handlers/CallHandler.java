@@ -120,16 +120,12 @@ public class CallHandler {
     public static void pickCall(String callId, String body) throws Exception {
         String workerId;
         String status;
-        Date expectedArrival = null;
         try {
             JSONObject jsonObject = new JSONObject(body);
             workerId = jsonObject.getString("workerId");
             status = jsonObject.getString("status");
-            String expectedArrivalString = jsonObject.getString("expectedArrivalTime");
-            if (!Strings.isNullOrEmpty(expectedArrivalString)) {
-                expectedArrival = Call.SIMPLE_DATE_FORMAT.parse(expectedArrivalString);
-            }
-            boolean success = QueryHandler.updatePickCall(callId, workerId, status, expectedArrival);
+
+            boolean success = QueryHandler.updatePickCall(callId, workerId, status);
 
             if (!success) {
                 throw new Exception("call id '" + callId + "' does not exist");
