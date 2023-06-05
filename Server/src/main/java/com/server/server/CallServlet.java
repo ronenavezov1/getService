@@ -2,6 +2,7 @@ package com.server.server;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.server.EmailSender;
 import com.server.exceptions.InvalidCallException;
@@ -13,6 +14,7 @@ import com.server.models.Call;
 import com.server.models.User;
 import com.server.storage.QueryHandler;
 import com.server.utils.ErrorResponse;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -211,10 +213,28 @@ public class CallServlet extends HttpServlet {
         while ((line = reader.readLine()) != null) {
             sb.append(line);
         }
+
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(sb.toString());
+            String dateString = jsonObject.getString("expectedArrivalDate");
+            try {
+                long dateLong = Call.SIMPLE_DATE_FORMAT.parse(dateString).getTime();
+                jsonObject.put("expectedArrivalDate", dateLong);
+            } catch (ParseException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().print(new ErrorResponse("illegal date format", HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+                return;
+            }
+        }catch (JSONException e){
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+            return;
+        }
         Call call;
         Gson gson = new Gson();
         try {
-            call = gson.fromJson(sb.toString(), Call.class);
+            call = gson.fromJson(jsonObject.toString(), Call.class);
         }catch (JsonSyntaxException e){
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().print(new ErrorResponse(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR));

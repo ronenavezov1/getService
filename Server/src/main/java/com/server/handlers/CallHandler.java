@@ -16,8 +16,8 @@ import java.util.UUID;
 public class CallHandler {
     public static String getCalls(User user, String callId, String status, String city, String customerId, String workerId, String profession){
         String responseString = null;
-        if((status.equals(Call.OPEN_CALL) || !Authentication.isNullOrEmpty(callId)) && user.getType().equals(User.WORKER)){//public calls
-            responseString = QueryHandler.getCalls(callId, customerId, workerId, Call.OPEN_CALL, city, user.getId().toString(), profession);
+        if((status.equals(Call.OPEN_CALL) || !Authentication.isNullOrEmpty(callId))){//public calls
+            responseString = QueryHandler.getCalls(callId, customerId, workerId, status, city, user.getType().equals(User.WORKER)?user.getId().toString():"all", profession);
         } else {//private calls
             switch (user.getType()) {
                 case User.WORKER:
