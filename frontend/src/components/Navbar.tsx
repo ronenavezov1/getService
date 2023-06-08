@@ -184,13 +184,13 @@ const AdminLinks = ({ closeBurger }: PopItemProps) => {
 const WorkerLinks = ({ closeBurger }: PopItemProps) => {
   return (
     <>
-      {/* status - /call */}
+      {/* my calls - /call */}
       <Link href={"/call"} onClick={closeBurger} className={`navBarLink `}>
-        Status Calls
+        My Calls
       </Link>
       {/* pick call /work/pick */}
       <Link href={"/work/pick"} onClick={closeBurger} className={`navBarLink`}>
-        Pick Call
+        Pick Calls
       </Link>
     </>
   );
@@ -199,9 +199,9 @@ const WorkerLinks = ({ closeBurger }: PopItemProps) => {
 const CustomerLinks = ({ closeBurger }: PopItemProps) => {
   return (
     <>
-      {/* status - /call */}
+      {/* my calls - /call */}
       <Link href={"/call"} onClick={closeBurger} className={`navBarLink`}>
-        Status Calls
+        My Calls
       </Link>
 
       {/* create /call/create */}
