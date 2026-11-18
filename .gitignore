@@ -1,4 +1,25 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
 
-*.properties
+# IDE / editor settings
+.idea/
+.vscode/
+*.iml
+
+# Build output and dependencies
+target/
+node_modules/
+.next/
+*.zip
+
+# Logs
+*.log
+
+# Secrets: local config and env files never go in git
 Server/src/main/resources/config.properties
-Server/src/main/resources/config.properties
+.env
+.env.*
+!.env.example
+*.pem
